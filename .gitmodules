@@ -1,3 +1,6 @@
 [submodule "libs/essentia"]
 	path = libs/essentia
 	url = https://github.com/MTG/essentia
+[submodule "libs/FFmpeg"]
+	path = libs/FFmpeg
+	url = https://github.com/FFmpeg/FFmpeg
