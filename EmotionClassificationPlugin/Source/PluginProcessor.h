@@ -56,7 +56,6 @@ public:
 
     std::unique_ptr<FileLogger> logger;
 
-private:
 
    #ifdef RECORDER_DEBUG_LOG
     AudioRecorder recorder{logger};
@@ -71,7 +70,8 @@ private:
    #endif
 
    const unsigned int NUM_CHANNELS = 2;
-    File lastRecording;
+    File lastRecording,lastRecording2;
+    std::string audioFilename = ""; //TODO: Possibly remove this as it is a duplicate of lastrecording property getfullpatghname
     double sampleRate = 0;
     void startRecording(unsigned int numChannels);
     void stopRecording();
@@ -82,6 +82,10 @@ private:
     AudioProcessorValueTreeState valueTreeState;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void updateRecState();
+
+    std::string extractorState = "Idle.";
+
+    void extractAndClassify(std::string audioFilePath);
 
 
     //==============================================================================

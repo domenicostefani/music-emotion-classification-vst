@@ -6,15 +6,18 @@
 # 
 # Domenico Stefani, 2023
 
+set -e
 
-#Check that script is called from  a folder called "build", otherwise exit (all paths are relative)
+CXX="g++"
+
 curdir=${PWD##*/}
-if [ "$curdir" != "build" ]; then
-    echo "Please run this script from the build folder"
+#Check that script is called from  a folder that has "build" in its name, otherwise exit (all paths are relative)
+if [[ $curdir != *"build"* ]]; then
+    echo "Please run this script from a 'build' folder"
     exit 1
 fi
 
-EXE_NAME="LIBTESTextraction_pipeline-linux-amd64.o" # Name of the output executable
+EXE_NAME="LIBTESTextraction_pipeline-linux-amd64" # Name of the output executable
 
 # Set starting path (We already checked that we are in the build folder)
 HOMEBASE='..'
@@ -32,7 +35,7 @@ ESSENTIA_BUILD="$HOMEBASE/libs/essentia/build-linux-x86_64/src"
 # VERBOSE='-v' # Comment this line to remove verbose output
 mkdir -p ./partials
 # Command to compile the example with g++, linking to the essentia and all third party libraries (This does not work in CMake currently)
-CMD="$CXX $VERBOSE $SOURCE_FILES\
+CMD="$CXX $VERBOSE $SOURCE_FILES \
     -c \
     -fPIC \
     -o./partials/libextractionpipeline.o \
@@ -53,6 +56,7 @@ CMD="$CXX $VERBOSE $SOURCE_FILES\
 
 
 # Run command
+echo "Running command: $CMD"
 $CMD
 
 ar rvs ./libextractionpipeline.a ./partials/libextractionpipeline.o
@@ -76,7 +80,7 @@ $CXX $VERBOSE $HOMEBASE/src/libmain.cpp \
     -lavresample \
     -ltag \
     -lsamplerate \
-    -o $EXE_NAME
+    -o $EXE_NAME \
      -Wl,--no-as-needed -ldl
 
 

@@ -1,6 +1,8 @@
 build
 
 JuceLibraryCode
+*-bak
+Builds/
 
 # Ignore lib build folders, but not zips of them
 *build*/
