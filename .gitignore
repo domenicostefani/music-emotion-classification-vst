@@ -1,5 +1,9 @@
 build
 
+JuceLibraryCode
+
+*build*/
+
 # Prerequisites
 *.d
 
