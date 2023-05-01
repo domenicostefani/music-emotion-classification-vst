@@ -2,7 +2,11 @@ build
 
 JuceLibraryCode
 
+# Ignore lib build folders, but not zips of them
 *build*/
+
+# Ignore vscode settings
+.vscode
 
 # Prerequisites
 *.d
