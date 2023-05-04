@@ -11,6 +11,10 @@
 #include <JuceHeader.h>
 #include "AudioRecorder.h"
 
+#include "tflitewrapper.h"
+
+
+
 //==============================================================================
 /**
 */
@@ -69,7 +73,7 @@ public:
     AudioRecorder recorder;
    #endif
 
-   const unsigned int NUM_CHANNELS = 2;
+    const unsigned int NUM_CHANNELS = 2;
     File lastRecording,lastRecording2;
     std::string audioFilename = ""; //TODO: Possibly remove this as it is a duplicate of lastrecording property getfullpatghname
     double sampleRate = 0;
@@ -86,6 +90,22 @@ public:
     std::string extractorState = "Idle.";
 
     void extractAndClassify(std::string audioFilePath);
+    const size_t FRAMES_IN_3_SECONDS = 187;
+    const size_t NUM_EMOTIONS = 4;
+
+
+    void setSaveFolder (const File& saveFolder);
+    juce::File& getSaveFolder();
+
+    static ClassifierPtr tfliteClassifier; // Tensorflow interpreter
+    
+
+private:
+    #if (JUCE_ANDROID || JUCE_IOS)
+        juce::File saveDir = File::getSpecialLocation(File::tempDirectory);
+    #else
+        juce::File saveDir = File::getSpecialLocation(File::userHomeDirectory);
+    #endif
 
 
     //==============================================================================

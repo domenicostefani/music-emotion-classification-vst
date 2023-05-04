@@ -82,6 +82,10 @@ private:
 
     PollingTimer pollingTimer{[this]{pollingRoutine();}};
 
+    std::unique_ptr<juce::FileChooser> chooser;
+    TextButton selectSaveFolderButton;
+    void openButtonClicked();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EmotionClassificationPluginAudioProcessorEditor)
 };
 
