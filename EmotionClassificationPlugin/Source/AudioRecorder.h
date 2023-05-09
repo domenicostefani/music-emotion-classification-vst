@@ -10,23 +10,19 @@
 #include <JuceHeader.h>
 
 #ifndef MLOG_PATH
-#define MLOG_PATH "/tmp/"
+    #define MLOG_PATH "/tmp/"
 #endif
 
 class AudioRecorder {
-   public:
+public:
 #ifdef RECORDER_DEBUG_LOG
     AudioRecorder(std::unique_ptr<FileLogger>& mlogger) : logger(mlogger) {
-#ifdef RECORDER_DEBUG_LOG
         logText("> AudioRecorder()");
-#endif
-        backgroundThread.startThread();
-    }
 #else
     AudioRecorder() {
+#endif
         backgroundThread.startThread();
     }
-#endif
 
     ~AudioRecorder() {
 #ifdef RECORDER_DEBUG_LOG
@@ -137,7 +133,7 @@ class AudioRecorder {
         }
     }
 
-   private:
+private:
 #ifdef RECORDER_DEBUG_LOG
     std::unique_ptr<FileLogger>& logger;
 
