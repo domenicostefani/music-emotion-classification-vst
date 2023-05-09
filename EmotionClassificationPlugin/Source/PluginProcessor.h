@@ -18,12 +18,12 @@
 //==============================================================================
 /**
 */
-class EmotionClassificationPluginAudioProcessor  : public juce::AudioProcessor
+class ECProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    EmotionClassificationPluginAudioProcessor();
-    ~EmotionClassificationPluginAudioProcessor() override;
+    ECProcessor();
+    ~ECProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -73,7 +73,7 @@ public:
     AudioRecorder recorder;
    #endif
 
-    const unsigned int NUM_CHANNELS = 2;
+    const unsigned int NUM_CHANNELS = 1;
     File lastRecording,lastRecording2;
     std::string audioFilename = ""; //TODO: Possibly remove this as it is a duplicate of lastrecording property getfullpatghname
     double sampleRate = 0;
@@ -98,6 +98,11 @@ public:
     juce::File& getSaveFolder();
 
     static ClassifierPtr tfliteClassifier; // Tensorflow interpreter
+
+    std::atomic<bool> recordingStopped{false}, labelsWritten{false};
+
+    std::vector<std::string> outputLabels;
+    std::vector<size_t> outputLabelsInt;
     
 
 private:
@@ -109,5 +114,5 @@ private:
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EmotionClassificationPluginAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ECProcessor)
 };

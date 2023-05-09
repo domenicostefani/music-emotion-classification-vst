@@ -26,7 +26,8 @@
 
 // #define DO_REMOVE_OLD_RECORDINGS
 #define GENERATE_AUDACITY_LABELS
-#define VERBOSE_CLASSIFICATION true
+#define VERBOSE_CLASSIFICATION false
+#define MUTE_OUTPUT true
 
 #ifdef JUCE_ARM
 #define ELK_OS_ARM
@@ -38,17 +39,17 @@ std::map<size_t, std::string> emotions = {
     {2, "Happy"},
     {3, "Sad"}};
 
-ClassifierPtr EmotionClassificationPluginAudioProcessor::tfliteClassifier = nullptr;
+ClassifierPtr ECProcessor::tfliteClassifier = nullptr;
 
 //==============================================================================
-EmotionClassificationPluginAudioProcessor::EmotionClassificationPluginAudioProcessor()
+ECProcessor::ECProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
 #if !JucePlugin_IsMidiEffect
 #if !JucePlugin_IsSynth
-                         .withInput("Input", juce::AudioChannelSet::stereo(), true)
+                         .withInput("Input", juce::AudioChannelSet::mono(), true)
 #endif
-                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Output", juce::AudioChannelSet::mono(), true)
 #endif
                          ),
       valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout())
@@ -56,13 +57,14 @@ EmotionClassificationPluginAudioProcessor::EmotionClassificationPluginAudioProce
 {
     suspendProcessing(true);
 
-   #ifndef DUMMY_INFERENCE
+#ifndef DUMMY_INFERENCE
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/Builds/linux-amd64/MSD_musicnn.tflite";
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/convdense_testmodel.tflite";
-    
-    std::string MODEL_PATH = "/home/cimil-01/Develop/instrument_emotion_recognition/keras_audio_models/tflite/convdense_testmodel.tflite";
-
-
+   #ifdef ELK_OS_ARM
+    std::string MODEL_PATH = "/udata/emotionModel.tflite";
+   #else
+    std::string MODEL_PATH = "/home/cimil-01/Develop/instrument_emotion_recognition/keras_audio_models/tflite/MSD_musicnn.tflite";
+   #endif
 
     // Check that file exists
     std::ifstream f(MODEL_PATH);
@@ -70,26 +72,28 @@ EmotionClassificationPluginAudioProcessor::EmotionClassificationPluginAudioProce
     {
         std::cout << "Model file not found at " << MODEL_PATH << std::endl;
         exit(1);
-    } 
-    EmotionClassificationPluginAudioProcessor::tfliteClassifier = createClassifier(MODEL_PATH, true); // true = verbose cout
-   #endif
+    }
+    ECProcessor::tfliteClassifier = createClassifier(MODEL_PATH, VERBOSE_CLASSIFICATION); // true = verbose cout
+#endif
     suspendProcessing(false);
 }
 
-EmotionClassificationPluginAudioProcessor::~EmotionClassificationPluginAudioProcessor()
+ECProcessor::~ECProcessor()
 {
 }
 
-void EmotionClassificationPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+void ECProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     this->sampleRate = sampleRate;
     recorder.prepareToPlay(sampleRate);
 }
 
-void EmotionClassificationPluginAudioProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages)
+void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages)
 {
     updateRecState();
     recorder.writeBlock(buffer.getArrayOfReadPointers(), buffer.getNumSamples());
+    if (MUTE_OUTPUT)
+        buffer.clear();
 }
 
 std::string getStrTime()
@@ -114,7 +118,7 @@ std::string getStrTime()
     return timestr;
 }
 
-void EmotionClassificationPluginAudioProcessor::startRecording(unsigned int numChannels)
+void ECProcessor::startRecording(unsigned int numChannels)
 {
 #ifdef RECORDER_DEBUG_LOG
     logText("Recording started");
@@ -129,7 +133,6 @@ void EmotionClassificationPluginAudioProcessor::startRecording(unsigned int numC
                                     });
         return;
     }
-
 
     // Get current time
     std::string timestr = getStrTime();
@@ -149,7 +152,7 @@ void EmotionClassificationPluginAudioProcessor::startRecording(unsigned int numC
     recorder.startRecording(lastRecording, numChannels);
 }
 
-void EmotionClassificationPluginAudioProcessor::stopRecording()
+void ECProcessor::stopRecording()
 {
 #ifdef RECORDER_DEBUG_LOG
     logText("Recording stopped");
@@ -206,19 +209,19 @@ void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<flo
             flat_input[i * n_cols + j] = input[i][j];
     }
 
-   #ifdef DUMMY_INFERENCE
+#ifdef DUMMY_INFERENCE
     output[0] = 0.0f;
     output[1] = 1.0f;
     output[2] = 0.0f;
     output[3] = 0.0f;
-   #else
-    classifyFlat2D(EmotionClassificationPluginAudioProcessor::tfliteClassifier,\
-                    flat_input.data(),\
-                    n_rows,\
-                    n_cols,\
-                    output.data(),\
-                    output.size(), VERBOSE_CLASSIFICATION);
-   #endif
+#else
+    classifyFlat2D(ECProcessor::tfliteClassifier,
+                   flat_input.data(),
+                   n_rows,
+                   n_cols,
+                   output.data(),
+                   output.size(), VERBOSE_CLASSIFICATION);
+#endif
 }
 
 size_t softVoting(const std::vector<std::vector<float>> &input, const size_t NUM_EMOTIONS)
@@ -237,7 +240,7 @@ size_t softVoting(const std::vector<std::vector<float>> &input, const size_t NUM
     return best;
 }
 
-void EmotionClassificationPluginAudioProcessor::extractAndClassify(std::string audioFilePath)
+void ECProcessor::extractAndClassify(std::string audioFilePath)
 {
     // TODO: implement
 #ifdef VERBOSE_PRINT
@@ -248,21 +251,17 @@ void EmotionClassificationPluginAudioProcessor::extractAndClassify(std::string a
 
     // Check that the file exists
     File tmpfile = File(audioFilePath);
-    if (!tmpfile.exists())
-    {
+    if (!tmpfile.exists()) {
 #ifdef VERBOSE_PRINT
-        printf("File %s DOES NOT EXIST\n", audioFilePath.c_str());
+        std::cout << "File " << audioFilePath << " DOES NOT EXIST\n" << std::flush;
 #endif
-        std::cout << std::flush;
         throw std::logic_error("File " + audioFilePath + " does not exist!");
     }
-    else
-    {
 #ifdef VERBOSE_PRINT
-        printf("File %s exists\n", audioFilePath.c_str());
-#endif
-        std::cout << std::flush;
+    else {
+        std::cout << "File " << audioFilePath << " exists\n" << std::flush;
     }
+#endif
 
     // Extract features
 
@@ -292,6 +291,8 @@ void EmotionClassificationPluginAudioProcessor::extractAndClassify(std::string a
     std::vector<std::vector<float>> res;
     res.resize(numChunks);
     extractorState = extractorState + "\nPer Chunk winners: [ ";
+    outputLabels.clear();
+    outputLabelsInt.clear();
     for (size_t i = 0; i < numChunks; ++i)
     {
         res.at(i).resize(NUM_EMOTIONS);
@@ -302,11 +303,14 @@ void EmotionClassificationPluginAudioProcessor::extractAndClassify(std::string a
             if (res.at(i).at(j) > res.at(i).at(maxIndex))
                 maxIndex = j;
         extractorState = extractorState + std::to_string(maxIndex) + " ";
+        outputLabels.push_back(emotions[maxIndex]);
+        outputLabelsInt.push_back((size_t)maxIndex);
     }
     extractorState = extractorState + "]";
 
     int result = softVoting(res, NUM_EMOTIONS);
     extractorState = extractorState + "\nSoftVotingResult: " + emotions[result] + " (id: " + std::to_string(result) + ")";
+    labelsWritten = true;
 
 #ifdef GENERATE_AUDACITY_LABELS
     std::string emotionLabels = "";
@@ -343,7 +347,7 @@ void EmotionClassificationPluginAudioProcessor::extractAndClassify(std::string a
 #endif
 }
 
-void EmotionClassificationPluginAudioProcessor::updateRecState()
+void ECProcessor::updateRecState()
 {
     bool recState = ((AudioParameterBool *)valueTreeState.getParameter(RECSTATE_ID))->get();
 
@@ -356,9 +360,7 @@ void EmotionClassificationPluginAudioProcessor::updateRecState()
         else
         {
             stopRecording();
-            // Sleep for 5 seconds
-            // extractAndClassify(lastRecording.getFullPathName().toStdString());
-            printf("Just stoppend recording %s\n", audioFilename.c_str());
+            recordingStopped = true;
             extractAndClassify(audioFilename);
 #ifdef DO_REMOVE_OLD_RECORDINGS
             lastRecording2.deleteFile(); // TODO: fix this because something is not working with lastRecording
@@ -371,94 +373,73 @@ void EmotionClassificationPluginAudioProcessor::updateRecState()
 /** Create the parameters to add to the value tree state
  * In this case only the boolean recording state (true = rec, false = stop)
  */
-AudioProcessorValueTreeState::ParameterLayout EmotionClassificationPluginAudioProcessor::createParameterLayout()
+AudioProcessorValueTreeState::ParameterLayout ECProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<RangedAudioParameter>> parameters;
     parameters.push_back(std::make_unique<AudioParameterBool>(RECSTATE_ID, RECSTATE_NAME, false));
     return {parameters.begin(), parameters.end()};
 }
 
-void EmotionClassificationPluginAudioProcessor::releaseResources()
+void ECProcessor::releaseResources()
 {
 }
 
-void EmotionClassificationPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void ECProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
     juce::MemoryOutputStream stream(destData, false);
-    valueTreeState.state.writeToStream (stream);
+    valueTreeState.state.writeToStream(stream);
 
     // DBG("Writing to XML:");
     // DBG(valueTreeState.state.toXmlString());
 }
 
-void EmotionClassificationPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void ECProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-    auto tree = juce::ValueTree::readFromData (data, size_t (sizeInBytes));
+    auto tree = juce::ValueTree::readFromData(data, size_t(sizeInBytes));
     if (tree.isValid() == false)
         return;
 
     // DBG("Reading XML:");
     // DBG(tree.toXmlString());
 
-    valueTreeState.replaceState (tree);
+    valueTreeState.replaceState(tree);
 
-    
     Value saveFolderPath = valueTreeState.state.getPropertyAsValue("REC_SAVEPATH", nullptr, true);
     // saveFolderPath.setValue(saveFolder.getFullPathName()); // Writing the XML after this should show the "foobar.midi"
     // DBG("Save folder path: " + saveFolderPath.getValue().toString());
     this->setSaveFolder(File(saveFolderPath.getValue().toString()));
-    
 }
 
-
-void EmotionClassificationPluginAudioProcessor::setSaveFolder (const File& saveFolder) {
+void ECProcessor::setSaveFolder(const File &saveFolder)
+{
     Value saveFolderPath = valueTreeState.state.getPropertyAsValue("REC_SAVEPATH", nullptr, true);
     saveFolderPath.setValue(saveFolder.getFullPathName()); // Writing the XML after this should show the "foobar.midi"
     saveDir = saveFolder;
 }
 
-File& EmotionClassificationPluginAudioProcessor::getSaveFolder() {
+File &ECProcessor::getSaveFolder()
+{
     return saveDir;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //==============================================================================
-bool EmotionClassificationPluginAudioProcessor::acceptsMidi() const { return false; }
-bool EmotionClassificationPluginAudioProcessor::producesMidi() const { return false; }
-bool EmotionClassificationPluginAudioProcessor::isMidiEffect() const { return false; }
-double EmotionClassificationPluginAudioProcessor::getTailLengthSeconds() const { return 0.0; }
-int EmotionClassificationPluginAudioProcessor::getNumPrograms() { return 1; }
-int EmotionClassificationPluginAudioProcessor::getCurrentProgram() { return 0; }
-void EmotionClassificationPluginAudioProcessor::setCurrentProgram(int index) {}
-const juce::String EmotionClassificationPluginAudioProcessor::getProgramName(int index) { return {}; }
-void EmotionClassificationPluginAudioProcessor::changeProgramName(int index, const juce::String &newName) {}
-bool EmotionClassificationPluginAudioProcessor::hasEditor() const { return true; }
-juce::AudioProcessorEditor *EmotionClassificationPluginAudioProcessor::createEditor() { return new EmotionClassificationPluginAudioProcessorEditor(*this); }
+bool ECProcessor::acceptsMidi() const { return false; }
+bool ECProcessor::producesMidi() const { return false; }
+bool ECProcessor::isMidiEffect() const { return false; }
+double ECProcessor::getTailLengthSeconds() const { return 0.0; }
+int ECProcessor::getNumPrograms() { return 1; }
+int ECProcessor::getCurrentProgram() { return 0; }
+void ECProcessor::setCurrentProgram(int index) {}
+const juce::String ECProcessor::getProgramName(int index) { return {}; }
+void ECProcessor::changeProgramName(int index, const juce::String &newName) {}
+bool ECProcessor::hasEditor() const { return true; }
+juce::AudioProcessorEditor *ECProcessor::createEditor() { return new ECEditor(*this); }
 
-
-
-
-juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() { return new EmotionClassificationPluginAudioProcessor(); }
-const juce::String EmotionClassificationPluginAudioProcessor::getName() const { return JucePlugin_Name; }
+juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() { return new ECProcessor(); }
+const juce::String ECProcessor::getName() const { return JucePlugin_Name; }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool EmotionClassificationPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
+bool ECProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 {
 #if JucePlugin_IsMidiEffect
     juce::ignoreUnused(layouts);

@@ -10,21 +10,22 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "AudioThumbnail.h"
 
-//==============================================================================
-/**
-*/
+
 const String OFF_TEXT = "Press to start recording";
 const String ON_TEXT = "Recording... Press to classify";
 const String CLASSIFYING_TEXT = "Classifying...";
 
+const float EMOTION_AUDIO_SEGMENT_LENGTH_S = 3.0f;
+
 typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 
-class EmotionClassificationPluginAudioProcessorEditor  : public juce::AudioProcessorEditor
+class ECEditor  : public juce::AudioProcessorEditor
 {
 public:
-    EmotionClassificationPluginAudioProcessorEditor (EmotionClassificationPluginAudioProcessor&);
-    ~EmotionClassificationPluginAudioProcessorEditor() override;
+    ECEditor (ECProcessor&);
+    ~ECEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -33,7 +34,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    EmotionClassificationPluginAudioProcessor& audioProcessor;
+    ECProcessor& audioProcessor;
 
     TextButton recButton; // Button tied to the recording state parameter
     std::unique_ptr<ButtonAttachment> recButtonAttachment;  // Attachment between the button and the recording state parameter
@@ -78,14 +79,43 @@ private:
     void pollingRoutine()
     {
         status.setText(audioProcessor.extractorState, dontSendNotification);
+
+        if (audioProcessor.recordingStopped.exchange(false)) {
+            // std::cout << "Recording stopped to path \"" << audioProcessor.audioFilename << "\"" << std::endl;
+            juce::File afile (audioProcessor.audioFilename);
+            waveformDisplayComponent.setFileSource(afile);
+        }
+
+        if (audioProcessor.labelsWritten.exchange(false)) {
+            std::vector<juce::Colour> labelColors;
+            for (auto& label : audioProcessor.outputLabelsInt) {
+                labelColors.push_back(emotionLabelColorMap[label]);
+            }
+            waveformDisplayComponent.setLabels(audioProcessor.outputLabels, labelColors);
+        }
+
     }
 
     PollingTimer pollingTimer{[this]{pollingRoutine();}};
 
+    
+    std::map<size_t, juce::Colour> emotionLabelColorMap = {
+                    {0, juce::Colours::orangered},
+                    {1, juce::Colours::lightgreen},
+                    {2, juce::Colours::orange},
+                    {3, juce::Colours::lightblue}};
+
+
     std::unique_ptr<juce::FileChooser> chooser;
     TextButton selectSaveFolderButton;
     void openButtonClicked();
+    void recordStateChanged();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EmotionClassificationPluginAudioProcessorEditor)
+
+
+    // Waveform display
+    AudioThumbnailComponent waveformDisplayComponent{EMOTION_AUDIO_SEGMENT_LENGTH_S, "Press the Record button to start recording."};
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ECEditor)
 };
 
