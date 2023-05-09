@@ -2,5 +2,5 @@ BasedOnStyle: Google
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
-ColumnLimit: 80
+ColumnLimit: 0
 AllowShortCaseLabelsOnASingleLine: true

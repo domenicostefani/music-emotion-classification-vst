@@ -1,19 +1,12 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
-#include "PluginEditor.h"
-#include <map>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+
+#include "PluginEditor.h"
 #include "extractionpipeline.h"
 
 // #define DUMMY_INFERENCE // TODO: remove this
@@ -60,44 +53,39 @@ ECProcessor::ECProcessor()
 #ifndef DUMMY_INFERENCE
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/Builds/linux-amd64/MSD_musicnn.tflite";
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/convdense_testmodel.tflite";
-   #ifdef ELK_OS_ARM
+#ifdef ELK_OS_ARM
     std::string MODEL_PATH = "/udata/emotionModel.tflite";
-   #else
+#else
     std::string MODEL_PATH = "/home/cimil-01/Develop/instrument_emotion_recognition/keras_audio_models/tflite/MSD_musicnn.tflite";
-   #endif
+#endif
 
     // Check that file exists
     std::ifstream f(MODEL_PATH);
-    if (!f.good())
-    {
+    if (!f.good()) {
         std::cout << "Model file not found at " << MODEL_PATH << std::endl;
         exit(1);
     }
-    ECProcessor::tfliteClassifier = createClassifier(MODEL_PATH, VERBOSE_CLASSIFICATION); // true = verbose cout
+    ECProcessor::tfliteClassifier = createClassifier(MODEL_PATH, VERBOSE_CLASSIFICATION);  // true = verbose cout
 #endif
     suspendProcessing(false);
 }
 
-ECProcessor::~ECProcessor()
-{
+ECProcessor::~ECProcessor() {
 }
 
-void ECProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
-{
+void ECProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     this->sampleRate = sampleRate;
     recorder.prepareToPlay(sampleRate);
 }
 
-void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages)
-{
+void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages) {
     updateRecState();
     recorder.writeBlock(buffer.getArrayOfReadPointers(), buffer.getNumSamples());
     if (MUTE_OUTPUT)
         buffer.clear();
 }
 
-std::string getStrTime()
-{
+std::string getStrTime() {
     auto curtime = Time::getCurrentTime();
 
     std::string timestr = std::to_string(curtime.getYear());
@@ -118,16 +106,13 @@ std::string getStrTime()
     return timestr;
 }
 
-void ECProcessor::startRecording(unsigned int numChannels)
-{
+void ECProcessor::startRecording(unsigned int numChannels) {
 #ifdef RECORDER_DEBUG_LOG
     logText("Recording started");
 #endif
-    if (!RuntimePermissions::isGranted(RuntimePermissions::writeExternalStorage))
-    {
+    if (!RuntimePermissions::isGranted(RuntimePermissions::writeExternalStorage)) {
         RuntimePermissions::request(RuntimePermissions::writeExternalStorage,
-                                    [this, numChannels](bool granted) mutable
-                                    {
+                                    [this, numChannels](bool granted) mutable {
                                         if (granted)
                                             this->startRecording(numChannels);
                                     });
@@ -152,8 +137,7 @@ void ECProcessor::startRecording(unsigned int numChannels)
     recorder.startRecording(lastRecording, numChannels);
 }
 
-void ECProcessor::stopRecording()
-{
+void ECProcessor::stopRecording() {
 #ifdef RECORDER_DEBUG_LOG
     logText("Recording stopped");
 #endif
@@ -166,13 +150,11 @@ void ECProcessor::stopRecording()
     File fileToShare = lastRecording;
 
     ContentSharer::getInstance()->shareFiles(Array<URL>({URL(fileToShare)}),
-                                             [safeThis, fileToShare](bool success, const String &error)
-                                             {
+                                             [safeThis, fileToShare](bool success, const String &error) {
 #ifdef RECORDER_DEBUG_LOG
                                                  logText("Android/iOS ContentSharer callback called");
 #endif
-                                                 if (fileToShare.existsAsFile())
-                                                 {
+                                                 if (fileToShare.existsAsFile()) {
 #ifdef RECORDER_DEBUG_LOG
                                                      logText("File existed, deleting...");
 #endif
@@ -183,8 +165,7 @@ void ECProcessor::stopRecording()
                                                  logText("SUCCESS: " + (success ? "true" : "false"));
                                                  logText("ERROR: " + error.toStdString());
 #endif
-                                                 if (!success && error.isNotEmpty())
-                                                 {
+                                                 if (!success && error.isNotEmpty()) {
                                                      NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon,
                                                                                            "Sharing Error",
                                                                                            error);
@@ -195,14 +176,12 @@ void ECProcessor::stopRecording()
     lastRecording = File();
 }
 
-void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<float> &output)
-{
+void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<float> &output) {
     // Flatten the input
     size_t n_rows = input.size();
     size_t n_cols = input[0].size();
     std::vector<float> flat_input(n_rows * n_cols);
-    for (size_t i = 0; i < n_rows; ++i)
-    {
+    for (size_t i = 0; i < n_rows; ++i) {
         if (input[i].size() != n_cols)
             throw std::runtime_error("Input is not a matrix (Row " + std::to_string(i) + " has " + std::to_string(input[i].size()) + " columns instead of " + std::to_string(n_cols) + ")");
         for (size_t j = 0; j < n_cols; ++j)
@@ -224,8 +203,7 @@ void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<flo
 #endif
 }
 
-size_t softVoting(const std::vector<std::vector<float>> &input, const size_t NUM_EMOTIONS)
-{
+size_t softVoting(const std::vector<std::vector<float>> &input, const size_t NUM_EMOTIONS) {
     std::vector<float> sum(NUM_EMOTIONS, 0.0f);
     // Sum the SoftMax probabilities for each emotion
     for (auto &v : input)
@@ -240,8 +218,7 @@ size_t softVoting(const std::vector<std::vector<float>> &input, const size_t NUM
     return best;
 }
 
-void ECProcessor::extractAndClassify(std::string audioFilePath)
-{
+void ECProcessor::extractAndClassify(std::string audioFilePath) {
     // TODO: implement
 #ifdef VERBOSE_PRINT
     std::cout << "Extracting and classifying " << audioFilePath << std::endl;
@@ -253,13 +230,15 @@ void ECProcessor::extractAndClassify(std::string audioFilePath)
     File tmpfile = File(audioFilePath);
     if (!tmpfile.exists()) {
 #ifdef VERBOSE_PRINT
-        std::cout << "File " << audioFilePath << " DOES NOT EXIST\n" << std::flush;
+        std::cout << "File " << audioFilePath << " DOES NOT EXIST\n"
+                  << std::flush;
 #endif
         throw std::logic_error("File " + audioFilePath + " does not exist!");
     }
 #ifdef VERBOSE_PRINT
     else {
-        std::cout << "File " << audioFilePath << " exists\n" << std::flush;
+        std::cout << "File " << audioFilePath << " exists\n"
+                  << std::flush;
     }
 #endif
 
@@ -280,8 +259,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath)
     size_t numFrames = featvec.size();
     size_t numChunks = numFrames / FRAMES_IN_3_SECONDS;
 
-    if (numChunks == 0)
-    {
+    if (numChunks == 0) {
         extractorState = extractorState + "\nNot enough frames to classify (Please record for more than 3 seconds)";
         return;
     }
@@ -293,8 +271,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath)
     extractorState = extractorState + "\nPer Chunk winners: [ ";
     outputLabels.clear();
     outputLabelsInt.clear();
-    for (size_t i = 0; i < numChunks; ++i)
-    {
+    for (size_t i = 0; i < numChunks; ++i) {
         res.at(i).resize(NUM_EMOTIONS);
         classifyChunk(std::vector<std::vector<float>>(featvec.begin() + i * FRAMES_IN_3_SECONDS, featvec.begin() + (i + 1) * FRAMES_IN_3_SECONDS), res.at(i));
         // Argmax for log
@@ -315,8 +292,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath)
 #ifdef GENERATE_AUDACITY_LABELS
     std::string emotionLabels = "";
     std::string softmaxLabels = "";
-    for (size_t i = 0; i < numChunks; ++i)
-    {
+    for (size_t i = 0; i < numChunks; ++i) {
         // Argmax for log
         int maxIndex = 0;
         for (int j = 0; j < NUM_EMOTIONS; ++j)
@@ -347,23 +323,18 @@ void ECProcessor::extractAndClassify(std::string audioFilePath)
 #endif
 }
 
-void ECProcessor::updateRecState()
-{
+void ECProcessor::updateRecState() {
     bool recState = ((AudioParameterBool *)valueTreeState.getParameter(RECSTATE_ID))->get();
 
-    if (this->oldRecState != recState)
-    {
-        if (recState)
-        {
+    if (this->oldRecState != recState) {
+        if (recState) {
             startRecording(NUM_CHANNELS);
-        }
-        else
-        {
+        } else {
             stopRecording();
             recordingStopped = true;
             extractAndClassify(audioFilename);
 #ifdef DO_REMOVE_OLD_RECORDINGS
-            lastRecording2.deleteFile(); // TODO: fix this because something is not working with lastRecording
+            lastRecording2.deleteFile();  // TODO: fix this because something is not working with lastRecording
 #endif
         }
         this->oldRecState = recState;
@@ -373,19 +344,16 @@ void ECProcessor::updateRecState()
 /** Create the parameters to add to the value tree state
  * In this case only the boolean recording state (true = rec, false = stop)
  */
-AudioProcessorValueTreeState::ParameterLayout ECProcessor::createParameterLayout()
-{
+AudioProcessorValueTreeState::ParameterLayout ECProcessor::createParameterLayout() {
     std::vector<std::unique_ptr<RangedAudioParameter>> parameters;
     parameters.push_back(std::make_unique<AudioParameterBool>(RECSTATE_ID, RECSTATE_NAME, false));
     return {parameters.begin(), parameters.end()};
 }
 
-void ECProcessor::releaseResources()
-{
+void ECProcessor::releaseResources() {
 }
 
-void ECProcessor::getStateInformation(juce::MemoryBlock &destData)
-{
+void ECProcessor::getStateInformation(juce::MemoryBlock &destData) {
     juce::MemoryOutputStream stream(destData, false);
     valueTreeState.state.writeToStream(stream);
 
@@ -393,8 +361,7 @@ void ECProcessor::getStateInformation(juce::MemoryBlock &destData)
     // DBG(valueTreeState.state.toXmlString());
 }
 
-void ECProcessor::setStateInformation(const void *data, int sizeInBytes)
-{
+void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
     auto tree = juce::ValueTree::readFromData(data, size_t(sizeInBytes));
     if (tree.isValid() == false)
         return;
@@ -410,15 +377,13 @@ void ECProcessor::setStateInformation(const void *data, int sizeInBytes)
     this->setSaveFolder(File(saveFolderPath.getValue().toString()));
 }
 
-void ECProcessor::setSaveFolder(const File &saveFolder)
-{
+void ECProcessor::setSaveFolder(const File &saveFolder) {
     Value saveFolderPath = valueTreeState.state.getPropertyAsValue("REC_SAVEPATH", nullptr, true);
-    saveFolderPath.setValue(saveFolder.getFullPathName()); // Writing the XML after this should show the "foobar.midi"
+    saveFolderPath.setValue(saveFolder.getFullPathName());  // Writing the XML after this should show the "foobar.midi"
     saveDir = saveFolder;
 }
 
-File &ECProcessor::getSaveFolder()
-{
+File &ECProcessor::getSaveFolder() {
     return saveDir;
 }
 
@@ -439,8 +404,7 @@ juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() { return new ECProcesso
 const juce::String ECProcessor::getName() const { return JucePlugin_Name; }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool ECProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
-{
+bool ECProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
 #if JucePlugin_IsMidiEffect
     juce::ignoreUnused(layouts);
     return true;
