@@ -14,7 +14,7 @@ const float EMOTION_AUDIO_SEGMENT_LENGTH_S = 3.0f;
 typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 
 class ECEditor : public juce::AudioProcessorEditor {
-   public:
+public:
     ECEditor(ECProcessor&);
     ~ECEditor() override;
 
@@ -22,7 +22,7 @@ class ECEditor : public juce::AudioProcessorEditor {
     void paint(juce::Graphics&) override;
     void resized() override;
 
-   private:
+private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     ECProcessor& audioProcessor;
@@ -55,12 +55,12 @@ class ECEditor : public juce::AudioProcessorEditor {
 
     typedef std::function<void(void)> TimerEventCallback;
     class PollingTimer : public Timer {
-       public:
+    public:
         PollingTimer(TimerEventCallback cb) { this->cb = cb; }
         void startPolling() { Timer::startTimer(this->interval); }
         void timerCallback() override { cb(); }
 
-       private:
+    private:
         TimerEventCallback cb;
         int interval = 3;
     };

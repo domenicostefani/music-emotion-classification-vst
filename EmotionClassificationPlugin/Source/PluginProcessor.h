@@ -9,7 +9,7 @@
 /**
  */
 class ECProcessor : public juce::AudioProcessor {
-   public:
+public:
     //==============================================================================
     ECProcessor();
     ~ECProcessor() override;
@@ -91,7 +91,7 @@ class ECProcessor : public juce::AudioProcessor {
     std::vector<std::string> outputLabels;
     std::vector<size_t> outputLabelsInt;
 
-   private:
+private:
 #if (JUCE_ANDROID || JUCE_IOS)
     juce::File saveDir = File::getSpecialLocation(File::tempDirectory);
 #else

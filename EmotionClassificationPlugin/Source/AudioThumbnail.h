@@ -14,7 +14,7 @@
 //==============================================================================
 class AudioThumbnailComponent : public juce::Component,
                                 private juce::ChangeListener {
-   public:
+public:
     AudioThumbnailComponent(float sectionLength = 0,
                             std::string nofiletext = "No File Loaded")
         : thumbnailCache(5),
@@ -93,7 +93,7 @@ class AudioThumbnailComponent : public juce::Component,
         repaint();
     }
 
-   private:
+private:
     void thumbnailChanged() { repaint(); }
 
     void paintIfNoFileLoaded(juce::Graphics &g,

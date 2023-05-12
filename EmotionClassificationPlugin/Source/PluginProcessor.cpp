@@ -14,7 +14,7 @@
 // #define VERBOSE_PRINT
 
 #ifdef VERBOSE_PRINT
-#include "verbose_utils.h"
+    #include "verbose_utils.h"
 #endif
 
 // #define DO_REMOVE_OLD_RECORDINGS
@@ -23,7 +23,7 @@
 #define MUTE_OUTPUT true
 
 #ifdef JUCE_ARM
-#define ELK_OS_ARM
+    #define ELK_OS_ARM
 #endif
 
 std::map<size_t, std::string> emotions = {
@@ -38,12 +38,12 @@ ClassifierPtr ECProcessor::tfliteClassifier = nullptr;
 ECProcessor::ECProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
-#if !JucePlugin_IsMidiEffect
-#if !JucePlugin_IsSynth
+    #if !JucePlugin_IsMidiEffect
+        #if !JucePlugin_IsSynth
                          .withInput("Input", juce::AudioChannelSet::mono(), true)
-#endif
+        #endif
                          .withOutput("Output", juce::AudioChannelSet::mono(), true)
-#endif
+    #endif
                          ),
       valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
@@ -53,11 +53,11 @@ ECProcessor::ECProcessor()
 #ifndef DUMMY_INFERENCE
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/Builds/linux-amd64/MSD_musicnn.tflite";
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/convdense_testmodel.tflite";
-#ifdef ELK_OS_ARM
+    #ifdef ELK_OS_ARM
     std::string MODEL_PATH = "/udata/emotionModel.tflite";
-#else
+    #else
     std::string MODEL_PATH = "/home/cimil-01/Develop/instrument_emotion_recognition/keras_audio_models/tflite/MSD_musicnn.tflite";
-#endif
+    #endif
 
     // Check that file exists
     std::ifstream f(MODEL_PATH);
@@ -151,20 +151,20 @@ void ECProcessor::stopRecording() {
 
     ContentSharer::getInstance()->shareFiles(Array<URL>({URL(fileToShare)}),
                                              [safeThis, fileToShare](bool success, const String &error) {
-#ifdef RECORDER_DEBUG_LOG
+    #ifdef RECORDER_DEBUG_LOG
                                                  logText("Android/iOS ContentSharer callback called");
-#endif
+    #endif
                                                  if (fileToShare.existsAsFile()) {
-#ifdef RECORDER_DEBUG_LOG
+    #ifdef RECORDER_DEBUG_LOG
                                                      logText("File existed, deleting...");
-#endif
+    #endif
                                                      fileToShare.deleteFile();
                                                  }
 
-#ifdef RECORDER_DEBUG_LOG
+    #ifdef RECORDER_DEBUG_LOG
                                                  logText("SUCCESS: " + (success ? "true" : "false"));
                                                  logText("ERROR: " + error.toStdString());
-#endif
+    #endif
                                                  if (!success && error.isNotEmpty()) {
                                                      NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon,
                                                                                            "Sharing Error",
@@ -405,10 +405,10 @@ const juce::String ECProcessor::getName() const { return JucePlugin_Name; }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool ECProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
-#if JucePlugin_IsMidiEffect
+    #if JucePlugin_IsMidiEffect
     juce::ignoreUnused(layouts);
     return true;
-#else
+    #else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
     // Some plugin hosts, such as certain GarageBand versions, will only
@@ -416,13 +416,13 @@ bool ECProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-        // This checks if the input layout matches the output layout
-#if !JucePlugin_IsSynth
+            // This checks if the input layout matches the output layout
+        #if !JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-#endif
+        #endif
 
     return true;
-#endif
+    #endif
 }
 #endif
