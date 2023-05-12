@@ -38,6 +38,8 @@ cd FFmpeg
 make -j`nproc`
 cd ..
 echo "Done building FFmpeg..."
+mkdir FFmpeg-build-linux-aarch64
+cp FFmpeg/lib*/*.a FFmpeg-build-linux-$ARCHNAME #TODO: fix for amd64
 
 
 

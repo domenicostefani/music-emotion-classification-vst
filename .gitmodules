@@ -7,3 +7,6 @@
 [submodule "libs/eigen"]
 	path = libs/eigen
 	url = https://gitlab.com/libeigen/eigen/
+[submodule "libs/deep-classf-runtime-wrappers"]
+	path = libs/deep-classf-runtime-wrappers
+	url = https://github.com/domenicostefani/deep-classf-runtime-wrappers
