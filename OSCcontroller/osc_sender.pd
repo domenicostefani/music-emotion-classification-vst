@@ -1,0 +1,17 @@
+#N canvas 354 197 1432 717 10;
+#X declare -lib zexy;
+#X declare -path mrpeach;
+#X obj 137 204 mrpeach/packOSC;
+#X obj 88 309 netsend -u -b;
+#X obj 137 238 cyclone/prepend send;
+#X obj 31 158 inlet;
+#X text 32 106 Connect and disconnect messages must be sent on inlet 1;
+#X obj 243 185 print oscontrol_sending;
+#X obj 137 158 inlet;
+#X obj 15 12 declare -lib zexy;
+#X obj 137 12 declare -path mrpeach;
+#X connect 0 0 2 0 empty;
+#X connect 2 0 1 0 empty;
+#X connect 3 0 1 0 empty;
+#X connect 6 0 5 0 empty;
+#X connect 6 0 0 0 empty;
