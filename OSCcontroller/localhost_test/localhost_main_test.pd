@@ -1,23 +1,18 @@
 #N canvas 1921 94 1918 1077 10;
 #X declare -lib zexy -lib mrpeach;
-#X obj 875 9 cnv 15 387 270 empty empty 2._Control 8 16 0 15 -257562
+#X obj 875 9 cnv 15 387 270 empty empty 2._Control 8 16 1 15 -257562
 -1 0;
 #X obj 419 9 cnv 15 440 270 empty empty 1_Establish_Connection 8 16
 1 15 -212671 -1 0;
 #X obj 420 294 cnv 15 350 355 empty empty Monitor 12 18 1 18 -261682
 -1 0;
-#X obj 513 61 cnv 15 330 200 empty empty empty 20 12 0 14 -138231 -66577
+#X obj 501 51 cnv 15 345 100 empty empty empty 20 12 0 14 -138231 -66577
 0;
-#X obj 537 68 bng 25 250 50 0 conn_m empty <----Connect_to_the_board
+#X obj 537 72 bng 25 250 50 0 conn_m empty <----Connect_to_the_board
 30 13 1 12 -204786 -1 -1;
-#X obj 537 98 bng 25 250 50 0 disc_m empty <----Disconnect 30 13 1
-12 -261234 -1 -1;
-#X obj 423 179 t b b b;
-#X obj 1284 13 declare -lib zexy -lib mrpeach;
-#X text 606 175 PORT_1;
-#X text 678 178 PORT_2;
-#X obj 782 294 cnv 15 480 355 empty empty Results 12 18 1 18 -208051
--1 0;
+#X obj 1270 535 declare -lib zexy -lib mrpeach;
+#X obj 782 294 cnv 15 480 355 empty empty Results(Predicted_Emotion)
+12 18 1 18 -208051 -1 0;
 #X obj 802 350 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
 0;
 #X obj 802 417 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
@@ -34,12 +29,8 @@
 -1 -1 0 1;
 #X obj 805 570 tgl 40 0 empty oscrx_res_sad Sad 0 -10 1 15 -174763
 -1 -1 0 1;
-#X obj 1282 108 emotion_toggler;
-#X obj 1285 221 bng 20 250 50 0 main_reset empty Main_Reset 23 13 1
+#X obj 1271 139 bng 20 250 50 0 main_reset empty Main_Reset 23 13 1
 11 -261234 -1 -1;
-#X obj 1283 76 osc_receiver;
-#X obj 423 225 osc_connection;
-#X obj 439 202 r disc_m;
 #N canvas 1 89 1058 623 cable_management 0;
 #X text 27 32 Background program logic for the EmotionClassifier Controller
 ;
@@ -120,7 +111,7 @@ array;
 #X connect 21 0 23 0;
 #X connect 23 0 22 0;
 #X connect 24 0 23 0;
-#X restore 1282 141 pd cable_management;
+#X restore 1268 632 pd cable_management;
 #N canvas 1 89 1272 678 control_logic 0;
 #X msg 39 85 1;
 #X msg 118 86 0;
@@ -187,18 +178,9 @@ array;
 #X connect 16 0 7 0;
 #X connect 17 0 19 0;
 #X connect 18 0 17 0;
-#X restore 1284 45 pd control_logic;
-#X text 1283 171 You shouldn´t need this \; It disconnects the osc
+#X restore 1270 559 pd control_logic;
+#X text 1269 89 You shouldn´t need this \; It disconnects the osc
 target \; and resets initial slider values;
-#X obj 423 156 r conn_m;
-#X msg 682 197 8042;
-#X text 526 174 Board IP;
-#X msg 519 197 10.42.1.47;
-#X msg 746 197 10.42.1.1;
-#X msg 609 197 24024;
-#X text 746 137 IP of this computer on the network shared with the
-board, f 17;
-#X text 743 221 (do not use localhost), f 13;
 #X obj 573 331 cnv 15 180 100 empty empty Connection_State 13 19 1
 14 -248615 -1 0;
 #X obj 598 394 cnv 15 120 25 empty empty empty 20 12 1 15 -204786 -66577
@@ -209,26 +191,19 @@ board, f 17;
 -261234 -91543 -258113 1 1;
 #X obj 598 394 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
 -91543 -13381 0 1;
-#X obj 437 331 cnv 15 125 300 empty empty empty 8 12 1 14 -248615 -66577
+#X obj 426 331 cnv 15 125 300 empty empty empty 8 12 1 14 -248615 -66577
 0;
-#X obj 445 365 vsl 25 210 -90 0 0 0 empty oscrx_meter Record_level
-0 -16 1 15 -262144 -1 -1 0 1;
-#X text 476 356 < 0 dB;
-#X text 477 567 < -90 dB;
-#X floatatom 445 590 10 0 0 1 dB roundedmeter -;
+#X floatatom 461 601 10 0 0 1 dB roundedmeter -;
 #X obj 573 441 cnv 15 180 190 empty empty empty 8 12 1 14 -248615 -66577
 0;
 #X obj 589 478 vradio 48 1 0 3 empty oscrx_state PluginState 0 -16
 1 15 -237178 -91543 -1 0;
-#X text 647 490 Idle;
-#X text 647 539 Recording;
-#X text 647 583 Classifying;
 #X obj 908 350 cnv 15 330 261 empty empty empty 20 12 0 14 -228856
 -91543 0;
-#X obj 924 417 bng 20 250 50 0 emo_reset main_reset Manual_Reset 23
-10 0 10 -261234 -1 -86277;
-#X obj 923 367 tgl 40 0 empty oscrx_noemo Recording_too_short_or_silent
-46 21 1 14 -262144 -1 -1 0 1;
+#X obj 1274 31 bng 20 250 50 0 emo_reset main_reset Reset_Display_manually
+23 10 1 10 -261234 -1 -86277;
+#X obj 920 459 tgl 40 0 empty oscrx_noemo Recording_too_short_or_silent
+46 21 1 14 -262144 -258113 -1 0 1;
 #X obj 9 8 cnv 15 400 642 empty empty How_To 150 22 1 18 -233017 -66577
 0;
 #X obj 19 50 cnv 15 380 580 empty empty empty 150 22 1 18 -262144 -66577
@@ -267,14 +242,51 @@ to the --board". Wait for a few seconds and check for a green light
 --from the "Connected" toggle button. \; --Now the Record_level meter
 should start moving when audio --is fed to the input of the board.
 ;
-#X connect 6 0 30 0;
-#X connect 6 0 22 0;
-#X connect 6 1 32 0;
-#X connect 6 2 28 0;
-#X connect 6 2 31 0;
-#X connect 23 0 22 1;
-#X connect 27 0 6 0;
-#X connect 28 0 22 4;
-#X connect 30 0 22 2;
-#X connect 31 0 22 5;
-#X connect 32 0 22 3;
+#X obj 1269 583 _osc_receiver;
+#X obj 1268 608 _emotion_toggler;
+#X obj 641 492 cnv 15 50 18 empty empty Idle 8 12 1 14 -248615 -1 0
+;
+#X obj 640 540 cnv 15 50 18 empty empty Recording 8 12 1 14 -248615
+-1 0;
+#X obj 641 591 cnv 15 50 18 empty empty Classifying 8 12 1 14 -248615
+-1 0;
+#X text 1271 8 Reset only the emotion display;
+#X obj 504 362 cnv 15 30 18 empty empty ----|0dB 0 12 1 8 -248615 -1
+0;
+#X obj 503 565 cnv 15 30 18 empty empty ----|-90dB 0 12 1 8 -248615
+-1 0;
+#X obj 475 374 vsl 25 200 -90 0 0 0 empty oscrx_meter Record_level
+-43 -26 1 15 -262144 -1 -1 0 1;
+#X obj 537 102 bng 25 250 50 0 disc_m empty <----Disconnect 30 13 1
+12 -261234 -1 -1;
+#X obj 634 150 cnv 15 212 120 empty empty empty 20 12 0 14 -138231
+-66577 0;
+#X obj 652 186 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
+0;
+#X obj 746 186 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
+0;
+#X obj 420 170 t b b b;
+#X text 527 166 PORT_1;
+#X text 574 166 PORT_2;
+#X obj 437 189 r disc_m;
+#X obj 420 153 r conn_m;
+#X msg 578 188 8042;
+#X text 665 166 Board IP;
+#X msg 530 188 24024;
+#X text 664 218 IP of this computer on the network shared with the
+board (do not use localhost), f 29;
+#X text 740 166 Controller IP;
+#X obj 420 206 _osc_conn;
+#X msg 659 188 localhost;
+#X msg 751 188 localhost;
+#X connect 53 0 64 0;
+#X connect 53 0 63 0;
+#X connect 53 1 60 0;
+#X connect 53 2 58 0;
+#X connect 53 2 65 0;
+#X connect 56 0 63 1;
+#X connect 57 0 53 0;
+#X connect 58 0 63 4;
+#X connect 60 0 63 3;
+#X connect 64 0 63 2;
+#X connect 65 0 63 5;
