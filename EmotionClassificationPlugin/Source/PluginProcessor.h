@@ -1,13 +1,30 @@
+/**
+ * @file PluginProcessor.h
+ * @author Domenico Stefani (domenico [dot] stefani [at] unitn [dot] it)
+ * @brief This is the main processor of the plugin. It contains all the code needed to extract features from the audio, classify intended emotion and to communicate with the controller through OSC messages.
+ * @version 0.1
+ * @date 2023-05-29
+ *  * 
+ */
 #pragma once
 
 #include <JuceHeader.h>
 
 #include "AudioRecorder.h"
+#include "OSCreceiver.h"
+#include "OSCsender.h"
+#include "Poller.h"
+#include "extractionpipeline.h"
 #include "tflitewrapper.h"
 
-//==============================================================================
-/**
- */
+#ifdef JUCE_ARM
+    #define ELK_OS_ARM 1
+#endif
+
+// OSC ports
+#define RX_PORT 8042
+#define TX_PORT 9042
+
 class ECProcessor : public juce::AudioProcessor {
 public:
     //==============================================================================
@@ -68,12 +85,13 @@ public:
     void startRecording(unsigned int numChannels);
     void stopRecording();
 
-    const String RECSTATE_ID = "recstate";
-    const String RECSTATE_NAME = "recstate";
+    const String RECSTATE_ID = "recstate", RECSTATE_NAME = "recstate",
+                 GAIN_ID = "gain", GAIN_NAME = "gain";
     bool oldRecState = false;
     AudioProcessorValueTreeState valueTreeState;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void updateRecState();
+    void updateGain();
 
     std::string extractorState = "Idle.";
 
@@ -94,9 +112,35 @@ public:
 private:
 #if (JUCE_ANDROID || JUCE_IOS)
     juce::File saveDir = File::getSpecialLocation(File::tempDirectory);
+#elif (ELK_OS_ARM)
+    juce::File saveDir = File("/udata/emoAwSMIs-recordings/unnamed/");
 #else
     juce::File saveDir = File::getSpecialLocation(File::userHomeDirectory);
 #endif
+
+    // Metering
+    LinearSmoothedValue<float> rmsValue, peakValue;
+
+public:
+    float getRMSValue() const;
+    float getPeakValue() const;
+    std::unique_ptr<Poller> oscMeterPoller;
+    void oscSendPollingRoutine();
+
+    // Input gain
+    float inputGain = 1.0f;
+    float lastInputGain = 1.0f;
+    void setInputGain(float newGain);
+
+    // OSC communication on side port (8082 incoming, 9042 outgoing)
+    cOSC::HandshakedSender oscSender;
+    cOSC::Receiver oscReceiver;
+    void oscMessageReceived(const juce::OSCMessage& message);
+
+    std::vector<bool> topPredictedEmotions;
+
+    // Feature extraction
+    emosmi::MusicnnFeatureExtractor extractionPipeline;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECProcessor)

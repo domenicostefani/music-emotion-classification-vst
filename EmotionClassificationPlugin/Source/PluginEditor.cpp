@@ -19,24 +19,18 @@ void ECEditor::openButtonClicked() {
 }
 
 ECEditor::ECEditor(ECProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p) {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+    : AudioProcessorEditor(&p),
+      audioProcessor(p),
+#ifdef METER_USE_PEAK
+      meter([&]() { return audioProcessor.getPeakValue(); })
+#endif
+#ifdef METER_USE_RMS
+      meter([&]() { return audioProcessor.getRMSValue(); })
+#endif
+{
     setResizable(true, true);
-    setSize(900, 350);
-
-    // myChooser = std::make_unique<FileChooser> ("Please select the folder to save files to...",
-    //                                         File::getSpecialLocation (File::userHomeDirectory));
-
-    // auto folderChooserFlags = FileBrowserComponent::saveMode | FileBrowserComponent::canSelectDirectories;
-
-    // myChooser->launchAsync (folderChooserFlags, [this] (const FileChooser& chooser)
-    // {
-    //     File selFolder (chooser.getResult());
-    //     std::cout << "Selected folder: " + selFolder.getFullPathName();
-    // });
-
-    // addAndMakeVisible(myChooser);
+    setSize(970, 350);
+    setResizeLimits(970, 350, 1920, 1080);		
 
     selectSaveFolderButton.setButtonText("Select save folder\nDefault: \"" + audioProcessor.getSaveFolder().getFullPathName().toStdString() + "\"");
     selectSaveFolderButton.onClick = [this] { openButtonClicked(); };
@@ -62,6 +56,13 @@ ECEditor::ECEditor(ECProcessor& p)
 
     addAndMakeVisible(waveformDisplayComponent);
 
+    // Metering
+    addAndMakeVisible(meter);
+    // Input Gain
+    addAndMakeVisible(gainSlider);
+    gainSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    gainSliderAttachment.reset(new SliderAttachment(audioProcessor.valueTreeState, audioProcessor.GAIN_ID, gainSlider));
+
     pollingTimer.startPolling();
 }
 
@@ -75,40 +76,39 @@ void ECEditor::paint(juce::Graphics& g) {
     // g.setColour (juce::Colours::black);
 
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.setColour(juce::Colours::lightgrey);
+    g.setFont(13.0f);
 
     // Rectangle<int> area = getLocalBounds();
     Rectangle<int> area = getLocalBounds();
     auto bottomStrip = area.removeFromBottom(18);
     bottomStrip.removeFromRight(30);  // Clear resize window icon
-    Rectangle<int> leftArea = area.removeFromLeft(area.getWidth() * 0.4);
-    Rectangle<int> usableLeftArea = leftArea.reduced(10);
 
-    waveformDisplayComponent.setBounds(area);
+    Rectangle<int> leftGainArea = area.removeFromLeft(120);
+    Rectangle<int> controlsArea = area.removeFromLeft((970-120) * 0.4);
+    Rectangle<int> usableControlArea = controlsArea.reduced(10);
 
-    // g.setColour (juce::Colours::white);
-    // g.setFont (17.0f);
-    // g.drawFittedText ("Emotionally Aware Smart Musical Instruments\nClassification Plugin", usable.removeFromTop(usable.getHeight() * 0.6), juce::Justification::centred, 1);
+    auto sliderarea = leftGainArea.removeFromLeft(25);
+    g.drawFittedText("Gain", sliderarea.removeFromTop(20), juce::Justification::centred, 1);
+    gainSlider.setBounds(sliderarea);
+    meter.setBounds(leftGainArea);
+    waveformDisplayComponent.setBounds(area.reduced(10));
 
-    g.setFont(13.0f);
-    g.setColour(juce::Colours::lightgrey);
     std::string date(__DATE__);
     std::string time(__TIME__);
     g.drawFittedText("Domenico Stefani, Luca Turchet, Johan Pauwels", bottomStrip.removeFromLeft(bottomStrip.getWidth() * 0.5), juce::Justification::left, 1);
     g.drawFittedText("Compiled on: " + date + " at " + time, bottomStrip, juce::Justification::right, 1);
 
-    int leftHeight = usableLeftArea.getHeight();
+    int leftHeight = usableControlArea.getHeight();
 
-    selectSaveFolderButton.setBounds(usableLeftArea.removeFromTop(leftHeight * 0.3).reduced(5));
-    recButton.setBounds(usableLeftArea.removeFromTop(leftHeight * 0.15).reduced(5));
+    selectSaveFolderButton.setBounds(usableControlArea.removeFromTop(leftHeight * 0.3).reduced(5));
+    recButton.setBounds(usableControlArea.removeFromTop(leftHeight * 0.15).reduced(5));
 
     g.setFont(Font(17.0f, Font::bold));
-    g.drawFittedText("Status:", usableLeftArea.removeFromTop(18), juce::Justification::left, 1);
-    usableLeftArea.removeFromTop(0.05 * leftHeight);
+    g.drawFittedText("Status:", usableControlArea.removeFromTop(18), juce::Justification::left, 1);
+    usableControlArea.removeFromTop(0.05 * leftHeight);
 
-    status.setBounds(usableLeftArea);
+    status.setBounds(usableControlArea);
 }
 
-void ECEditor::resized() {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-}
+void ECEditor::resized() {}

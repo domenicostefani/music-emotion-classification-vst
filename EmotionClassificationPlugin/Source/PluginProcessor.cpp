@@ -7,9 +7,8 @@
 #include <string>
 
 #include "PluginEditor.h"
-#include "extractionpipeline.h"
 
-// #define DUMMY_INFERENCE // TODO: remove this
+// #define DUMMY_INFERENCE
 
 // #define VERBOSE_PRINT
 
@@ -22,9 +21,9 @@
 #define VERBOSE_CLASSIFICATION false
 #define MUTE_OUTPUT true
 
-#ifdef JUCE_ARM
-    #define ELK_OS_ARM
-#endif
+#define STATE_IDLE 0
+#define STATE_RECORDING 1
+#define STATE_CLASSIFYING 2
 
 std::map<size_t, std::string> emotions = {
     {0, "Aggressive"},
@@ -45,16 +44,34 @@ ECProcessor::ECProcessor()
                          .withOutput("Output", juce::AudioChannelSet::mono(), true)
     #endif
                          ),
-      valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout())
+      valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout()),
+      oscReceiver(RX_PORT, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); })
 #endif
 {
     suspendProcessing(true);
+
+    // Try to create the output folder if it doesn't exist
+    if (!saveDir.exists()) {
+        if (saveDir.createDirectory().failed())
+            throw std::runtime_error("Error: could not create output save directory at " + saveDir.getFullPathName().toStdString());
+    } else if (saveDir.existsAsFile())
+        throw std::runtime_error("Error: output save directory exists as a file. Please delete the file at " + saveDir.getFullPathName().toStdString());
+
+    extractorState.reserve(1048576);
 
 #ifndef DUMMY_INFERENCE
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/Builds/linux-amd64/MSD_musicnn.tflite";
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/convdense_testmodel.tflite";
     #ifdef ELK_OS_ARM
-    std::string MODEL_PATH = "/udata/emotionModel.tflite";
+        #ifdef ELECTRIC_GUITAR_MODEL
+    std::string MODEL_PATH = "/udata/emotionModel_electric.tflite";
+        #endif
+        #ifdef ACOUSTIC_GUITAR_MODEL
+    std::string MODEL_PATH = "/udata/emotionModel_acoustic.tflite";
+        #endif
+        #ifdef PIANO_MODEL
+    std::string MODEL_PATH = "/udata/emotionModel_piano.tflite";
+        #endif
     #else
     std::string MODEL_PATH = "/home/cimil-01/Develop/instrument_emotion_recognition/keras_audio_models/tflite/MSD_musicnn.tflite";
     #endif
@@ -67,18 +84,79 @@ ECProcessor::ECProcessor()
     }
     ECProcessor::tfliteClassifier = createClassifier(MODEL_PATH, VERBOSE_CLASSIFICATION);  // true = verbose cout
 #endif
+
+    // Set up the OSC receiver to accept specific messages
+    std::vector<juce::String> oscMessages = {"/handshake", "/disconnect"};
+    for (auto oscMessage : oscMessages)
+        oscReceiver.addOSCListener(oscMessage);
+
+    topPredictedEmotions.resize(this->NUM_EMOTIONS);
+
     suspendProcessing(false);
 }
 
 ECProcessor::~ECProcessor() {
 }
 
+void ECProcessor::oscMessageReceived(const juce::OSCMessage &message) {
+    std::cout << "Received message " << message.getAddressPattern().toString().toStdString() << std::endl;
+    if (message.getAddressPattern() == juce::OSCAddressPattern("/handshake")) {
+        std::cout << "-> Handshake!" << std::endl;
+        if (message.size() == 1 && message[0].isString()) {
+            std::cout << "-> ip: " << message[0].getString() << std::endl;
+            this->oscSender.enableAndReplyToHandshake(message[0].getString(), TX_PORT);
+            oscMeterPoller = std::make_unique<Poller>(24, [&]() { this->oscSendPollingRoutine(); });
+            this->oscSender.sendMessage("/state", (int)STATE_IDLE);
+        }
+    } else if (message.getAddressPattern() == juce::OSCAddressPattern("/disconnect")) {
+        std::cout << "-> disconnect" << std::endl;
+        oscMeterPoller.reset();
+    } else if (message.getAddressPattern() == juce::OSCAddressPattern("/gain")) {
+        if (message.size() == 1 && message[0].isFloat32()) {
+            std::cout << "-> gain: " << message[0].getFloat32() << std::endl;
+        }
+    }
+}
+
+void ECProcessor::oscSendPollingRoutine() {
+    float peak = getPeakValue();
+    oscSender.sendMessage("/meter", peak);
+}
+
 void ECProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     this->sampleRate = sampleRate;
     recorder.prepareToPlay(sampleRate);
+    // Metering
+    rmsValue.reset(sampleRate,
+                   0.2);  // Decay in seconds
+    rmsValue.setCurrentAndTargetValue(-100.0);
+
+    peakValue.reset(sampleRate, 0.2);
+    peakValue.setCurrentAndTargetValue(-100.0);
 }
 
 void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages) {
+    // Fist apply amp gain to the input
+    updateGain();
+    buffer.applyGainRamp(0, buffer.getNumSamples(), lastInputGain, inputGain);
+    lastInputGain = inputGain;
+
+    rmsValue.skip(buffer.getNumSamples());                                                          // Advance time for smoothing
+    const auto value = Decibels::gainToDecibels(buffer.getRMSLevel(0, 0, buffer.getNumSamples()));  // get RMS value
+    if (value < rmsValue.getCurrentValue()) {                                                       // Smooth only if level is decreasing
+        rmsValue.setTargetValue(value);
+    } else {
+        rmsValue.setCurrentAndTargetValue(value);  // Don't smooth if level is increasing (keep meter responsive)
+    }
+
+    peakValue.skip(buffer.getNumSamples());
+    const auto peak = Decibels::gainToDecibels(buffer.getMagnitude(0, 0, buffer.getNumSamples()));
+    if (peak < peakValue.getCurrentValue()) {
+        peakValue.setTargetValue(peak);
+    } else {
+        peakValue.setCurrentAndTargetValue(peak);
+    }
+
     updateRecState();
     recorder.writeBlock(buffer.getArrayOfReadPointers(), buffer.getNumSamples());
     if (MUTE_OUTPUT)
@@ -91,7 +169,7 @@ std::string getStrTime() {
     std::string timestr = std::to_string(curtime.getYear());
     const size_t FIELD_LENGTH = 2;
     std::string toWrite = "";
-    toWrite = std::to_string(curtime.getMonth());
+    toWrite = std::to_string(curtime.getMonth() + 1);  // +1 because months are 0-indexed
     timestr += std::string(FIELD_LENGTH - std::min(FIELD_LENGTH, toWrite.length()), '0') + toWrite;
     toWrite = std::to_string(curtime.getDayOfMonth());
     timestr += std::string(FIELD_LENGTH - std::min(FIELD_LENGTH, toWrite.length()), '0') + toWrite;
@@ -113,14 +191,26 @@ void ECProcessor::startRecording(unsigned int numChannels) {
     if (!RuntimePermissions::isGranted(RuntimePermissions::writeExternalStorage)) {
         RuntimePermissions::request(RuntimePermissions::writeExternalStorage,
                                     [this, numChannels](bool granted) mutable {
-                                        if (granted)
+                                        if (granted) {
                                             this->startRecording(numChannels);
+                                        }
                                     });
         return;
     }
 
     // Get current time
     std::string timestr = getStrTime();
+
+#ifdef ELECTRIC_GUITAR_MODEL
+    timestr = "electric-" + timestr;
+#endif
+#ifdef ACOUSTIC_GUITAR_MODEL
+    timestr = "acoustic-" + timestr;
+#endif
+#ifdef PIANO_MODEL
+    timestr = "piano-" + timestr;
+#endif
+
     this->lastRecording = saveDir.getNonexistentChildFile("EmoAwSMIs-recording-" + timestr, ".wav");
     this->lastRecording2 = this->lastRecording;
     this->extractorState = "Recording to disk: \"";
@@ -135,6 +225,7 @@ void ECProcessor::startRecording(unsigned int numChannels) {
     // std::cout << "Recording " << lastRecording.getFullPathName().toStdString() << std::endl;
 
     recorder.startRecording(lastRecording, numChannels);
+    this->oscSender.sendMessage("/state", (int)STATE_RECORDING);
 }
 
 void ECProcessor::stopRecording() {
@@ -191,7 +282,7 @@ void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<flo
 #ifdef DUMMY_INFERENCE
     output[0] = 0.0f;
     output[1] = 1.0f;
-    output[2] = 0.0f;
+    output[2] = 0.9f;
     output[3] = 0.0f;
 #else
     classifyFlat2D(ECProcessor::tfliteClassifier,
@@ -204,22 +295,93 @@ void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<flo
 }
 
 size_t softVoting(const std::vector<std::vector<float>> &input, const size_t NUM_EMOTIONS) {
-    std::vector<float> sum(NUM_EMOTIONS, 0.0f);
+    std::vector<float> avg(NUM_EMOTIONS, 0.0f);
     // Sum the SoftMax probabilities for each emotion
     for (auto &v : input)
         for (size_t i = 0; i < NUM_EMOTIONS; ++i)
-            sum[i] += v[i];
+            avg[i] += v[i];
+    // Average
+    for (size_t i = 1; i < avg.size(); ++i)
+        avg[i] = avg[i] / input.size();
+
     // Argmax
     size_t best = 0;
-    for (size_t i = 1; i < NUM_EMOTIONS; ++i)
-        if (sum[i] > sum[best])
+    for (size_t i = 1; i < avg.size(); ++i)
+        if (avg[i] > avg[best])
             best = i;
 
     return best;
 }
 
+void ambivalentRes(std::vector<float> softmax, std::vector<bool> &resultBest, float thresholdDistance = 1.0f / 7.0f) {
+    int largestIndex = 0, secondLargestIndex = -1;
+    for (int i = 1; i < softmax.size(); ++i) {
+        if (softmax[i] > softmax[largestIndex]) {
+            secondLargestIndex = largestIndex;
+            largestIndex = i;
+        } else if (secondLargestIndex == -1 || softmax[i] > softmax[secondLargestIndex]) {
+            secondLargestIndex = i;
+        }
+    }
+
+    for (size_t i = 0; i < resultBest.size(); ++i)
+        resultBest[i] = (softmax[largestIndex] - softmax[i] < thresholdDistance);
+}
+
+/**
+ * @brief Softvoting stategy where the result can be either a single emotion or multiple emotions (ambivalent)
+ *
+ * @param input Vector of SoftMax probabilities
+ * @param NUM_EMOTIONS size of the SoftMax vectors
+ * @param thresholdDistance required distance between the highest and second highest probability to consider the result NON-ambivalent
+ * @param resultBest Boolean vector of size NUM_EMOTIONS, where the resulting top emotions are stored
+ * @return size_t highest probability emotion if the probability is further than distance from the second best, otherwise -1
+ */
+size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const size_t NUM_EMOTIONS, std::vector<bool> &resultBest, float thresholdDistance = 1.f / 7.f) {
+    std::vector<float> avg(NUM_EMOTIONS, 0.0f);
+    // Sum the SoftMax probabilities for each emotion
+    for (auto &v : input)
+        for (size_t i = 0; i < NUM_EMOTIONS; ++i)
+            avg[i] += v[i];
+    // Average
+    for (size_t i = 1; i < avg.size(); ++i)
+        avg[i] = avg[i] / input.size();
+
+    // Argmax
+    int largestIndex = 0, secondLargestIndex = -1;
+
+    for (int i = 1; i < avg.size(); ++i) {
+        if (avg[i] > avg[largestIndex]) {
+            secondLargestIndex = largestIndex;
+            largestIndex = i;
+        } else if (secondLargestIndex == -1 || avg[i] > avg[secondLargestIndex]) {
+            secondLargestIndex = i;
+        }
+    }
+
+    // printf("Best: [%d] %.3f\n", largestIndex, avg[largestIndex]);
+    // printf("SecondBest: [%d] %.3f\n", secondLargestIndex, avg[secondLargestIndex]);
+
+    // Check if the distance between the best and the second best is smaller than the thresholdDistance
+    if (avg[largestIndex] - avg[secondLargestIndex] < thresholdDistance) {
+        // printf("Ambivalent\n");
+        // If the distance is smaller than the thresholdDistance, then we are ambivalent
+        // Then we return -1 and store the emotions that fall into the thresholdDistance distance in resultBest
+        for (size_t i = 0; i < resultBest.size(); ++i)
+            resultBest[i] = (avg[largestIndex] - avg[i] < thresholdDistance);
+
+        return -1;
+    }
+    // printf("Not ambivalent\n");
+    // If the distance is larger than the thresholdDistance, then we are not ambivalent
+    // Return the best
+    for (size_t i = 0; i < resultBest.size(); ++i)
+        resultBest[i] = (largestIndex == i);
+    return largestIndex;
+}
+
 void ECProcessor::extractAndClassify(std::string audioFilePath) {
-    // TODO: implement
+    this->oscSender.sendMessage("/state", (int)STATE_CLASSIFYING);
 #ifdef VERBOSE_PRINT
     std::cout << "Extracting and classifying " << audioFilePath << std::endl;
     std::cout << "File \"" << audioFilePath << "\"" << audioFilePath << std::endl;
@@ -244,7 +406,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
 
     // Extract features
 
-    extractFromFile(audioFilePath, featvec);
+    extractionPipeline.extractFromFile(audioFilePath, featvec);
 #ifdef VERBOSE_PRINT
     DBG("Extracted features:\n");
 #endif
@@ -261,6 +423,8 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
 
     if (numChunks == 0) {
         extractorState = extractorState + "\nNot enough frames to classify (Please record for more than 3 seconds)";
+        this->oscSender.sendMessage("/emotion", (int)-1);
+        this->oscSender.sendMessage("/state", (int)STATE_IDLE);
         return;
     }
 
@@ -269,45 +433,90 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
     std::vector<std::vector<float>> res;
     res.resize(numChunks);
     extractorState = extractorState + "\nPer Chunk winners: [ ";
+
+#ifdef GENERATE_AUDACITY_LABELS
+    std::vector<std::string> allPerChunkEmotions;
+    std::vector<std::string> softmaxOutsPrintable;
+#endif
     outputLabels.clear();
     outputLabelsInt.clear();
+
     for (size_t i = 0; i < numChunks; ++i) {
         res.at(i).resize(NUM_EMOTIONS);
         classifyChunk(std::vector<std::vector<float>>(featvec.begin() + i * FRAMES_IN_3_SECONDS, featvec.begin() + (i + 1) * FRAMES_IN_3_SECONDS), res.at(i));
-        // Argmax for log
-        int maxIndex = 0;
-        for (int j = 0; j < NUM_EMOTIONS; ++j)
-            if (res.at(i).at(j) > res.at(i).at(maxIndex))
-                maxIndex = j;
-        extractorState = extractorState + std::to_string(maxIndex) + " ";
-        outputLabels.push_back(emotions[maxIndex]);
-        outputLabelsInt.push_back((size_t)maxIndex);
-    }
-    extractorState = extractorState + "]";
-
-    int result = softVoting(res, NUM_EMOTIONS);
-    extractorState = extractorState + "\nSoftVotingResult: " + emotions[result] + " (id: " + std::to_string(result) + ")";
-    labelsWritten = true;
+        // Check if the result is ambivalent or only one class prevails (if the result is ambivalent, the resultBest vector will contain true values corresponding the emotions that fall into the thresholdDistance distance)
+        ambivalentRes(res.at(i), this->topPredictedEmotions);
+        // Add to log all the emotions that fall into the thresholdDistance distance
 
 #ifdef GENERATE_AUDACITY_LABELS
-    std::string emotionLabels = "";
-    std::string softmaxLabels = "";
-    for (size_t i = 0; i < numChunks; ++i) {
-        // Argmax for log
-        int maxIndex = 0;
-        for (int j = 0; j < NUM_EMOTIONS; ++j)
-            if (res.at(i).at(j) > res.at(i).at(maxIndex))
-                maxIndex = j;
-        emotionLabels += std::to_string((float)(i * 3)) + "\t" + std::to_string((float)((i + 1) * 3)) + "\t" + emotions[maxIndex] + "\n";
         std::string softmaxOut = "[ ";
         for (size_t j = 0; j < NUM_EMOTIONS; ++j)
             softmaxOut += std::to_string(res.at(i).at(j)) + " ";
         softmaxOut += "]";
-        softmaxLabels += std::to_string((float)(i * 3)) + "\t" + std::to_string((float)((i + 1) * 3)) + "\t" + softmaxOut + "\n";
+        softmaxOutsPrintable.push_back(softmaxOut);
+#endif
+        
+        std::string chunkEmotions = "";
+        size_t topEmotion = 0;
+        for (size_t j = 0; j < topPredictedEmotions.size(); ++j) {
+            if (topPredictedEmotions[j]) {
+                topEmotion = j;
+                extractorState += (std::to_string(j) + "/");
+                chunkEmotions += (emotions[j] + "/");
+            }
+        }
+        chunkEmotions.pop_back();
+
+        this->outputLabels.push_back(chunkEmotions);
+        if (std::count(topPredictedEmotions.begin(), topPredictedEmotions.end(), true) > 1)
+            this->outputLabelsInt.push_back(NUM_EMOTIONS);
+        else
+            this->outputLabelsInt.push_back(topEmotion);
+
+
+#ifdef GENERATE_AUDACITY_LABELS
+        allPerChunkEmotions.push_back(chunkEmotions);
+#endif
+
+        extractorState.pop_back();
+        extractorState += " ";
+    }
+    extractorState = extractorState + "]";
+
+    // Now we call the voting subroutine, which will return either a single int >= 0 or -1 if ambivalent (in this case, the resultBest vector will contain true values corresponding the emotions that fall into the thresholdDistance distance)
+    int result = ambivalentSoftVoting(res, this->NUM_EMOTIONS, this->topPredictedEmotions);
+
+    extractorState = extractorState + "\nSoftVotingResult: ";
+    if (result == -1) {  // ambivalent
+        extractorState = extractorState + "Ambivalent! (";
+        for (size_t v = 0; v < topPredictedEmotions.size(); ++v)
+            if (topPredictedEmotions[v])
+                extractorState = extractorState + emotions[v] + ",";
+        extractorState.pop_back();
+        extractorState = extractorState + ")";
+    } else {
+        extractorState = extractorState + emotions[result] + " (id: " + std::to_string(result) + ")";
+    }
+
+    labelsWritten = true;
+    // this->oscSender.sendMessage("/emotion",topPredictedEmotions);
+    this->oscSender.send4Bool("/emotion", topPredictedEmotions[0],
+                              topPredictedEmotions[1],
+                              topPredictedEmotions[2],
+                              topPredictedEmotions[3]);
+    this->oscSender.sendMessage("/state", (int)STATE_IDLE);
+
+#ifdef GENERATE_AUDACITY_LABELS
+    std::string emotionLabels = "", softmaxLabels = "";
+
+    for (size_t i = 0; i < numChunks; ++i) {
+        emotionLabels += std::to_string((float)(i * 3)) + "\t" + std::to_string((float)((i + 1) * 3)) + "\t" + allPerChunkEmotions[i] + "\n";
+        softmaxLabels += std::to_string((float)(i * 3)) + "\t" + std::to_string((float)((i + 1) * 3)) + "\t" + softmaxOutsPrintable[i] + "\n";
     }
 
     // std::cout << emotionLabels << std::endl;
     // std::cout << softmaxLabels << std::endl;
+
     // remove extension from audioFilePath, append -audacity-emotion-labels.txt and write emotionLabels
     std::string audacityEmotionLabelsFilePath = audioFilePath.substr(0, audioFilePath.find_last_of(".")) + "-audacity-emotion-labels.txt";
     std::ofstream audacityEmotionLabelsFile(audacityEmotionLabelsFilePath);
@@ -341,12 +550,24 @@ void ECProcessor::updateRecState() {
     }
 }
 
+void ECProcessor::updateGain() {
+    inputGain = ((AudioParameterFloat *)valueTreeState.getParameter(GAIN_ID))->get();
+}
+
 /** Create the parameters to add to the value tree state
  * In this case only the boolean recording state (true = rec, false = stop)
  */
 AudioProcessorValueTreeState::ParameterLayout ECProcessor::createParameterLayout() {
     std::vector<std::unique_ptr<RangedAudioParameter>> parameters;
     parameters.push_back(std::make_unique<AudioParameterBool>(RECSTATE_ID, RECSTATE_NAME, false));
+    parameters.push_back(std::make_unique<AudioParameterFloat>(GAIN_ID, GAIN_NAME,
+                                                               NormalisableRange<float>(0.0f,
+                                                                                        1.0f,
+                                                                                        0.0001,
+                                                                                        0.4,
+                                                                                        false),
+                                                               1.f));
+
     return {parameters.begin(), parameters.end()};
 }
 
@@ -385,6 +606,18 @@ void ECProcessor::setSaveFolder(const File &saveFolder) {
 
 File &ECProcessor::getSaveFolder() {
     return saveDir;
+}
+
+float ECProcessor::getRMSValue() const {
+    return rmsValue.getCurrentValue();
+}
+
+float ECProcessor::getPeakValue() const {
+    return peakValue.getCurrentValue();
+}
+
+void ECProcessor::setInputGain(float newGain) {
+    inputGain = newGain;
 }
 
 //==============================================================================

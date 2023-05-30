@@ -4,6 +4,12 @@
 
 #include "AudioThumbnail.h"
 #include "PluginProcessor.h"
+#include "levelMeter.h"
+
+#define METER_USE_PEAK
+// #define METER_USE_RMS
+
+
 
 const String OFF_TEXT = "Press to start recording";
 const String ON_TEXT = "Recording... Press to classify";
@@ -12,6 +18,7 @@ const String CLASSIFYING_TEXT = "Classifying...";
 const float EMOTION_AUDIO_SEGMENT_LENGTH_S = 3.0f;
 
 typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
+typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
 class ECEditor : public juce::AudioProcessorEditor {
 public:
@@ -69,7 +76,6 @@ private:
         status.setText(audioProcessor.extractorState, dontSendNotification);
 
         if (audioProcessor.recordingStopped.exchange(false)) {
-            // std::cout << "Recording stopped to path \"" << audioProcessor.audioFilename << "\"" << std::endl;
             juce::File afile(audioProcessor.audioFilename);
             waveformDisplayComponent.setFileSource(afile);
         }
@@ -89,7 +95,8 @@ private:
         {0, juce::Colours::orangered},
         {1, juce::Colours::lightgreen},
         {2, juce::Colours::orange},
-        {3, juce::Colours::lightblue}};
+        {3, juce::Colours::lightblue},
+        {4, juce::Colours::white}}; // White for ambivalent Emotion
 
     std::unique_ptr<juce::FileChooser> chooser;
     TextButton selectSaveFolderButton;
@@ -98,6 +105,14 @@ private:
 
     // Waveform display
     AudioThumbnailComponent waveformDisplayComponent{EMOTION_AUDIO_SEGMENT_LENGTH_S, "Press the Record button to start recording."};
+
+    // Metering
+    Gui::VerticalGradientMeter meter;
+
+    // Gain Slider
+    Slider gainSlider;
+    std::unique_ptr<SliderAttachment> gainSliderAttachment;
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECEditor)
 };
