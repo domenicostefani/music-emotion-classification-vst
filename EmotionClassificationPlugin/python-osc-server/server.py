@@ -14,11 +14,18 @@ from pythonosc.udp_client import SimpleUDPClient
 from pythonosc import osc_server
 
 
+# For Elk Board
+if os.path.exists("/udata"):
+    RECORDINGS_DIR = "/udata/emoAwSMIs-recordings/unnamed"
+    RECORDINGS_BAK_DIR = "/udata/emoAwSMIs-recordings/bakup"
+    RECORDINGS_RENAMED_DIR = "/udata/emoAwSMIs-recordings/RENAMED"
+    RECORDINGS_DELETED_DIR = "/udata/emoAwSMIs-recordings/trashcan"
+else:
+    RECORDINGS_DIR = "./recordings"
+    RECORDINGS_BAK_DIR = "./recordings_bak"
+    RECORDINGS_RENAMED_DIR = "./renamed_recordings"
+    RECORDINGS_DELETED_DIR = "./recordings_trashcan"
 
-RECORDINGS_DIR = "./recordings"
-RECORDINGS_BAK_DIR = "./recordings_bak"
-RECORDINGS_RENAMED_DIR = "./renamed_recordings"
-RECORDINGS_DELETED_DIR = "./recordings_trashcan"
 RECORDINGS_PATTERN = RECORDINGS_DIR + "/*.wav"
 RECORDINGS_ANDTXT_PATTERN = RECORDINGS_DIR + "/*"
 
@@ -51,6 +58,7 @@ def reply_handshake(addr, *args):
         if CLIENT== None:
             # print("Since it's the first time, I'll send a pyshake back to the controller (\"{}\") on port {}".format(CONTROLLER_IP,TX_PORT))
             CLIENT= SimpleUDPClient(CONTROLLER_IP, TX_PORT)
+            print("Sending pyshake back to the controller (\"{}\") on port {}".format(CONTROLLER_IP,TX_PORT))
             CLIENT.send_message("/pyshake", "hello")
             assert CLIENT!= None
         else:
@@ -67,7 +75,6 @@ def start_plugin(addr, *args):
 
     if len(args) == 1 and CLIENT!= None and not ALREADY_RUNNING:
         ALREADY_RUNNING = True
-        print("TODO: start plugin at {} with args {}".format(addr, args[0]))
         if args[0] == "piano":
             os.system(BASH_START_PIANO)
         elif args[0] == "acoustic":
@@ -81,7 +88,6 @@ def stop_plugin(addr, *args):
     global CLIENT
     global ALREADY_RUNNING
     if len(args) == 0 and CLIENT!= None:
-        print("TODO: stop plugin at {} ".format(addr))
         os.system(BASH_STOP)
         ALREADY_RUNNING = False
         CLIENT.send_message("/stopped","1")
@@ -122,8 +128,13 @@ def renameRecording(addr, *args):
             for file in list_of_files:
                 os.system('cp '+file+' '+RECORDINGS_BAK_DIR)
                 if os.path.splitext(file)[1] == ".wav":
-                    os.system('mv '+file+' '+os.path.join(RECORDINGS_RENAMED_DIR,new_filename+'.wav'))
-                    os.system('echo "Renamed '+file+' to '+os.path.join(RECORDINGS_RENAMED_DIR,new_filename+'.wav')+' > '+RECORDINGS_RENAMED_DIR+'/copylog'+new_filename+'.txt')
+                    new_fullpath = os.path.join(RECORDINGS_RENAMED_DIR,new_filename+'.wav')
+                    os.system('mv '+file+' '+new_fullpath)
+                    # os.system('echo "Renamed '+file+' to '+new_fullpath+' > '+RECORDINGS_RENAMED_DIR+'/copylog'+new_filename+'.txt')
+                    # Redo previous line with python access to file to avoid bash
+                    with open(os.path.join(RECORDINGS_RENAMED_DIR,'copylog'+new_filename+'.txt'), 'w') as f:
+                        f.write('Renamed '+file+' to '+new_fullpath+'\n')
+                    
                 else:
                     os.system('mv '+file+' '+os.path.join(RECORDINGS_RENAMED_DIR,new_filename+os.path.basename(file)))
             CLIENT.send_message("/renamed", "ok")
