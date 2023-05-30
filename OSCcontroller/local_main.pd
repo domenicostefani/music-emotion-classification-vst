@@ -98,9 +98,9 @@ target \; and resets initial slider values;
 #X obj 571 381 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
 0;
 #X obj 571 381 tgl 25 0 empty disconnected Disconnected 28 15 1 10
--261234 -91543 -258113 1 1;
+-261234 -91543 -258113 0 1;
 #X obj 571 406 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
--91543 -13381 0 1;
+-91543 -13381 1 1;
 #X obj 426 331 cnv 15 125 300 empty empty empty 8 12 1 14 -248615 -66577
 0;
 #X floatatom 461 601 10 0 0 1 dB roundedmeter -;
@@ -179,7 +179,7 @@ should start moving when audio --is fed to the input of the board.
 #X obj 700 409 tgl 18 0 empty plg_acoustic Acoustic_Plugin_Started
 22 11 1 10 -262144 -1 -1 0 1;
 #X obj 700 360 tgl 18 0 empty plg_no NO_PLUGIN_STARTED 22 11 1 10 -261234
--1 -1 0 1;
+-1 -1 1 1;
 #X obj 522 158 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
 #X text 450 138 Board IP;
