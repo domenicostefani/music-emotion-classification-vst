@@ -7,7 +7,7 @@
 using namespace std;
 using namespace essentia;
 
-
+emosmi::MusicnnFeatureExtractor extractionPipeline;
 
 void usage(char *progname)
 {
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     cout << "Analyzing " << audioFilename << endl;
     std::vector<std::vector<Real>> bandsVec;
 
-    extractFromFile(audioFilename, bandsVec);
+    extractionPipeline.extractFromFile(audioFilename, bandsVec);
 
     cout << "size(output): " << bandsVec.size() << "x" << bandsVec[0].size() << endl;
     cout << "head(output): " << endl;
