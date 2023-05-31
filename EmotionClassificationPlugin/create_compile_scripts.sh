@@ -23,3 +23,5 @@ echo 'pkill -SIGINT -f sushi' > $1/Builds/linux-aarch64/bin/stop.sh
 echo 'scp ./bin/* mind@elk-pi.local:~/EmotionClassificationPlugin_Offline/' > $1/Builds/linux-aarch64/copyover.sh 
 
 cp $1/python-osc-server/server.py $1/Builds/linux-aarch64/bin/
+
+echo '[Unit]\nDescription=Emotionally Aware SmartMusicalInstruments OSC SERVER\n\n[Service]\nType=forking\nUser=mind\nExecStart=/usr/bin/tmux new -d -s emoAwSMIs "/usr/bin/python3 /home/mind/EmotionClassificationPlugin_Offline/server.py"\nExecStop=/usr/bin/tmux kill-session -t emoAwSMIs\n\n[Install]\nWantedBy=multi-user.target' > $1/Builds/linux-aarch64/bin/emo_aw_smis.service
