@@ -24,4 +24,6 @@ echo 'scp ./bin/* mind@elk-pi.local:~/EmotionClassificationPlugin_Offline/' > $1
 
 cp $1/python-osc-server/server.py $1/Builds/linux-aarch64/bin/
 
-echo '[Unit]\nDescription=Emotionally Aware SmartMusicalInstruments OSC SERVER\n\n[Service]\nType=forking\nUser=mind\nExecStart=/usr/bin/tmux new -d -s emoAwSMIs "/usr/bin/python3 /home/mind/EmotionClassificationPlugin_Offline/server.py"\nExecStop=/usr/bin/tmux kill-session -t emoAwSMIs\n\n[Install]\nWantedBy=multi-user.target' > $1/Builds/linux-aarch64/bin/emo_aw_smis.service
+echo '[Unit]\nDescription=Emotionally Aware SmartMusicalInstruments OSC SERVER\n\n[Service]\nType=forking\nUser=mind\nWorkingDirectory=/home/mind/EmotionClassificationPlugin_Offline/\nExecStart=/bin/bash /home/mind/EmotionClassificationPlugin_Offline/start_server_in_tmux.sh\nExecStop=/usr/bin/tmux kill-session -t emoAwSMIs\n\n[Install]\nWantedBy=multi-user.target\n' > $1/Builds/linux-aarch64/bin/emo_aw_smis.service
+
+echo '# Start the OSC server in tmux. Source manually profile.sh to get LD_LIBRARY_PATH (needed for sushi)\nsource /etc/profile.d/elk_profile.sh\n/usr/bin/tmux new -d -s emoAwSMIs "/usr/bin/python3 /home/mind/EmotionClassificationPlugin_Offline/server.py"\n' > $1/Builds/linux-aarch64/bin/start_server_in_tmux.sh
