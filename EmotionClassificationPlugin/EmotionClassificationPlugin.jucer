@@ -3,7 +3,7 @@
 <JUCERPROJECT id="r1vIdU" name="EmotionClassificationPlugin" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="1" displaySplashScreen="1"
               jucerFormatVersion="1" pluginVST3Category="Analyzer" pluginVSTCategory="kPlugCategAnalysis"
-              postExportShellCommandPosix="sh %%1%%/create_compile_scripts.sh %%1%%"
+              postExportShellCommandPosix="bash %%1%%/create_compile_scripts.sh %%1%%"
               headerPath="../../../include/&#10;../../../libs/essentia/src/&#10;/usr/include/eigen3&#10;../../../libs/deep-classf-runtime-wrappers/TFLiteWrapper/2.11.0/src"
               pluginFormats="buildStandalone,buildVST">
   <MAINGROUP id="iymw5S" name="EmotionClassificationPlugin">
