@@ -62,7 +62,7 @@
 #X connect 15 0 3 0;
 #X connect 15 0 4 0;
 #X restore 837 99 pd 4waytoggler;
-#N canvas 1 89 682 415 5waytoggler 1;
+#N canvas 1 89 682 415 5waytoggler 0;
 #X obj 516 205 inlet;
 #X text 516 170 Reset;
 #X text 245 170 Value 0-3;
@@ -132,7 +132,7 @@
 #X connect 20 0 15 0;
 #X connect 21 0 22 0;
 #X restore 837 78 pd 5waytoggler;
-#X obj 18 148 r oscrx_emotion;
+#X obj 18 99 r oscrx_emotion;
 #X obj 18 171 unpack 0 0 0 0;
 #X floatatom 18 210 5 0 0 0 - - -;
 #X floatatom 85 210 5 0 0 0 - - -;
@@ -161,6 +161,8 @@
 #X obj 129 478 s oscrx_res_happy;
 #X obj 173 458 s oscrx_res_sad;
 #X obj 217 438 s oscrx_noemo;
+#X obj 46 137 print received;
+#X obj 469 116 r stop_plugin;
 #X connect 0 0 2 0;
 #X connect 1 0 16 0;
 #X connect 2 0 1 0;
@@ -168,6 +170,7 @@
 #X connect 4 0 1 0;
 #X connect 5 0 1 0;
 #X connect 8 0 9 0;
+#X connect 8 0 36 0;
 #X connect 9 0 10 0;
 #X connect 9 1 11 0;
 #X connect 9 2 12 0;
@@ -202,4 +205,5 @@
 #X connect 28 0 33 0;
 #X connect 29 0 34 0;
 #X connect 30 0 20 0;
+#X connect 37 0 1 0;
 #X coords 0 0 1 1 200 140 0;

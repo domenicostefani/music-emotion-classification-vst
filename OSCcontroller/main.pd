@@ -1,35 +1,35 @@
-#N canvas 1 89 1918 990 10;
+#N canvas 599 120 1287 990 10;
 #X declare -lib zexy -lib mrpeach;
-#X obj 909 9 cnv 15 277 270 empty empty 3._Control 8 16 1 15 -257562
+#X obj 505 7 cnv 15 277 270 empty empty 3._Control 8 16 1 15 -257562
 -1 0;
-#X obj 419 9 cnv 15 230 270 empty empty 1_Establish_Connection 8 16
+#X obj 15 7 cnv 15 230 270 empty empty 1_Establish_Connection 8 16
 1 15 -212671 -1 0;
-#X obj 420 294 cnv 15 460 355 empty empty Monitor 12 18 1 18 -261682
+#X obj 16 292 cnv 15 460 355 empty empty Monitor 12 18 1 18 -261682
 -1 0;
-#X obj 440 53 bng 25 250 50 0 \$0-conn_m empty <----Connect_to_board
+#X obj 36 51 bng 25 250 50 0 \$0-conn_m empty <----Connect_to_board
 30 13 1 12 -150464 -1 -1;
 #X obj 1573 735 declare -lib zexy -lib mrpeach;
-#X obj 887 294 cnv 15 350 355 empty empty Results(Predicted_Emotion)
+#X obj 483 292 cnv 15 350 355 empty empty Results(Predicted_Emotion)
 12 18 1 18 -208051 -1 0;
-#X obj 906 350 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 502 348 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
 0;
-#X obj 906 417 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 502 415 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
 0;
-#X obj 906 484 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 502 482 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
 0;
-#X obj 906 551 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 502 549 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
 0;
-#X obj 909 368 tgl 40 0 empty oscrx_res_aggressive Aggressive 0 -10
+#X obj 505 366 tgl 40 0 empty oscrx_res_aggressive Aggressive 0 -10
 1 15 -213249 -1 -1 0 1;
-#X obj 908 436 tgl 40 0 empty oscrx_res_relaxed Relaxed 0 -10 1 15
+#X obj 504 434 tgl 40 0 empty oscrx_res_relaxed Relaxed 0 -10 1 15
 -2676 -1 -1 0 1;
-#X obj 908 503 tgl 40 0 empty oscrx_res_happy Happy 0 -10 1 15 -47873
+#X obj 504 501 tgl 40 0 empty oscrx_res_happy Happy 0 -10 1 15 -47873
 -1 -1 0 1;
-#X obj 909 570 tgl 40 0 empty oscrx_res_sad Sad 0 -10 1 15 -174763
+#X obj 505 568 tgl 40 0 empty oscrx_res_sad Sad 0 -10 1 15 -174763
 -1 -1 0 1;
-#X obj 1275 597 bng 20 250 50 0 main_reset empty Main_Reset 23 13 1
+#X obj 871 595 bng 20 250 50 0 main_reset empty Main_Reset 23 13 1
 11 -261234 -1 -1;
-#N canvas 567 173 1272 678 control_logic 0;
+#N canvas 567 158 1272 678 control_logic 1;
 #X msg 39 85 1;
 #X msg 118 86 0;
 #X obj 39 63 r b_startrec;
@@ -89,114 +89,87 @@
 #X connect 13 0 15 0;
 #X connect 14 0 13 0;
 #X restore 1573 759 pd control_logic;
-#X text 1273 547 You shouldn´t need this \; It disconnects the osc
+#X text 869 545 You shouldn´t need this \; It disconnects the osc
 target \; and resets initial slider values;
-#X obj 563 331 cnv 15 310 125 empty empty Connection_State 13 19 1
+#X obj 159 329 cnv 15 310 125 empty empty Connection_State 13 19 1
 14 -248615 -1 0;
-#X obj 571 406 cnv 15 120 25 empty empty empty 20 12 1 15 -204786 -66577
+#X obj 167 404 cnv 15 120 25 empty empty empty 20 12 1 15 -204786 -66577
 0;
-#X obj 571 381 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
+#X obj 167 379 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
 0;
-#X obj 571 381 tgl 25 0 empty disconnected Disconnected 28 15 1 10
+#X obj 167 379 tgl 25 0 empty disconnected Disconnected 28 15 1 10
 -261234 -91543 -258113 1 1;
-#X obj 571 406 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
+#X obj 167 404 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
 -91543 -13381 0 1;
-#X obj 426 331 cnv 15 125 300 empty empty empty 8 12 1 14 -248615 -66577
+#X obj 22 329 cnv 15 125 300 empty empty empty 8 12 1 14 -248615 -66577
 0;
-#X floatatom 461 601 10 0 0 1 dB roundedmeter -;
-#X obj 563 467 cnv 15 310 165 empty empty empty 8 12 1 14 -248615 -66577
+#X floatatom 57 599 10 0 0 1 dB roundedmeter -;
+#X obj 159 465 cnv 15 310 165 empty empty empty 8 12 1 14 -248615 -66577
 0;
-#X obj 658 502 vradio 40 1 0 3 empty oscrx_state PluginState 0 -16
+#X obj 254 500 vradio 40 1 0 3 empty oscrx_state PluginState 0 -16
 1 15 -237178 -91543 -1 0;
-#X obj 1012 350 cnv 15 200 261 empty empty empty 20 12 0 14 -228856
+#X obj 608 348 cnv 15 200 261 empty empty empty 20 12 0 14 -228856
 -91543 0;
-#X obj 1278 489 bng 20 250 50 0 emo_reset main_reset Reset_Display_manually
+#X obj 874 487 bng 20 250 50 0 emo_reset main_reset Reset_Display_manually
 23 10 1 10 -261234 -1 -86277;
-#X obj 1016 459 tgl 40 0 empty oscrx_noemo empty 46 21 1 14 -262144
+#X obj 612 457 tgl 40 0 empty oscrx_noemo empty 46 21 1 14 -262144
 -258113 -1 0 1;
-#X obj 9 8 cnv 15 400 642 empty empty How_To 150 22 1 18 -233017 -66577
+#X floatatom 524 240 8 0 0 1 dB vis_gain -;
+#X obj 613 36 cnv 15 150 70 empty empty empty 20 12 0 14 -262144 -66577
 0;
-#X obj 19 50 cnv 15 380 580 empty empty empty 150 22 1 18 -262144 -66577
-0;
-#X floatatom 928 242 8 0 0 1 dB vis_gain -;
-#X obj 1017 38 cnv 15 150 70 empty empty empty 20 12 0 14 -262144 -66577
-0;
-#X obj 1031 59 bng 40 250 50 0 b_startrec empty Start_Recording 0 -10
+#X obj 627 57 bng 40 250 50 0 b_startrec empty Start_Recording 0 -10
 1 11 -204786 -1 -1;
-#X obj 1017 112 cnv 15 150 70 empty empty empty 20 12 0 14 -262144
--66577 0;
-#X obj 1031 133 bng 40 250 50 0 b_stoprec empty Stop_and_classify 0
+#X obj 613 110 cnv 15 150 70 empty empty empty 20 12 0 14 -262144 -66577
+0;
+#X obj 627 131 bng 40 250 50 0 b_stoprec empty Stop_and_classify 0
 -10 1 11 -261234 -1 -1;
-#X text 29 56 To control the Emotion Classification on the ElkPI follow
-these instructions \; \; 1 Connect the ElkPI and this Laptop to the
-same network. You ~~can use a direct ethernet cable or a common router.
-In the ~~first case you might need to tell the laptop to create a ~~shared
-connection. Switch on the ElkPI or reboot \; ~~if it was already on
-\; \; 2 Find the IP of the ElkPI in the shared network. In a \; --unix
-terminal use the following \; --> ping elk-pi.local # This can be useful
-\; --> arp -a # This helps if the hostname is not resolved \; \; 3
-Find the IP of this laptop IN THE NETWORK shared with the --ElkPI.
-One way to do this is to carefully examine the --output of the following
-terminal commands: \; --> ifconfig \; --> ip a s \; \; 4 Plug both
-the Board_IP and the Controller_IP in the two --message objects on
-the right of these instructions. --Hostnames don't seem to work so
-use the actual IPs. Leave --the PORT messages untouched. \; \; 5 SSH
-into the ElkPI board. From a terminal write: \; -->ssh mind@elk-pi.local
-\; --Or replace elk-pi.local with the IP found at 2 \; --Password:
-elk \; \; 6 In the ssh terminal \, go into the emotion classification
---directory and run the script call run \; --> cd EmotionClassification
-\; --> ./run \; \; 7 From this patch \, exit edit mode and press "Connect
-to the --board". Wait for a few seconds and check for a green light
---from the "Connected" toggle button. \; --Now the Record_level meter
-should start moving when audio --is fed to the input of the board.
-;
 #X obj 1572 783 _osc_receiver;
 #X obj 1571 808 _emotion_toggler;
-#X obj 705 513 cnv 15 50 18 empty empty Idle 8 12 1 14 -248615 -1 0
+#X obj 301 511 cnv 15 50 18 empty empty Idle 8 12 1 14 -248615 -1 0
 ;
-#X obj 706 552 cnv 15 50 18 empty empty Recording 8 12 1 14 -248615
+#X obj 302 550 cnv 15 50 18 empty empty Recording 8 12 1 14 -248615
 -1 0;
-#X obj 706 589 cnv 15 50 18 empty empty Classifying 8 12 1 14 -248615
+#X obj 302 587 cnv 15 50 18 empty empty Classifying 8 12 1 14 -248615
 -1 0;
-#X text 1275 466 Reset only the emotion display;
-#X obj 504 362 cnv 15 30 18 empty empty ----|0dB 0 12 1 8 -248615 -1
+#X text 871 464 Reset only the emotion display;
+#X obj 100 360 cnv 15 30 18 empty empty ----|0dB 0 12 1 8 -248615 -1
 0;
-#X obj 503 565 cnv 15 30 18 empty empty ----|-90dB 0 12 1 8 -248615
+#X obj 99 563 cnv 15 30 18 empty empty ----|-90dB 0 12 1 8 -248615
 -1 0;
-#X obj 475 374 vsl 25 200 -90 0 0 0 empty oscrx_meter Record_level
--43 -26 1 15 -262144 -1 -1 0 1;
-#X obj 440 92 bng 25 250 50 0 \$0-disc_m empty <----Disconnect 30 13
+#X obj 71 372 vsl 25 200 -90 0 0 0 empty oscrx_meter Record_level -43
+-26 1 15 -262144 -1 -1 0 1;
+#X obj 36 90 bng 25 250 50 0 \$0-disc_m empty <----Disconnect 30 13
 1 12 -261234 -1 -1;
-#X obj 437 158 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
+#X obj 33 156 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
-#X obj 941 73 vsl 20 160 -100 0 0 0 s_gain initial_gain Recording_gain
+#X obj 537 71 vsl 20 160 -100 0 0 0 s_gain initial_gain Recording_gain
 -28 -12 1 10 -262144 -1 -1 15900 1;
-#X text 521 137 Computer IP;
-#X obj 700 384 tgl 18 0 empty plg_electric Electric_Plugin_Started
+#X text 117 135 Computer IP;
+#X obj 296 382 tgl 18 0 empty plg_electric Electric_Plugin_Started
 22 11 1 10 -262144 -1 -1 0 1;
-#X obj 700 434 tgl 18 0 empty plg_piano Piano_Plugin_Started 22 11
+#X obj 296 432 tgl 18 0 empty plg_piano Piano_Plugin_Started 22 11
 1 10 -262144 -1 -1 0 1;
-#X obj 700 409 tgl 18 0 empty plg_acoustic Acoustic_Plugin_Started
+#X obj 296 407 tgl 18 0 empty plg_acoustic Acoustic_Plugin_Started
 22 11 1 10 -262144 -1 -1 0 1;
-#X obj 700 360 tgl 18 0 empty plg_no NO_PLUGIN_STARTED 22 11 1 10 -261234
+#X obj 296 358 tgl 18 0 empty plg_no NO_PLUGIN_STARTED 22 11 1 10 -261234
 -1 -1 0 1;
-#X obj 522 158 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
+#X obj 118 156 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
-#X text 450 138 Board IP;
-#X obj 493 257 _osc_conn2;
-#X obj 427 208 r \$0-conn_m;
-#X obj 504 240 r \$0-disc_m;
-#X obj 659 9 cnv 15 240 270 empty empty 2._Start_A_Plugin 8 16 1 15
+#X text 46 136 Board IP;
+#X obj 89 255 _osc_conn2;
+#X obj 23 206 r \$0-conn_m;
+#X obj 100 238 r \$0-disc_m;
+#X obj 255 7 cnv 15 240 270 empty empty 2._Start_A_Plugin 8 16 1 15
 -233467 -66577 0;
-#X obj 675 87 bng 25 250 50 0 start_electric empty Start_Electric_Guitar_Plugin
+#X obj 271 85 bng 25 250 50 0 start_electric empty Start_Electric_Guitar_Plugin
 30 14 1 11 -204786 -1 -1;
-#X obj 675 118 bng 25 250 50 0 start_acoustic empty Start_Acoustic_Guitar_Plugin
+#X obj 271 116 bng 25 250 50 0 start_acoustic empty Start_Acoustic_Guitar_Plugin
 30 14 1 11 -204786 -1 -1;
-#X obj 675 149 bng 25 250 50 0 start_piano empty Start_Piano_Plugin
+#X obj 271 147 bng 25 250 50 0 start_piano empty Start_Piano_Plugin
 30 14 1 11 -204786 -1 -1;
-#X obj 675 203 bng 25 250 50 0 stop_plugin empty Stop_Plugin 30 14
+#X obj 271 201 bng 25 250 50 0 stop_plugin empty Stop_Plugin 30 14
 1 11 -261234 -1 -1;
-#X obj 550 206 r \$0-handshake;
+#X obj 146 204 r \$0-handshake;
 #X obj 1233 1191 cnv 15 360 355 empty empty Renamer_logic 20 12 1 14
 -228856 -33289 0;
 #X obj 1244 1251 cnv 25 160 25 empty empty empty 20 12 0 14 -204786
@@ -235,7 +208,7 @@ should start moving when audio --is fed to the input of the board.
 #X text 516 170 Reset;
 #X text 245 170 Value 0-3;
 #X obj 329 241 hradio 20 1 0 4 empty empty empty 0 -8 0 10 -237178
--91543 -91543 0;
+-91543 -91543 1;
 #X obj 441 379 select 0 1 2 3;
 #X msg 408 467 0;
 #X msg 385 443 1;
@@ -319,12 +292,12 @@ we send handshake \; 5 We receive handshake and show plugin as started
 #X obj 732 945 pack s;
 #X text 730 821 Filename selector/renamer \; Control from the purple
 canvas controls;
-#X obj 1067 452 cnv 15 140 20 empty empty Recording_too 0 12 1 14 -228856
+#X obj 663 450 cnv 15 140 20 empty empty Recording_too 0 12 1 14 -228856
 -33289 0;
-#X obj 1067 474 cnv 15 140 20 empty empty short_or 0 12 1 14 -228856
+#X obj 663 472 cnv 15 140 20 empty empty short_or 0 12 1 14 -228856
 -33289 0;
-#X obj 1067 497 cnv 15 140 20 empty empty silent 0 12 1 14 -228856
--33289 0;
+#X obj 663 495 cnv 15 140 20 empty empty silent 0 12 1 14 -228856 -33289
+0;
 #X obj 151 894 pack f f;
 #X obj 1073 734 cnv 15 490 330 empty empty React_to_response_to_/rename
 20 12 1 14 -233017 -66577 0;
@@ -398,11 +371,11 @@ to keep the last or one of the previous ones, f 21;
 #X obj 1244 1106 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X obj 1244 1150 s osc_msg_tosend3;
-#X obj 1021 197 cnv 15 150 77 empty empty DANGER:Delete_recordings
-4 11 1 8 -261234 -1 0;
-#X obj 1028 224 bng 20 250 50 0 \$0-b_deletelast empty Delete_unnamed
+#X obj 617 195 cnv 15 150 77 empty empty DANGER:Delete_recordings 4
+11 1 8 -261234 -1 0;
+#X obj 624 222 bng 20 250 50 0 \$0-b_deletelast empty Delete_unnamed
 22 10 1 11 -261234 -1 -1;
-#X obj 1028 249 bng 20 250 50 0 \$0-b_deleteallbutlast empty Delete_AllButLast
+#X obj 624 247 bng 20 250 50 0 \$0-b_deleteallbutlast empty Delete_AllButLast
 22 10 1 11 -261234 -1 -1;
 #X msg 1244 1127 /deleteUnnamed;
 #X obj 1367 1073 cnv 15 160 110 empty empty empty 20 12 0 14 -233017
@@ -435,14 +408,14 @@ to keep the last or one of the previous ones, f 21;
 #X msg 32 1244 /setDate \$2 \$3 \$4 \$5 \$6 \$7;
 #X obj 149 1118 bng 20 250 50 0 \$0-b_setDate empty SetDateOnBoard
 23 12 1 10 -262144 -1 -1;
-#X obj 538 223 r \$0-connplug;
+#X obj 134 221 r \$0-connplug;
 #X obj 242 899 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X obj 242 977 s \$0-connplug;
 #X obj 242 919 delay 1000;
 #X obj 331 977 s \$0-handshake;
 #X obj 331 954 delay 500;
-#X obj 427 225 t b b;
+#X obj 23 223 t b b;
 #X obj 315 1073 cnv 15 160 230 empty empty Start_DSP 20 12 1 14 -233017
 -66577 0;
 #X obj 329 1110 loadbang;
@@ -467,7 +440,7 @@ to keep the last or one of the previous ones, f 21;
 #X obj 516 205 inlet;
 #X text 516 170 Reset;
 #X obj 329 241 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -237178
--91543 -91543 1;
+-91543 -91543 0;
 #X msg 308 463 0;
 #X msg 285 439 1;
 #X msg 357 463 0;
@@ -496,7 +469,7 @@ to keep the last or one of the previous ones, f 21;
 #X connect 11 1 5 0;
 #X restore 694 1207 pd 2waytoggler;
 #X obj 694 1151 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -228856
--91543 -91543 1;
+-91543 -91543 0;
 #X msg 694 1127 0;
 #X obj 694 1102 r dsc;
 #X msg 733 1128 1;
@@ -548,176 +521,241 @@ array, f 17;
 -1 -1;
 #X obj 1480 1370 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1194 10 cnv 15 420 270 empty empty Renamer 12 18 1 18 -228856
+#X obj 790 8 cnv 15 420 270 empty empty 4._Renamer 8 16 1 15 -228856
 -1 0;
-#X obj 1409 166 bng 50 250 50 0 empty \$0-blinker empty 17 7 0 10 -232576
+#X obj 1005 164 bng 50 250 50 0 empty \$0-blinker empty 17 7 0 10 -232576
 -258113 -1;
-#X obj 1215 256 bng 15 250 50 0 \$0-reserr empty Reset_ERR 20 9 1 8
+#X obj 811 254 bng 15 250 50 0 \$0-reserr empty Reset_ERR 20 9 1 8
 -232576 -1 -1;
-#X obj 1409 222 tgl 50 0 \$0-resetme \$0-rnm_ok_toggle Renamed_OK 54
+#X obj 1005 220 tgl 50 0 \$0-resetme \$0-rnm_ok_toggle Renamed_OK 54
 27 1 17 -232576 -13381 -33289 0 1;
-#X obj 1212 98 bng 19 250 50 0 \$0-printfilename empty Print_next_filename
+#X obj 808 96 bng 19 250 50 0 \$0-printfilename empty Print_next_filename
 25 11 1 10 -232576 -1 -1;
-#X obj 1212 53 bng 21 250 50 0 \$0-rename empty Rename_&_prepare_NextName
+#X obj 808 51 bng 21 250 50 0 \$0-rename empty Rename_&_prepare_NextName
 25 11 1 10 -232576 -1 -1;
-#X obj 1215 211 bng 15 250 50 0 \$0-prevname empty Prev.Name 25 11
+#X obj 811 209 bng 15 250 50 0 \$0-prevname empty Prev.Name 25 11 1
+10 -232576 -1 -1;
+#X obj 811 231 bng 15 250 50 0 \$0-nextname empty Next.Name 25 11 1
+10 -232576 -1 -1;
+#X msg 809 145 customname ciao.wav;
+#X obj 809 168 s \$0-ns;
+#X obj 809 121 bng 19 250 50 0 empty empty Prepare_Custom_name 25 11
 1 10 -232576 -1 -1;
-#X obj 1215 233 bng 15 250 50 0 \$0-nextname empty Next.Name 25 11
-1 10 -232576 -1 -1;
-#X msg 1213 147 customname ciao.wav;
-#X obj 1213 170 s \$0-ns;
-#X obj 1213 123 bng 19 250 50 0 empty empty Prepare_Custom_name 25
-11 1 10 -232576 -1 -1;
-#X text 1473 167 Rename error if blinking: look at Pd console, f 15
+#X text 1069 165 Rename error if blinking: look at Pd console, f 15
 ;
-#X msg 440 159 127.0.0.1;
-#X msg 527 159 127.0.0.2;
 #X msg 1369 1361 preselect;
-#X connect 57 0 172 0;
-#X connect 58 0 56 1;
-#X connect 64 0 56 5;
-#X connect 74 0 73 0;
-#X connect 75 0 74 0;
-#X connect 76 0 73 0;
-#X connect 77 0 73 0;
-#X connect 78 0 73 0;
-#X connect 79 0 73 0;
-#X connect 80 0 78 0;
-#X connect 81 0 73 0;
-#X connect 83 0 73 0;
-#X connect 85 0 86 0;
-#X connect 86 0 92 0;
-#X connect 87 0 88 0;
-#X connect 87 1 89 0;
-#X connect 87 2 90 0;
-#X connect 87 3 91 0;
-#X connect 92 0 87 0;
-#X connect 93 0 100 0;
-#X connect 94 0 97 0;
-#X connect 94 0 167 0;
-#X connect 95 0 98 0;
-#X connect 95 0 167 0;
-#X connect 96 0 99 0;
-#X connect 96 0 167 0;
-#X connect 97 0 117 1;
-#X connect 98 0 117 1;
-#X connect 99 0 117 1;
-#X connect 100 0 117 0;
-#X connect 101 0 87 0;
-#X connect 102 0 103 0;
-#X connect 103 0 92 0;
-#X connect 106 0 108 0;
-#X connect 106 0 112 0;
-#X connect 106 1 107 0;
-#X connect 109 0 106 0;
-#X connect 111 0 110 0;
-#X connect 112 0 111 0;
-#X connect 117 0 101 0;
-#X connect 119 0 148 0;
-#X connect 120 0 126 0;
-#X connect 121 0 123 0;
-#X connect 121 0 127 0;
-#X connect 121 0 131 0;
-#X connect 122 0 123 0;
-#X connect 122 0 127 0;
-#X connect 122 0 132 0;
+#X msg 36 157 10.42.0.47;
+#X msg 123 157 10.42.0.1;
+#X text 1165 312 To copy the files to to this computer you should copy
+the public SSH key of the board to the authorized_keys file in the
+ssh config folder. \; This allows the board to copy file to this computer
+without entering your password. \; It's a good idea to remove the key
+from your auth list after you are done. \; \; \; Copy the public key
+to this pc with: \; ssh mind@10.42.0.47 "cat .ssh/id_rsa.pub" >> .ssh/authorized_keys
+, f 78;
+#X obj 138 181 s \$0-cIP;
+#X obj 1179 498 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1469 493 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1350 632 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1488 635 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1635 639 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1716 499 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1726 509 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1736 519 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1746 529 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1756 539 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1766 549 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1776 559 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 1191 606 pack s s s, f 40;
+#X msg 1191 502 cimil-01;
+#X obj 1335 528 r \$0-cIP;
+#X obj 1191 549 cyclone/prepend symbol;
+#X obj 1335 551 cyclone/prepend symbol;
+#X obj 1481 548 cyclone/prepend symbol;
+#X obj 1191 457 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 1191 477 t b b;
+#X text 1196 584 ControllerUser ControllerIP PathWhereToCopy, f 67
+;
+#X obj 1191 681 s osc_msg_tosend3;
+#X msg 1493 638 /copyAllRenamed;
+#X msg 1644 643 /copyLastRenamed;
+#X msg 1356 635 /alwaysCopyRenamed;
+#X msg 1191 635 /setCopyDetails \$1@\$2:\$3;
+#X msg 1481 496 ~/Desktop/RemoteRecsEmo;
+#X obj 1088 790 r main_reset;
+#X connect 54 0 169 0;
+#X connect 55 0 53 1;
+#X connect 61 0 53 5;
+#X connect 71 0 70 0;
+#X connect 72 0 71 0;
+#X connect 73 0 70 0;
+#X connect 74 0 70 0;
+#X connect 75 0 70 0;
+#X connect 76 0 70 0;
+#X connect 77 0 75 0;
+#X connect 78 0 70 0;
+#X connect 80 0 70 0;
+#X connect 82 0 83 0;
+#X connect 83 0 89 0;
+#X connect 84 0 85 0;
+#X connect 84 1 86 0;
+#X connect 84 2 87 0;
+#X connect 84 3 88 0;
+#X connect 89 0 84 0;
+#X connect 90 0 97 0;
+#X connect 91 0 94 0;
+#X connect 91 0 164 0;
+#X connect 92 0 95 0;
+#X connect 92 0 164 0;
+#X connect 93 0 96 0;
+#X connect 93 0 164 0;
+#X connect 94 0 114 1;
+#X connect 95 0 114 1;
+#X connect 96 0 114 1;
+#X connect 97 0 114 0;
+#X connect 98 0 84 0;
+#X connect 99 0 100 0;
+#X connect 100 0 89 0;
+#X connect 103 0 105 0;
+#X connect 103 0 109 0;
+#X connect 103 1 104 0;
+#X connect 106 0 103 0;
+#X connect 108 0 107 0;
+#X connect 109 0 108 0;
+#X connect 114 0 98 0;
+#X connect 116 0 145 0;
+#X connect 117 0 123 0;
+#X connect 118 0 120 0;
+#X connect 118 0 124 0;
+#X connect 118 0 128 0;
+#X connect 119 0 120 0;
+#X connect 119 0 124 0;
+#X connect 119 0 129 0;
+#X connect 120 0 122 0;
+#X connect 121 0 120 1;
+#X connect 121 0 124 0;
 #X connect 123 0 125 0;
-#X connect 124 0 123 1;
-#X connect 124 0 127 0;
-#X connect 126 0 128 0;
-#X connect 127 0 128 0;
-#X connect 129 0 127 0;
-#X connect 130 0 127 0;
-#X connect 131 0 133 0;
-#X connect 132 0 133 0;
-#X connect 136 0 137 0;
-#X connect 137 0 142 0;
-#X connect 142 0 138 0;
-#X connect 144 0 147 0;
-#X connect 146 0 144 0;
-#X connect 147 0 145 0;
-#X connect 148 0 120 0;
-#X connect 148 1 121 0;
-#X connect 148 2 122 0;
-#X connect 148 3 149 0;
-#X connect 149 0 123 0;
-#X connect 149 0 127 0;
-#X connect 149 0 150 0;
-#X connect 150 0 133 0;
-#X connect 152 0 162 6;
-#X connect 153 0 162 5;
-#X connect 154 0 162 4;
-#X connect 155 0 154 0;
-#X connect 155 1 153 0;
-#X connect 155 2 152 0;
-#X connect 156 0 159 0;
-#X connect 156 1 158 0;
-#X connect 156 2 157 0;
-#X connect 157 0 162 3;
-#X connect 158 0 162 2;
-#X connect 159 0 162 1;
-#X connect 160 0 161 0;
-#X connect 161 0 156 0;
-#X connect 161 0 155 0;
-#X connect 161 0 162 0;
-#X connect 162 0 164 0;
-#X connect 164 0 163 0;
-#X connect 166 0 56 4;
-#X connect 167 0 169 0;
-#X connect 169 0 168 0;
-#X connect 169 0 171 0;
-#X connect 171 0 170 0;
-#X connect 172 0 56 0;
-#X connect 172 0 243 0;
-#X connect 172 1 244 0;
-#X connect 174 0 175 0;
-#X connect 175 0 177 0;
-#X connect 177 0 176 0;
-#X connect 181 0 182 0;
-#X connect 181 0 185 0;
-#X connect 182 0 180 0;
-#X connect 183 0 185 0;
-#X connect 185 0 184 0;
-#X connect 185 0 186 0;
-#X connect 188 0 195 0;
-#X connect 188 0 199 0;
-#X connect 188 1 196 0;
-#X connect 189 0 188 0;
-#X connect 189 0 193 0;
-#X connect 190 0 189 0;
-#X connect 191 0 190 0;
-#X connect 192 0 189 0;
-#X connect 194 0 201 0;
-#X connect 199 0 198 0;
-#X connect 200 0 192 0;
-#X connect 201 0 195 0;
-#X connect 203 0 206 0;
-#X connect 203 0 216 0;
-#X connect 204 0 207 0;
-#X connect 204 0 209 0;
-#X connect 205 0 208 0;
-#X connect 205 0 217 0;
-#X connect 209 0 212 0;
-#X connect 210 0 211 0;
-#X connect 212 0 210 0;
-#X connect 214 0 215 0;
-#X connect 215 0 218 0;
-#X connect 216 0 212 0;
-#X connect 217 0 212 0;
-#X connect 218 0 213 0;
-#X connect 219 0 222 0;
+#X connect 124 0 125 0;
+#X connect 126 0 124 0;
+#X connect 127 0 124 0;
+#X connect 128 0 130 0;
+#X connect 129 0 130 0;
+#X connect 133 0 134 0;
+#X connect 134 0 139 0;
+#X connect 139 0 135 0;
+#X connect 141 0 144 0;
+#X connect 143 0 141 0;
+#X connect 144 0 142 0;
+#X connect 145 0 117 0;
+#X connect 145 1 118 0;
+#X connect 145 2 119 0;
+#X connect 145 3 146 0;
+#X connect 146 0 120 0;
+#X connect 146 0 124 0;
+#X connect 146 0 147 0;
+#X connect 147 0 130 0;
+#X connect 149 0 159 6;
+#X connect 150 0 159 5;
+#X connect 151 0 159 4;
+#X connect 152 0 151 0;
+#X connect 152 1 150 0;
+#X connect 152 2 149 0;
+#X connect 153 0 156 0;
+#X connect 153 1 155 0;
+#X connect 153 2 154 0;
+#X connect 154 0 159 3;
+#X connect 155 0 159 2;
+#X connect 156 0 159 1;
+#X connect 157 0 158 0;
+#X connect 158 0 153 0;
+#X connect 158 0 152 0;
+#X connect 158 0 159 0;
+#X connect 159 0 161 0;
+#X connect 161 0 160 0;
+#X connect 163 0 53 4;
+#X connect 164 0 166 0;
+#X connect 166 0 165 0;
+#X connect 166 0 168 0;
+#X connect 168 0 167 0;
+#X connect 169 0 53 0;
+#X connect 169 0 241 0;
+#X connect 169 1 242 0;
+#X connect 172 0 174 0;
+#X connect 174 0 173 0;
+#X connect 178 0 179 0;
+#X connect 178 0 182 0;
+#X connect 179 0 177 0;
+#X connect 180 0 182 0;
+#X connect 182 0 181 0;
+#X connect 182 0 183 0;
+#X connect 185 0 192 0;
+#X connect 185 0 196 0;
+#X connect 185 1 193 0;
+#X connect 186 0 185 0;
+#X connect 186 0 190 0;
+#X connect 187 0 186 0;
+#X connect 188 0 187 0;
+#X connect 189 0 186 0;
+#X connect 191 0 198 0;
+#X connect 196 0 195 0;
+#X connect 197 0 189 0;
+#X connect 198 0 192 0;
+#X connect 200 0 203 0;
+#X connect 200 0 213 0;
+#X connect 201 0 204 0;
+#X connect 201 0 206 0;
+#X connect 202 0 205 0;
+#X connect 202 0 214 0;
+#X connect 206 0 209 0;
+#X connect 207 0 208 0;
+#X connect 209 0 207 0;
+#X connect 211 0 212 0;
+#X connect 212 0 215 0;
+#X connect 213 0 209 0;
+#X connect 214 0 209 0;
+#X connect 215 0 210 0;
+#X connect 216 0 219 0;
+#X connect 217 0 218 0;
+#X connect 219 0 217 0;
 #X connect 220 0 221 0;
-#X connect 222 0 220 0;
-#X connect 223 0 224 0;
-#X connect 224 0 245 0;
-#X connect 225 0 83 0;
-#X connect 226 0 225 0;
-#X connect 227 0 229 0;
-#X connect 228 0 230 0;
-#X connect 229 0 77 0;
-#X connect 230 0 76 0;
-#X connect 239 0 240 0;
-#X connect 241 0 239 0;
-#X connect 243 0 56 2;
-#X connect 244 0 56 3;
-#X connect 245 0 73 0;
+#X connect 221 0 240 0;
+#X connect 222 0 80 0;
+#X connect 223 0 222 0;
+#X connect 224 0 226 0;
+#X connect 225 0 227 0;
+#X connect 226 0 74 0;
+#X connect 227 0 73 0;
+#X connect 236 0 237 0;
+#X connect 238 0 236 0;
+#X connect 240 0 70 0;
+#X connect 241 0 53 2;
+#X connect 242 0 53 3;
+#X connect 242 0 244 0;
+#X connect 257 0 270 0;
+#X connect 258 0 260 0;
+#X connect 259 0 261 0;
+#X connect 260 0 257 0;
+#X connect 261 0 257 1;
+#X connect 262 0 257 2;
+#X connect 263 0 264 0;
+#X connect 264 0 258 0;
+#X connect 264 1 271 0;
+#X connect 267 0 266 0;
+#X connect 268 0 266 0;
+#X connect 269 0 266 0;
+#X connect 270 0 266 0;
+#X connect 271 0 262 0;
+#X connect 272 0 124 0;
