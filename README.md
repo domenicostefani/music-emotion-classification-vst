@@ -1,16 +1,14 @@
+
+TODO: update after reorganizing the repo
 # emotionally-aware-SMIs
-Embedded implementation of an emotion classifier for a Smart Musical Instrument (electric guitar, acoustic guitar and piano)
+Embedded implementation of an emotion classifier for a Smart Musical Instrument (electric guitar, acoustic guitar and piano).
 
 ## Repository organization
-- Folders `include` and `src` contain the code for the feature extraction process defined in [1]. This follows the MusiCNN pipeline but in C++ instead of Python.
-- Folder `libs` contains the dependencies and a script to compile them (`libs/compile_libraries.sh`). Currently, for aarch64 the libraries get compiled on-device (RPI4), the binaries are then moved to a x86-64 laptop and only the plugin+tflite are cross-compiled.
-- Folder `utils` contains the scripts to compile the feature extraction pipeline for both linux-amd64 and linux-aarch64 (Elk Audio OS).
-- Folder `EmotionClassificationPlugin` contains a JUCE plugin that records audio, extracts features and executes inference with a custom model.
+- Folder `EmotionClassificationPlugin` contains a JUCE plugin that records audio, extracts features and executes inference with a custom model. It also contains the subfolder `python-osc-server` with the OSC server to run on a Elk Audio OS board, and `libs` with the dependencies.
 - Folder `OSCcontroller` contains a Pure Data patch and accompanying abstraction to control the plugin via OSC messages.
 - Folder `docs/images` contains images included in this README.
-- `CMakeLists.txt`** NOT WORKING YET**: this should be fixed to compile/cross-compile the extraction pipeline with the dependencies, but it's not working right now, so we rely on the scripts in `utils` for the moment.
 
-## Dependencies
+## Dependencies (EmotionClassificationPlugin/libs)
 
 <!-- - zlib - 1.2.13 ([github.com/madler/zlib](https://github.com/madler/zlib) commit `04f42ceca40f73e2978b50e93806c2a18c1281fc`) -->
 - **eigen** [3.3.4](https://gitlab.com/libeigen/eigen/-/releases/3.3.4) ([gitlab.com/libeigen/eigen](https://gitlab.com/libeigen/eigen) commit [`3dc3a0ea2d0773af4c0ffd7bbcb21c608e28fcef`](https://gitlab.com/libeigen/eigen/tree/3dc3a0ea2d0773af4c0ffd7bbcb21c608e28fcef))
