@@ -7,6 +7,7 @@ received packets.
 import argparse
 import os
 import glob
+import time
 
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.udp_client import SimpleUDPClient
@@ -100,6 +101,8 @@ def disconnect(addr, *args):
 
 def renameRecording(addr, *args):
     global CLIENT
+    global DO_COPY_RENAMED
+    global COPY_DETAILS
     print("received " + addr + " " + " ".join([str(x) for x in args]))
     os.system('mkdir -p '+RECORDINGS_RENAMED_DIR)
 
@@ -134,9 +137,15 @@ def renameRecording(addr, *args):
                     # Redo previous line with python access to file to avoid bash
                     with open(os.path.join(RECORDINGS_RENAMED_DIR,'copylog'+new_filename+'.txt'), 'w') as f:
                         f.write('Renamed '+file+' to '+new_fullpath+'\n')
+
+                    if DO_COPY_RENAMED != None and DO_COPY_RENAMED and COPY_DETAILS != None:
+                        os.system("scp "+new_fullpath+" "+COPY_DETAILS)
                     
                 else:
-                    os.system('mv '+file+' '+os.path.join(RECORDINGS_RENAMED_DIR,new_filename+os.path.basename(file)))
+                    new_fullpath = os.path.join(RECORDINGS_RENAMED_DIR,new_filename+os.path.basename(file))
+                    os.system('mv '+file+' '+new_fullpath)
+                    if DO_COPY_RENAMED != None and DO_COPY_RENAMED and COPY_DETAILS != None:
+                        os.system("scp "+new_fullpath+" "+COPY_DETAILS)
             CLIENT.send_message("/renamed", "ok")
 
 
@@ -160,10 +169,10 @@ def deleteAllButLast(addr, *args):
         list_of_files = glob.glob(RECORDINGS_PATTERN) # * means all if need specific format then *.csv
         # Sort by date
         list_of_files.sort(key=os.path.getmtime)
-        print('list_of_files',list_of_files)
+        # print('list_of_files',list_of_files)
         # Keep only the last one
         list_of_files = list_of_files[:-1]
-        print('list_of_files except for latest',list_of_files)
+        # print('list_of_files except for latest',list_of_files)
         # Append all txt files that begin with the same name
         toappend = []
         for file in list_of_files:
@@ -186,13 +195,71 @@ def setDate(addr, *args):
         command = 'sudo date -s "'+str(args[2])+ ' ' + month_num2str[args[1]].upper()+' '+str(args[0])+' '+str(args[3])+':'+str(args[4])+':'+str(args[5])+'"'
         print("command:",command)
         os.system(command)
+
+def setCopyDetails(addr, *args):
+    global CLIENT
+    global COPY_DETAILS
+
+    if len(args) == 1 and CLIENT!= None:
+        print("received " + addr + " " + " ".join([str(x) for x in args]))
+        COPY_DETAILS = args[0]
+
+        testfilename = "./you_are_connected_at_time_"+time.strftime("%Y%m%d-%H%M%S")+".txt"
+        os.system("echo hurray > "+testfilename)
+        os.system("scp "+testfilename+" "+COPY_DETAILS)
+        os.system("rm "+testfilename)
+
+def setCopyRenamed(addr, *args):
+    global CLIENT
+    global COPY_DETAILS
+    global DO_COPY_RENAMED
+
+    if len(args) == 0 and CLIENT!= None and COPY_DETAILS != None:
+        print("received " + addr)
+        DO_COPY_RENAMED = True
+
+def copyAllRenamed(addr, *args):
+    global CLIENT
+    global COPY_DETAILS
+
+    if len(args) == 0 and CLIENT!= None and COPY_DETAILS != None and RECORDINGS_RENAMED_DIR != None:
+        print("received " + addr)
+        os.system("scp "+ os.path.join(RECORDINGS_RENAMED_DIR,"*") + " " +COPY_DETAILS)
+
+def copyLastRenamed(addr, *args):
+    global CLIENT
+    global COPY_DETAILS
+
+    if len(args) == 0 and CLIENT!= None and COPY_DETAILS != None and RECORDINGS_RENAMED_DIR != None: 
+        print("received " + addr)
+        # Find the last file added (time)
+        list_of_files = glob.glob(os.path.join(RECORDINGS_RENAMED_DIR,"*.wav")) # * means all if need specific format then *.csv
+        if len(list_of_files) == 0:
+            print("No renamed files to copy")
+            return
+        list_of_files.sort(key=os.path.getmtime)
+        last_file = list_of_files[-1]
+        print("Copying last file plus labels:",last_file)
+        lastfile_plus_labels = glob.glob(os.path.splitext(last_file)[0]+"*")
+        for file in lastfile_plus_labels:
+            os.system("scp "+file+" "+COPY_DETAILS)
+
+
+
+
+
             
 
 if __name__ == "__main__":
     global CLIENT
     global ALREADY_RUNNING
+    global COPY_DETAILS
+    global DO_COPY_RENAMED
+
     CLIENT = None
     ALREADY_RUNNING = False
+    COPY_DETAILS = None
+    DO_COPY_RENAMED = False
     parser = argparse.ArgumentParser()
     parser.add_argument("--ip", default=SERVER_IP, help="The ip to listen on")
     parser.add_argument("--port", type=int, default=6042, help="The port to listen on")
@@ -207,6 +274,10 @@ if __name__ == "__main__":
     dispatcher.map("/deleteUnnamed", deleteUnnamed)
     dispatcher.map("/deleteAllButLast", deleteAllButLast)
     dispatcher.map("/setDate", setDate)
+    dispatcher.map("/setCopyDetails",setCopyDetails)
+    dispatcher.map("/alwaysCopyRenamed",setCopyRenamed)
+    dispatcher.map("/copyAllRenamed",copyAllRenamed)
+    dispatcher.map("/copyLastRenamed",copyLastRenamed)
     #   dispatcher.map("/volume", print_volume_handler, "Volume")
     #   dispatcher.map("/logvolume", print_compute_handler, "Log volume", math.log)
 
