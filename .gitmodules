@@ -1,12 +1,12 @@
-[submodule "libs/essentia"]
-	path = libs/essentia
+[submodule "EmotionClassificationPlugin/libs/essentia"]
+	path = EmotionClassificationPlugin/libs/essentia
 	url = https://github.com/MTG/essentia
-[submodule "libs/FFmpeg"]
-	path = libs/FFmpeg
+[submodule "EmotionClassificationPlugin/libs/FFmpeg"]
+	path = EmotionClassificationPlugin/libs/FFmpeg
 	url = https://github.com/FFmpeg/FFmpeg
-[submodule "libs/eigen"]
-	path = libs/eigen
+[submodule "EmotionClassificationPlugin/libs/eigen"]
+	path = EmotionClassificationPlugin/libs/eigen
 	url = https://gitlab.com/libeigen/eigen/
-[submodule "libs/deep-classf-runtime-wrappers"]
-	path = libs/deep-classf-runtime-wrappers
+[submodule "EmotionClassificationPlugin/libs/deep-classf-runtime-wrappers"]
+	path = EmotionClassificationPlugin/libs/deep-classf-runtime-wrappers
 	url = https://github.com/domenicostefani/deep-classf-runtime-wrappers
