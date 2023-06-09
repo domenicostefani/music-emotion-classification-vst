@@ -18,21 +18,16 @@ using namespace essentia;
 using namespace essentia::streaming;
 using namespace essentia::scheduler;
 
-namespace emosmi
-{
+namespace emosmi {
 
-MusicnnFeatureExtractor::MusicnnFeatureExtractor()
-{
+MusicnnFeatureExtractor::MusicnnFeatureExtractor() {
     essentia::init();
 }
-MusicnnFeatureExtractor::~MusicnnFeatureExtractor()
-{
+MusicnnFeatureExtractor::~MusicnnFeatureExtractor() {
     essentia::shutdown();
 }
 
-void MusicnnFeatureExtractor::extractFromFile(const std::string &audioFilename, std::vector<std::vector<essentia::Real>> &bandsVec) const
-{
-
+void MusicnnFeatureExtractor::extractFromFile(const std::string &audioFilename, std::vector<std::vector<essentia::Real>> &bandsVec) const {
     // Output is a matrix of 96 features x 62.5 frames for every second of audio (265 hop size at 16kHz)
     // To pick 3 seconds of audio (Required for the algorithm in [2]), we need 3*62.5 = 187.5 frames
 
@@ -55,11 +50,11 @@ void MusicnnFeatureExtractor::extractFromFile(const std::string &audioFilename, 
     // ---
     audio->output("audio") >> fc->input("signal");
     fc->output("frame") >> extractor->input("frame");
-    extractor->output("bands") >> bandsVec; // Send the extractor's output to a std::vector
+    extractor->output("bands") >> bandsVec;  // Send the extractor's output to a std::vector
     Network n(audio);
 
     n.run();
     n.clear();
 }
 
-} // namespace emosmi
+}  // namespace emosmi

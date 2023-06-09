@@ -18,7 +18,7 @@ if [[ $curdir != *"build"* ]]; then
 fi
 
 EXE_NAME="LIBTESTextraction_pipeline-linux-amd64" # Name of the output executable
-
+EXE_NAME2="silence_detection_test" # Name of the output executable
 # Set starting path (We already checked that we are in the build folder)
 HOMEBASE='..'
 
@@ -52,7 +52,8 @@ CMD="$CXX $VERBOSE $SOURCE_FILES \
     -lavcodec \
     -lavresample \
     -ltag \
-    -lsamplerate"
+    -lsamplerate \
+    -O3"
 
 
 # Run command
@@ -63,7 +64,7 @@ ar rvs ./libextractionpipeline.a ./partials/libextractionpipeline.o
 
 # VERBOSE='-v' # Comment this line to remove verbose output
 
-$CXX $VERBOSE $HOMEBASE/src/libmain.cpp \
+$CXX $VERBOSE $HOMEBASE/src/main_testFeatureExtaction.cpp \
     -I$ESSENTIA_INCLUDES  -I$EIGEN_INCLUDES\
     -I$CURRENT_INCLUDE \
     -L$ESSENTIA_BUILD \
@@ -81,10 +82,40 @@ $CXX $VERBOSE $HOMEBASE/src/libmain.cpp \
     -ltag \
     -lsamplerate \
     -o $EXE_NAME \
-     -Wl,--no-as-needed -ldl
+     -Wl,--no-as-needed -ldl \
+    -O3
+
+
+$CXX $VERBOSE $HOMEBASE/src/main_filteredsilencedetection.cpp \
+    -I$ESSENTIA_INCLUDES  -I$EIGEN_INCLUDES\
+    -I$CURRENT_INCLUDE \
+    -L$ESSENTIA_BUILD \
+    -L./ \
+    -lextractionpipeline \
+    -lessentia \
+    -lyaml \
+    -lavformat \
+    -lavutil \
+    -lswresample \
+    -lchromaprint \
+    -lfftw3f \
+    -lavcodec \
+    -lavresample \
+    -ltag \
+    -lsamplerate \
+    -o $EXE_NAME2 \
+     -Wl,--no-as-needed -ldl \
+    -O3
 
 
 SCRIPTNAME="run_LIBTESTextraction_pipeline_amd64"
 sleep 1; echo -e "\nSaving simple execution command to ./$SCRIPTNAME.sh"
 echo "./$EXE_NAME ~/Recordings/1-Edited/00-study2_links/acoustic_guitar_percussive_keybed_1_25_f_LucTur2_20201215.wav" > ./$SCRIPTNAME.sh
 chmod +x ./$SCRIPTNAME.sh
+
+SCRIPTNAME="run_LIBTEST2extraction_pipeline_amd64"
+sleep 1; echo -e "\nSaving simple execution command to ./$SCRIPTNAME.sh"
+# echo "./$EXE_NAME2 ~/Recordings/1-Edited/00-study2_links/acoustic_guitar_percussive_keybed_1_25_f_LucTur2_20201215.wav" > ./$SCRIPTNAME.sh
+echo -e 'CMD="'./$EXE_NAME2' /home/cimil-01/Recordings/1-Edited/00-study2_links/acoustic_guitar_percussive_keybed_1_25_f_LucTur2_20201215.wav"\n# run this if no arguments\nif [ $# -eq 0 ]\n  then\n    $CMD\nfi\n\n# run this if one argument\nif [ $# -eq 1 ]\n  then\n    $CMD $1\nfi\n' > ./$SCRIPTNAME.sh
+chmod +x ./$SCRIPTNAME.sh
+

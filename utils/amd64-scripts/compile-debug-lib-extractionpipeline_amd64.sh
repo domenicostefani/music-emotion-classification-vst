@@ -64,7 +64,7 @@ ar rvs ./libextractionpipeline.a ./partials/libextractionpipeline.o
 
 # VERBOSE='-v' # Comment this line to remove verbose output
 
-$CXX $VERBOSE $HOMEBASE/src/libmain.cpp \
+$CXX $VERBOSE $HOMEBASE/src/main_testFeatureExtaction.cpp \
     -I$ESSENTIA_INCLUDES  -I$EIGEN_INCLUDES\
     -I$CURRENT_INCLUDE \
     -L$ESSENTIA_BUILD \
