@@ -80,7 +80,7 @@ public:
 
     const unsigned int NUM_CHANNELS = 1;
     File lastRecording, lastRecording2;
-    std::string audioFilename = "";  // TODO: Possibly remove this as it is a duplicate of lastrecording property getfullpatghname
+    std::string audioFilename = "";
     double sampleRate = 0;
     void startRecording(unsigned int numChannels);
     void stopRecording();

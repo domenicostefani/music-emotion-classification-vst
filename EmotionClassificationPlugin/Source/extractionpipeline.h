@@ -58,7 +58,6 @@ public:
             numSamplesToAppend = ringBuffer.size();
         }
 
-        int savehead = head;                            // TODO: remove
         for (int i = 0; i < numSamplesToAppend; ++i) {  // Append block to ring buffer
             ringBuffer[head] = block[i];
             head = (head + 1) % ringBuffer.size();

@@ -560,8 +560,7 @@ void ECProcessor::updateRecState() {
             recordingStopped = true;
             extractAndClassify(audioFilename);
 #ifdef DO_REMOVE_OLD_RECORDINGS
-            lastRecording2.deleteFile();  // TODO: fix this because something is not working with lastRecording
-#endif
+            lastRecording2.deleteFile();
         }
         this->oldRecState = recState;
     }

@@ -1,5 +1,3 @@
-
-TODO: update after reorganizing the repo
 # emotionally-aware-SMIs
 Embedded implementation of an emotion classifier for a Smart Musical Instrument (electric guitar, acoustic guitar and piano).
 
