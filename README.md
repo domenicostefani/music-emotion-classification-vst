@@ -1,10 +1,10 @@
 
 TODO: update after reorganizing the repo
 # emotionally-aware-SMIs
-Embedded implementation of an emotion classifier for a Smart Musical Instrument (electric guitar, acoustic guitar and piano)
+Embedded implementation of an emotion classifier for a Smart Musical Instrument (electric guitar, acoustic guitar and piano).
 
 ## Repository organization
-- Folder `EmotionClassificationPlugin` contains a JUCE plugin that records audio, extracts features and executes inference with a custom model.
+- Folder `EmotionClassificationPlugin` contains a JUCE plugin that records audio, extracts features and executes inference with a custom model. It also contains the subfolder `python-osc-server` with the OSC server to run on a Elk Audio OS board, and `libs` with the dependencies.
 - Folder `OSCcontroller` contains a Pure Data patch and accompanying abstraction to control the plugin via OSC messages.
 - Folder `docs/images` contains images included in this README.
 
