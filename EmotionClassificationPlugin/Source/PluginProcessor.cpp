@@ -83,6 +83,7 @@ ECProcessor::ECProcessor()
         exit(1);
     }
     ECProcessor::tfliteClassifier = createClassifier(MODEL_PATH, VERBOSE_CLASSIFICATION);  // true = verbose cout
+    std::cout << "Created classifier and loaded model: '" << MODEL_PATH << "'" << std::endl;
 #endif
 
     // Set up the OSC receiver to accept specific messages
@@ -105,7 +106,9 @@ void ECProcessor::oscMessageReceived(const juce::OSCMessage &message) {
         if (message.size() == 1 && message[0].isString()) {
             std::cout << "-> ip: " << message[0].getString() << std::endl;
             this->oscSender.enableAndReplyToHandshake(message[0].getString(), TX_PORT);
+           #ifdef ELK_OS_ARM
             oscMeterPoller = std::make_unique<Poller>(24, [&]() { this->oscSendPollingRoutine(); });
+           #endif
             this->oscSender.sendMessage("/state", (int)STATE_IDLE);
         }
     } else if (message.getAddressPattern() == juce::OSCAddressPattern("/disconnect")) {
@@ -340,12 +343,26 @@ void ambivalentRes(std::vector<float> softmax, std::vector<bool> &resultBest, fl
 size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const size_t NUM_EMOTIONS, std::vector<bool> &resultBest, float thresholdDistance = 1.f / 7.f) {
     std::vector<float> avg(NUM_EMOTIONS, 0.0f);
     // Sum the SoftMax probabilities for each emotion
-    for (auto &v : input)
-        for (size_t i = 0; i < NUM_EMOTIONS; ++i)
+    const bool VERBOSE = false;
+    if (VERBOSE) std::cout << "SoftMax inputs:\n";
+    for (auto &v : input) {
+        std::cout << "[ ";
+        for (size_t i = 0; i < NUM_EMOTIONS; ++i) {
+            std::cout << v[i] << " ";
             avg[i] += v[i];
+        }
+        std::cout << "]\n";}
+    std::cout << "---\n";
     // Average
-    for (size_t i = 1; i < avg.size(); ++i)
+    for (size_t i = 0; i < avg.size(); ++i)
         avg[i] = avg[i] / input.size();
+
+    if (VERBOSE) {
+        std::cout << "SoftMax averages: ";
+        for (auto &v : avg)
+            std::cout << v << " ";
+        std::cout << std::endl;
+    }
 
     // Argmax
     int largestIndex = 0, secondLargestIndex = -1;
@@ -359,12 +376,12 @@ size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const 
         }
     }
 
-    // printf("Best: [%d] %.3f\n", largestIndex, avg[largestIndex]);
-    // printf("SecondBest: [%d] %.3f\n", secondLargestIndex, avg[secondLargestIndex]);
+    if (VERBOSE) printf("Best: [%d] %.3f\n", largestIndex, avg[largestIndex]);
+    if (VERBOSE) printf("SecondBest: [%d] %.3f\n", secondLargestIndex, avg[secondLargestIndex]);
 
     // Check if the distance between the best and the second best is smaller than the thresholdDistance
     if (avg[largestIndex] - avg[secondLargestIndex] < thresholdDistance) {
-        // printf("Ambivalent\n");
+        if (VERBOSE) printf("Ambivalent\n");
         // If the distance is smaller than the thresholdDistance, then we are ambivalent
         // Then we return -1 and store the emotions that fall into the thresholdDistance distance in resultBest
         for (size_t i = 0; i < resultBest.size(); ++i)
@@ -372,7 +389,7 @@ size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const 
 
         return -1;
     }
-    // printf("Not ambivalent\n");
+    if (VERBOSE) printf("Not ambivalent\n");
     // If the distance is larger than the thresholdDistance, then we are not ambivalent
     // Return the best
     for (size_t i = 0; i < resultBest.size(); ++i)
