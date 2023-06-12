@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#include <juce_audio_processors/juce_audio_processors.h>
+
 namespace emosmi {
 class MusicnnFeatureExtractor {
 private:
@@ -26,13 +28,15 @@ public:
 };
 
 class RTisSilent {
-private:
-    essentia::Pool pool;
-    essentia::Real sampleRate = 16000.0;
+protected:
     int frameSize = 512;
     int hopSize = 256;        // This is hopSize, however in JPawels code it is called stepSize, keeping for consistency
     float threshold = -60.0;  // dBFS
     float _threshold;         // power -----> (10 ** (threshold in dB / 10)
+    std::vector<float> tmpBlock;
+    std::vector<bool> tmpRes;
+
+    bool isSilent = false;
 
     // Structure for ring buffer
     std::vector<float> ringBuffer;
@@ -40,21 +44,21 @@ private:
     size_t appendedFromLastCompute = 0, storedSamples = 0;
 
 public:
-    RTisSilent() : ringBuffer(frameSize, 0.0f), threshold(-60), _threshold(pow(10.0f, threshold / 10.0f)) {}
-    RTisSilent(size_t frameSize, size_t hopSize, float threshold_dB) : ringBuffer(frameSize, 0.0f), hopSize(hopSize), threshold(threshold_dB), _threshold(pow(10.0f, threshold / 10.0f)) {}
+    // RTisSilent() : ringBuffer(frameSize, 0.0f), threshold(-60), _threshold(pow(10.0f, threshold / 10.0f)) {}
+    RTisSilent(size_t frameSize, size_t hopSize, float threshold_dB) : ringBuffer(frameSize, 0.0f), hopSize(hopSize), threshold(threshold_dB), _threshold(pow(10.0f, threshold / 10.0f)), tmpBlock(hopSize), tmpRes(100) {}
     ~RTisSilent() = default;
+
     void setThreshold(float threshold_dB) {
         threshold = threshold_dB;
         _threshold = pow(10.0f, threshold / 10.0f);
     }
 
-    bool storeBlockAndCompute(const std::vector<float> &block, bool &isSilent, bool _verbose = false) {
+    bool storeBlockAndCompute(const float block[], size_t blockLength, bool& isSilent, bool _verbose = false) {
         // Append properly to ring buffer
-        int blockLength = block.size();
         int numSamplesToAppend = blockLength;
 
         if (blockLength > ringBuffer.size()) {  // If block is larger than ring buffer, we only append ringBuffer.size() samples
-            printf("|WARNING|: blockLength > ringBuffer.size() (blockLength: %d, ringBuffer.size(): %zd)\n", blockLength, ringBuffer.size());
+            printf("|WARNING|: blockLength > ringBuffer.size() (blockLength: %zd, ringBuffer.size(): %zd)\n", blockLength, ringBuffer.size());
             numSamplesToAppend = ringBuffer.size();
         }
 
@@ -75,15 +79,19 @@ public:
                 std::cout << "_threshold: " << _threshold << std::endl;
                 std::cout << "power: " << power << std::endl;
             }
-            if (power < _threshold) {
-                isSilent = true;
-            }
+            
+            isSilent = power < _threshold;
+            this->isSilent = isSilent;
 
             // Reset
             appendedFromLastCompute = 0;
             return true;
         }
         return false;
+    }
+
+    bool storeBlockAndCompute(const std::vector<float> &block, bool &isSilent, bool _verbose = false) {
+        return storeBlockAndCompute(block.data(), block.size(), isSilent, _verbose);
     }
 
     // returns the sum of the squared array = the energy of the array
@@ -100,6 +108,36 @@ public:
     T instantPower(const std::vector<T> &array) {
         return energy(array) / array.size();
     }
+
+    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose=false){
+        if (buffer.getNumChannels() > 1)
+            throw std::logic_error("RTisSilent::processBlock: buffer must be mono");
+
+        // buffer.addFrom(0, 0, buffer, 1, 0, buffer.getNumSamples());
+        if (buffer.getNumSamples() > hopSize) {
+            // If there are more samples than a single hopsize we compute the isSilent flag for each hopsize
+            // buffer.getNumSamples() / hopSize
+            // Furthermore, we store in this->isSilent the majority vote
+            size_t numHops = buffer.getNumSamples() / hopSize;
+            for (size_t i = 0; i < numHops; ++i) {
+                bool res;
+                storeBlockAndCompute(buffer.getReadPointer(0) + i * hopSize, hopSize, res, _verbose);
+                this->tmpRes[res] = res;
+            }
+            // Majority vote
+            size_t numSilent = std::count(this->tmpRes.begin(), this->tmpRes.begin() + numHops, true);
+            size_t numNotSilent = std::count(this->tmpRes.begin(), this->tmpRes.begin() + numHops, false);
+            this->isSilent = (numSilent > numNotSilent);
+        } else {
+            // If there are less samples than a single hopsize we store the whole block. The isSilent flag is eventually set by storeBlockAndCompute
+            storeBlockAndCompute(buffer.getReadPointer(0), buffer.getNumSamples(), this->isSilent, _verbose);
+        }
+    }
+
+    bool computeIsSilent() {
+        return isSilent;
+    }
+
 };
 
 /**
@@ -189,4 +227,53 @@ public:
     }
 };
 
+
+class FilteredRTisSilent : public RTisSilent {
+    SilenceFilter silenceFilter;
+
+public:
+    FilteredRTisSilent(size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1) : RTisSilent(frameSize, hopSize, threshold_dB), silenceFilter(filterLength, trueToFalseTransitionRatio, alphaDecay) {
+    }
+
+    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose=false){
+        if (buffer.getNumChannels() > 1)
+            throw std::logic_error("RTisSilent::processBlock: buffer must be mono");
+
+        // buffer.addFrom(0, 0, buffer, 1, 0, buffer.getNumSamples());
+        if (buffer.getNumSamples() > hopSize) {
+            // If there are more samples than a single hopsize we compute the isSilent flag for each hopsize
+            // buffer.getNumSamples() / hopSize
+            // Furthermore, we store in this->isSilent the majority vote
+            size_t numHops = buffer.getNumSamples() / hopSize;
+            if (_verbose) std::cout << "Repeting Silence computation " << numHops << " times" << std::endl;
+            for (size_t i = 0; i < numHops; ++i) {
+                bool res;
+                storeBlockAndCompute(buffer.getReadPointer(0) + i * hopSize, hopSize, res, _verbose);
+                if (_verbose) std::cout << "res["<< i <<"] = " << res;
+                res = silenceFilter.filter(res);
+                if (_verbose) std::cout << " filtered = " << res << std::endl;
+                this->tmpRes[i] = res;
+            }
+            // Majority vote
+            size_t numSilent = std::count(this->tmpRes.begin(), this->tmpRes.begin() + numHops, true);
+            size_t numNotSilent = std::count(this->tmpRes.begin(), this->tmpRes.begin() + numHops, false);
+            this->isSilent = (numSilent > numNotSilent);
+            if (_verbose) std::cout << "Majority vote: " << isSilent << std::endl;
+        } else {
+            // If there are less samples than a single hopsize we store the whole block. The isSilent flag is eventually set by storeBlockAndCompute
+
+            if (_verbose) std::cout << "Single silence computation for " << buffer.getNumSamples() << " samples" << std::endl;
+            bool res;
+            if (storeBlockAndCompute(buffer.getReadPointer(0), buffer.getNumSamples(), res, _verbose)) {
+                if (_verbose) std::cout << " -> Computed... res:" << res;
+                this->isSilent = silenceFilter.filter(res);
+                if (_verbose) std::cout << " filtered:" << this->isSilent << std::endl;
+            } else
+                if (_verbose) std::cout << " -> Not enough samples for computation" << std::endl;
+        }
+    }
+};
+
 }  // namespace emosmi
+
+
