@@ -5,11 +5,11 @@
 //==============================================================================
 
 void ECEditor::openButtonClicked() {
-    chooser = std::make_unique<juce::FileChooser>("Select a Folder where to save results...",
+    savedirChooser = std::make_unique<juce::FileChooser>("Select a Folder where to save results...",
                                                   File::getSpecialLocation(File::userHomeDirectory));  // [7]
     auto chooserFlags = juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectDirectories;
 
-    chooser->launchAsync(chooserFlags, [this](const juce::FileChooser& fc) {
+    savedirChooser->launchAsync(chooserFlags, [this](const juce::FileChooser& fc) {
         auto file = fc.getResult();
         if (file != juce::File{}) {
             audioProcessor.setSaveFolder(file);
@@ -64,7 +64,13 @@ ECEditor::ECEditor(ECProcessor& p)
     gainSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
     gainSliderAttachment.reset(new SliderAttachment(audioProcessor.valueTreeState, audioProcessor.GAIN_ID, gainSlider));
 
+    // Silence Detection
     addAndMakeVisible(silenceLed);
+    addAndMakeVisible(silenceThSlider);
+    silenceThSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    silenceThSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 50, 20);
+    silenceThSlider.setTextValueSuffix (" dB"); 
+    silenceThSliderAttachment.reset(new SliderAttachment(audioProcessor.valueTreeState, audioProcessor.SILENCE_THRESH_ID, silenceThSlider));
 
     pollingTimer.startPolling();
 }
@@ -91,15 +97,20 @@ void ECEditor::paint(juce::Graphics& g) {
     Rectangle<int> controlsArea = area.removeFromLeft((970-120) * 0.4);
     Rectangle<int> usableControlArea = controlsArea.reduced(10);
 
-    auto sliderarea = leftGainArea.removeFromLeft(25);
+    auto sliderarea = leftGainArea.removeFromLeft(35);
     g.drawFittedText("Gain", sliderarea.removeFromTop(20), juce::Justification::centred, 1);
     gainSlider.setBounds(sliderarea);
+    auto meterArea = leftGainArea.removeFromLeft(55);
+    meterArea.removeFromTop(25);
+    meterArea.removeFromBottom(10);
+    meter.setBounds(meterArea);
 
-    auto silenceArea = leftGainArea.removeFromRight(40);
+    auto silenceArea = leftGainArea;
     auto ledArea = silenceArea.removeFromTop(40);
     silenceLed.setBounds(ledArea);
+    g.drawFittedText("Silence Threshold", silenceArea.removeFromTop(20), juce::Justification::centred, 1);
+    silenceThSlider.setBounds(silenceArea);
 
-    meter.setBounds(leftGainArea);
 
     waveformDisplayComponent.setBounds(area.reduced(10));
 
@@ -110,8 +121,8 @@ void ECEditor::paint(juce::Graphics& g) {
 
     int leftHeight = usableControlArea.getHeight();
 
-    selectSaveFolderButton.setBounds(usableControlArea.removeFromTop(leftHeight * 0.3).reduced(5));
-    recButton.setBounds(usableControlArea.removeFromTop(leftHeight * 0.15).reduced(5));
+    selectSaveFolderButton.setBounds(usableControlArea.removeFromTop(70).reduced(5));
+    recButton.setBounds(usableControlArea.removeFromTop(40).reduced(5));
 
     g.setFont(Font(17.0f, Font::bold));
     g.drawFittedText("Status:", usableControlArea.removeFromTop(18), juce::Justification::left, 1);

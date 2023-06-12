@@ -94,12 +94,14 @@ public:
     void stopRecording();
 
     const String RECSTATE_ID = "recstate", RECSTATE_NAME = "recstate",
-                 GAIN_ID = "gain", GAIN_NAME = "gain";
+                 GAIN_ID = "gain", GAIN_NAME = "gain",
+                 SILENCE_THRESH_ID = "silenceThresh", SILENCE_THRESH_NAME = "silenceThresh";
     bool oldRecState = false;
     AudioProcessorValueTreeState valueTreeState;
     AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void updateRecState();
     void updateGain();
+    void updateSilenceThresh();
 
     std::string extractorState = "Idle.";
 
@@ -153,6 +155,7 @@ public:
     // Silence detection
     emosmi::FilteredRTisSilent silenceDetector {SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO,SD_ALPHA};
     std::atomic<bool> isSilent{false};
+    float silenceThreshold = SD_THRESHOLD;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECProcessor)

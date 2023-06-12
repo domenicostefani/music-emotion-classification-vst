@@ -17,7 +17,6 @@ public:
 
     void paint (Graphics& g) override
     {
-        std::cout << "valueSupplier(): " << valueSupplier() << std::endl;
         g.fillAll ((valueSupplier())?Colours::orange:Colours::grey);
 
         g.setColour (Colours::black);

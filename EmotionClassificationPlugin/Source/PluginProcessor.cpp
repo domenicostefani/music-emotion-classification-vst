@@ -106,9 +106,9 @@ void ECProcessor::oscMessageReceived(const juce::OSCMessage &message) {
         if (message.size() == 1 && message[0].isString()) {
             std::cout << "-> ip: " << message[0].getString() << std::endl;
             this->oscSender.enableAndReplyToHandshake(message[0].getString(), TX_PORT);
-           #ifdef ELK_OS_ARM
+#ifdef ELK_OS_ARM
             oscMeterPoller = std::make_unique<Poller>(24, [&]() { this->oscSendPollingRoutine(); });
-           #endif
+#endif
             this->oscSender.sendMessage("/state", (int)STATE_IDLE);
         }
     } else if (message.getAddressPattern() == juce::OSCAddressPattern("/disconnect")) {
@@ -141,6 +141,7 @@ void ECProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
 void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages) {
     // Fist apply amp gain to the input
     updateGain();
+    updateSilenceThresh();
     buffer.applyGainRamp(0, buffer.getNumSamples(), lastInputGain, inputGain);
     lastInputGain = inputGain;
 
@@ -160,7 +161,7 @@ void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessa
         peakValue.setCurrentAndTargetValue(peak);
     }
 
-    silenceDetector.processBlock(buffer, true);
+    silenceDetector.processBlock(buffer);
     isSilent.store(silenceDetector.computeIsSilent());
 
     updateRecState();
@@ -354,7 +355,8 @@ size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const 
             std::cout << v[i] << " ";
             avg[i] += v[i];
         }
-        std::cout << "]\n";}
+        std::cout << "]\n";
+    }
     std::cout << "---\n";
     // Average
     for (size_t i = 0; i < avg.size(); ++i)
@@ -475,7 +477,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
         softmaxOut += "]";
         softmaxOutsPrintable.push_back(softmaxOut);
 #endif
-        
+
         std::string chunkEmotions = "";
         size_t topEmotion = 0;
         for (size_t j = 0; j < topPredictedEmotions.size(); ++j) {
@@ -492,7 +494,6 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
             this->outputLabelsInt.push_back(NUM_EMOTIONS);
         else
             this->outputLabelsInt.push_back(topEmotion);
-
 
 #ifdef GENERATE_AUDACITY_LABELS
         allPerChunkEmotions.push_back(chunkEmotions);
@@ -573,6 +574,13 @@ void ECProcessor::updateRecState() {
 void ECProcessor::updateGain() {
     inputGain = ((AudioParameterFloat *)valueTreeState.getParameter(GAIN_ID))->get();
 }
+void ECProcessor::updateSilenceThresh() {
+    float val = ((AudioParameterFloat *)valueTreeState.getParameter(SILENCE_THRESH_ID))->get();
+    if (val != silenceThreshold) {
+        silenceThreshold = val;
+        silenceDetector.setThreshold(silenceThreshold);
+    }
+}
 
 /** Create the parameters to add to the value tree state
  * In this case only the boolean recording state (true = rec, false = stop)
@@ -587,6 +595,9 @@ AudioProcessorValueTreeState::ParameterLayout ECProcessor::createParameterLayout
                                                                                         0.4,
                                                                                         false),
                                                                1.f));
+    parameters.push_back(std::make_unique<AudioParameterFloat>(SILENCE_THRESH_ID, SILENCE_THRESH_NAME,
+                                                               NormalisableRange<float>(-120.0f,0.0f,0.5f),
+                                                               -60.0f));
 
     return {parameters.begin(), parameters.end()};
 }

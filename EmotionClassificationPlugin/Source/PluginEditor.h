@@ -99,7 +99,7 @@ private:
         {3, juce::Colours::lightblue},
         {4, juce::Colours::white}}; // White for ambivalent Emotion
 
-    std::unique_ptr<juce::FileChooser> chooser;
+    std::unique_ptr<juce::FileChooser> savedirChooser;
     TextButton selectSaveFolderButton;
     void openButtonClicked();
     void recordStateChanged();
@@ -114,7 +114,11 @@ private:
     Slider gainSlider;
     std::unique_ptr<SliderAttachment> gainSliderAttachment;
 
+    // Silence Detector
     Gui::Led silenceLed;
+    
+    Slider silenceThSlider;
+    std::unique_ptr<SliderAttachment> silenceThSliderAttachment;
     
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECEditor)
