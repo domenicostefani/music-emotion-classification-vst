@@ -21,6 +21,7 @@ void ECEditor::openButtonClicked() {
 ECEditor::ECEditor(ECProcessor& p)
     : AudioProcessorEditor(&p),
       audioProcessor(p),
+      silenceLed([&]() { return !audioProcessor.isSilent.load(); }),
 #ifdef METER_USE_PEAK
       meter([&]() { return audioProcessor.getPeakValue(); })
 #endif
@@ -63,6 +64,8 @@ ECEditor::ECEditor(ECProcessor& p)
     gainSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
     gainSliderAttachment.reset(new SliderAttachment(audioProcessor.valueTreeState, audioProcessor.GAIN_ID, gainSlider));
 
+    addAndMakeVisible(silenceLed);
+
     pollingTimer.startPolling();
 }
 
@@ -84,14 +87,20 @@ void ECEditor::paint(juce::Graphics& g) {
     auto bottomStrip = area.removeFromBottom(18);
     bottomStrip.removeFromRight(30);  // Clear resize window icon
 
-    Rectangle<int> leftGainArea = area.removeFromLeft(120);
+    Rectangle<int> leftGainArea = area.removeFromLeft(180);
     Rectangle<int> controlsArea = area.removeFromLeft((970-120) * 0.4);
     Rectangle<int> usableControlArea = controlsArea.reduced(10);
 
     auto sliderarea = leftGainArea.removeFromLeft(25);
     g.drawFittedText("Gain", sliderarea.removeFromTop(20), juce::Justification::centred, 1);
     gainSlider.setBounds(sliderarea);
+
+    auto silenceArea = leftGainArea.removeFromRight(40);
+    auto ledArea = silenceArea.removeFromTop(40);
+    silenceLed.setBounds(ledArea);
+
     meter.setBounds(leftGainArea);
+
     waveformDisplayComponent.setBounds(area.reduced(10));
 
     std::string date(__DATE__);

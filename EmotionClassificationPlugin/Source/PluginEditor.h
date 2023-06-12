@@ -5,6 +5,7 @@
 #include "AudioThumbnail.h"
 #include "PluginProcessor.h"
 #include "levelMeter.h"
+#include "led.h"
 
 #define METER_USE_PEAK
 // #define METER_USE_RMS
@@ -107,11 +108,13 @@ private:
     AudioThumbnailComponent waveformDisplayComponent{EMOTION_AUDIO_SEGMENT_LENGTH_S, "Press the Record button to start recording."};
 
     // Metering
-    Gui::VerticalGradientMeter meter;
+    Gui::LevelMeter meter;
 
     // Gain Slider
     Slider gainSlider;
     std::unique_ptr<SliderAttachment> gainSliderAttachment;
+
+    Gui::Led silenceLed;
     
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECEditor)

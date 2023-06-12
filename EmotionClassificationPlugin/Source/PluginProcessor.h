@@ -25,6 +25,14 @@
 #define RX_PORT 8042
 #define TX_PORT 9042
 
+
+#define SD_FRAME_SIZE 512
+#define SD_HOP_SIZE 256
+#define SD_THRESHOLD -60.0f
+#define SD_FILTER_LENGTH 187
+#define SD_TRUE_TO_FALSE_TRANSITION_RATIO 0.0001
+#define SD_ALPHA 0.5
+
 class ECProcessor : public juce::AudioProcessor {
 public:
     //==============================================================================
@@ -141,6 +149,10 @@ public:
 
     // Feature extraction
     emosmi::MusicnnFeatureExtractor extractionPipeline;
+
+    // Silence detection
+    emosmi::FilteredRTisSilent silenceDetector {SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO,SD_ALPHA};
+    std::atomic<bool> isSilent{false};
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECProcessor)

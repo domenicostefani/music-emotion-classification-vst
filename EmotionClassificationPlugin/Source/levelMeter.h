@@ -5,9 +5,9 @@
 // #define USE_GRILL
 
 namespace Gui {
-class VerticalGradientMeter : public Component, public Timer {
+class LevelMeter : public Component, public Timer {
 public:
-    VerticalGradientMeter(std::function<float()>&& valueFunction) : valueSupplier(std::move(valueFunction)) {
+    LevelMeter(std::function<float()>&& valueFunction) : valueSupplier(std::move(valueFunction)) {
         startTimerHz(24);
 #ifdef USE_GRILL
         grill = ImageCache::getFromMemory(BinaryData::MeterGrill_png, BinaryData::MeterGrill_pngSize);
@@ -44,8 +44,8 @@ public:
         g.fillRect(bounds);
 
         g.setGradientFill(gradient);
-        const auto scaledY = jmap(valueSupplier(), MIN_DB, MAX_DB, MIN_HEIGHT, MAX_HEIGHT);
-        g.fillRect(bounds.removeFromBottom(scaledY));
+        const auto scaLevelMeterY = jmap(valueSupplier(), MIN_DB, MAX_DB, MIN_HEIGHT, MAX_HEIGHT);
+        g.fillRect(bounds.removeFromBottom(scaLevelMeterY));
 
         
 

@@ -160,6 +160,9 @@ void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessa
         peakValue.setCurrentAndTargetValue(peak);
     }
 
+    silenceDetector.processBlock(buffer, true);
+    isSilent.store(silenceDetector.computeIsSilent());
+
     updateRecState();
     recorder.writeBlock(buffer.getArrayOfReadPointers(), buffer.getNumSamples());
     if (MUTE_OUTPUT)
@@ -561,6 +564,7 @@ void ECProcessor::updateRecState() {
             extractAndClassify(audioFilename);
 #ifdef DO_REMOVE_OLD_RECORDINGS
             lastRecording2.deleteFile();
+#endif
         }
         this->oldRecState = recState;
     }
