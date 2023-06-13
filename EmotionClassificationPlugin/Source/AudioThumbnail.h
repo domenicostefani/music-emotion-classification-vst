@@ -15,14 +15,12 @@
 class AudioThumbnailComponent : public juce::Component,
                                 private juce::ChangeListener {
 public:
-    AudioThumbnailComponent(float sectionLength = 0,
-                            std::string nofiletext = "No File Loaded")
+    AudioThumbnailComponent(std::string nofiletext = "No File Loaded")
         : thumbnailCache(5),
           thumbnail(512, formatManager, thumbnailCache),
           nofileText(nofiletext) {
         formatManager.registerBasicFormats();
         thumbnail.addChangeListener(this);
-        if (sectionLength > 0) setSectioning(sectionLength);
     }
 
     ~AudioThumbnailComponent() override {}
@@ -55,20 +53,9 @@ public:
         if (source == &thumbnail) thumbnailChanged();
     }
 
-    void setSectioning(const float sectionsLength) {
-        if (sectionsLength <= 0) return;
-        this->sectionsLength = sectionsLength;
-        repaint();
-    }
-
-    void disableSectioning() {
-        this->sectionsLength = 0;
-        repaint();
-    }
-
     void setFileSource(juce::File file, bool resetLabels = true) {
         if (resetLabels) {
-            setLabels({});
+            setSectionLabels({});
         }
 
         if (file != juce::File{}) {
@@ -86,8 +73,8 @@ public:
         }
     }
 
-    void setLabels(const std::vector<std::string> &labels,
-                   const std::vector<juce::Colour> &colors = {}) {
+    void setSectionLabels(const std::vector<std::tuple<float, float, std::string>> &labels,
+                          const std::vector<juce::Colour> &colors = {}) {
         sectionLabels = labels;
         sectionLabelColors = colors;
         repaint();
@@ -131,45 +118,31 @@ private:
                                thumbnail.getTotalLength(),  // end time
                                1.0f);                       // vertical zoom
 
-        // Draw vertical lines (sectioning) if enabled
-        if (sectionsLength > 0) {
-            auto thumbNailLength = thumbnail.getTotalLength();
-            auto thumbNailHeight = thumbnailBounds.getHeight();
-            auto thumbNailWidth = thumbnailBounds.getWidth();
-            auto thumbNailX = thumbnailBounds.getX();
-            auto thumbNailY = thumbnailBounds.getY();
-            int numSections = thumbNailLength / sectionsLength;
+        auto thumbNailLength = thumbnail.getTotalLength();
+        auto thumbNailHeight = thumbnailBounds.getHeight();
+        auto thumbNailWidth = thumbnailBounds.getWidth();
+        auto thumbNailX = thumbnailBounds.getX();
+        auto thumbNailY = thumbnailBounds.getY();
 
-            float magnification =
-                thumbNailWidth /
-                thumbNailLength;  // Ratio between the length of the
-                                  // representation in pixels and in seconds
+        float magnification = thumbNailWidth / thumbNailLength;  // Ratio between the length of the
+                                                                 // representation in pixels and in seconds
+        if (sectionLabels.size() > 0) {
+            for (int i = 0; i < sectionLabels.size(); i++) {
+                float sectionStart = std::get<0>(sectionLabels[i]);
+                float sectionEnd = std::get<1>(sectionLabels[i]);
+                std::string sectionLabel = std::get<2>(sectionLabels[i]);
 
-            if (numSections > 0) {
-                int linesToDraw = numSections + 1;
-                for (int i = 0; i < linesToDraw; i++) {
-                    float lineX =
-                        thumbNailX + (i * sectionsLength * magnification);
-                    drawVline(g, lineX, thumbNailY, thumbNailHeight, 1.f,
-                              juce::Colours::cyan);
-                }
+                drawVline(g, sectionStart * magnification + thumbNailX, thumbNailY, thumbNailHeight, 1.f, juce::Colours::red);
+                drawVline(g, sectionEnd   * magnification + thumbNailX, thumbNailY, thumbNailHeight, 1.f, juce::Colours::red);
 
-                if (sectionLabels.size() > 0) {
-                    jassert(linesToDraw - 1 == sectionLabels.size());
-                    for (int i = 0; i < sectionLabels.size(); i++) {
-                        g.setColour(sectionLabelColors.size() ==
-                                            sectionLabels.size()
-                                        ? sectionLabelColors[i]
-                                        : juce::Colours::white);
-                        g.setFont(juce::Font(15.f, juce::Font::bold));
-                        g.drawFittedText(
-                            sectionLabels[i],
-                            thumbNailX + (i * sectionsLength * magnification),
-                            thumbNailY + thumbNailHeight,
-                            sectionsLength * magnification, 20,
-                            juce::Justification::centred, 2);
-                    }
-                }
+                g.setColour(sectionLabelColors.size() == sectionLabels.size() ? sectionLabelColors[i] : juce::Colours::white);
+                g.setFont(juce::Font(15.f, juce::Font::bold));
+                g.drawFittedText(
+                    sectionLabel,
+                    sectionStart * magnification + thumbNailX,
+                    thumbNailY + thumbNailHeight,
+                    (sectionEnd-sectionStart) * magnification, 20,
+                    juce::Justification::centred, 2);
             }
         }
     }
@@ -178,8 +151,7 @@ private:
     juce::AudioThumbnailCache thumbnailCache;
     juce::AudioThumbnail thumbnail;
 
-    float sectionsLength = 0;
-    std::vector<std::string> sectionLabels;
+    std::vector<std::tuple<float, float, std::string>> sectionLabels;
     std::vector<juce::Colour> sectionLabelColors;
 
     std::string nofileText;

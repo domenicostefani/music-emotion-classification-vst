@@ -16,8 +16,6 @@ const String OFF_TEXT = "Press to start recording";
 const String ON_TEXT = "Recording... Press to classify";
 const String CLASSIFYING_TEXT = "Classifying...";
 
-const float EMOTION_AUDIO_SEGMENT_LENGTH_S = 3.0f;
-
 typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
@@ -86,7 +84,7 @@ private:
             for (auto& label : audioProcessor.outputLabelsInt) {
                 labelColors.push_back(emotionLabelColorMap[label]);
             }
-            waveformDisplayComponent.setLabels(audioProcessor.outputLabels, labelColors);
+            waveformDisplayComponent.setSectionLabels(audioProcessor.outputLabels, labelColors);
         }
     }
 
@@ -105,7 +103,7 @@ private:
     void recordStateChanged();
 
     // Waveform display
-    AudioThumbnailComponent waveformDisplayComponent{EMOTION_AUDIO_SEGMENT_LENGTH_S, "Press the Record button to start recording."};
+    AudioThumbnailComponent waveformDisplayComponent{"Press the Record button to start recording."};
 
     // Metering
     Gui::LevelMeter meter;

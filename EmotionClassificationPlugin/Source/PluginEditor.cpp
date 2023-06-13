@@ -62,6 +62,7 @@ ECEditor::ECEditor(ECProcessor& p)
     // Input Gain
     addAndMakeVisible(gainSlider);
     gainSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    gainSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
     gainSliderAttachment.reset(new SliderAttachment(audioProcessor.valueTreeState, audioProcessor.GAIN_ID, gainSlider));
 
     // Silence Detection
@@ -93,11 +94,12 @@ void ECEditor::paint(juce::Graphics& g) {
     auto bottomStrip = area.removeFromBottom(18);
     bottomStrip.removeFromRight(30);  // Clear resize window icon
 
-    Rectangle<int> leftGainArea = area.removeFromLeft(180);
+    Rectangle<int> leftGainArea = area.removeFromLeft(200);
     Rectangle<int> controlsArea = area.removeFromLeft((970-120) * 0.4);
     Rectangle<int> usableControlArea = controlsArea.reduced(10);
 
-    auto sliderarea = leftGainArea.removeFromLeft(35);
+    auto sliderarea = leftGainArea.removeFromLeft(55);
+    sliderarea.removeFromLeft(10).removeFromRight(10);
     g.drawFittedText("Gain", sliderarea.removeFromTop(20), juce::Justification::centred, 1);
     gainSlider.setBounds(sliderarea);
     auto meterArea = leftGainArea.removeFromLeft(55);
@@ -106,7 +108,8 @@ void ECEditor::paint(juce::Graphics& g) {
     meter.setBounds(meterArea);
 
     auto silenceArea = leftGainArea;
-    auto ledArea = silenceArea.removeFromTop(40);
+    silenceArea.removeFromLeft(10).removeFromRight(10);
+    auto ledArea = silenceArea.removeFromTop(40).reduced(5);
     silenceLed.setBounds(ledArea);
     g.drawFittedText("Silence Threshold", silenceArea.removeFromTop(20), juce::Justification::centred, 1);
     silenceThSlider.setBounds(silenceArea);

@@ -138,6 +138,17 @@ public:
         return isSilent;
     }
 
+    // Getters
+    float getFrameSize() const {
+        return frameSize;
+    }
+    size_t getHopSize() const {
+        return hopSize;
+    }
+
+    float getThreshold() const {
+        return threshold;
+    }
 };
 
 /**
@@ -221,6 +232,12 @@ public:
     }
     ~SilenceFilter() = default;
 
+    void reset() {
+        head = 0;
+        actual_size = 0;
+        currentSilenceState = true;
+    }
+
     bool filter(bool valueToAppend) {
         this->push_back(valueToAppend);
         return this->computeFilter();
@@ -272,7 +289,94 @@ public:
                 if (_verbose) std::cout << " -> Not enough samples for computation" << std::endl;
         }
     }
+
+    void resetFilter() {
+        silenceFilter.reset();
+    }
 };
+
+
+/**
+ * @brief Offline version of FilteredRTisSilentm which loads an audio recording from file
+ * 
+ */
+class FilteredIsSilent {
+    FilteredRTisSilent rtSilenceDetector;
+    float sampleRate;
+
+    std::vector<float> essentiaLoad(std::string audioFilename, float sampleRate) {
+        std::vector<essentia::Real> signalVec;
+        essentia::streaming::AlgorithmFactory &factory = essentia::streaming::AlgorithmFactory::instance();
+
+        // This loads the audio file from disk, downsamples it to 16kHz mono and outputs it
+        essentia::streaming::Algorithm *audio =
+            factory.create("MonoLoader", "filename", audioFilename, "sampleRate", sampleRate, "downmix", "left");
+
+        std::vector<std::vector<essentia::Real>> framesVec;
+
+        audio->output("audio") >> signalVec;  // Send the extractor's output to a std::vector
+
+        essentia::scheduler::Network n(audio);
+        n.run();
+        n.clear();
+
+        return signalVec;
+    }
+
+public: 
+    
+    FilteredIsSilent(float sampleRate, size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1): rtSilenceDetector(frameSize, hopSize, threshold_dB, filterLength, trueToFalseTransitionRatio, alphaDecay), sampleRate(sampleRate) {}
+
+    void resetFilter() {
+        rtSilenceDetector.resetFilter();
+    }
+
+    void setThreshold(float threshold_dB) {
+        rtSilenceDetector.setThreshold(threshold_dB);
+    }
+
+    std::vector<bool> computeFromFile (std::string audioFilename) {
+        rtSilenceDetector.resetFilter();
+        std::vector<bool> res;
+        std::vector<float> signal = essentiaLoad(audioFilename, this->sampleRate);
+        for (size_t i = 0; i < signal.size(); i += rtSilenceDetector.getHopSize()) {
+            size_t numSamples = std::min(rtSilenceDetector.getHopSize(), signal.size() - i);
+            juce::AudioBuffer<float> buffer(1, numSamples);
+            buffer.copyFrom(0, 0, signal.data() + i, numSamples);
+            rtSilenceDetector.processBlock(buffer);
+            res.push_back(rtSilenceDetector.computeIsSilent());
+        }
+        return res;
+    }
+};
+
+class PerformanceStartStop {
+    FilteredIsSilent fis;
+public:
+    PerformanceStartStop(float sampleRate, size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1) : fis(sampleRate, frameSize, hopSize, threshold_dB, filterLength, trueToFalseTransitionRatio, alphaDecay) {}
+
+    std::pair<size_t, size_t> computeFromFile (std::string audioFilename, float threshold_dB) {
+        fis.setThreshold(threshold_dB);
+        fis.resetFilter();
+        std::vector<bool> silenceVec = fis.computeFromFile(audioFilename);
+
+        // Set the first 4 values to true
+        // for (size_t i = 0; i < 4; ++i) silenceVec[i] = true; //TODO: Fix this bug with the silence detector where sometimes the first is not silent.
+
+        for (auto e : silenceVec) std::cout << (e?'1':'0'); std::cout << std::endl;
+        
+        // Take the first non silent block (false) as start index and the last non silent block as stop index
+        size_t startIdx = std::find(silenceVec.begin(), silenceVec.end(), false) - silenceVec.begin();
+        size_t stopIdx = std::find(silenceVec.rbegin(), silenceVec.rend(), false) - silenceVec.rbegin();
+        stopIdx = silenceVec.size() - stopIdx;
+        
+        std::cout << "startIdx = " << startIdx << " | stopIdx = " << stopIdx << std::endl;
+
+        return std::make_pair(startIdx, stopIdx);
+    }
+    
+};
+    
 
 }  // namespace emosmi
 

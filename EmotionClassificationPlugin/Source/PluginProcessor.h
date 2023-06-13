@@ -4,7 +4,7 @@
  * @brief This is the main processor of the plugin. It contains all the code needed to extract features from the audio, classify intended emotion and to communicate with the controller through OSC messages.
  * @version 0.1
  * @date 2023-05-29
- *  * 
+ *  *
  */
 #pragma once
 
@@ -25,9 +25,9 @@
 #define RX_PORT 8042
 #define TX_PORT 9042
 
-
 #define SD_FRAME_SIZE 512
 #define SD_HOP_SIZE 256
+#define SD_SAMPLERATE 16000.0
 #define SD_THRESHOLD -60.0f
 #define SD_FILTER_LENGTH 187
 #define SD_TRUE_TO_FALSE_TRANSITION_RATIO 0.0001
@@ -51,22 +51,22 @@ public:
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override;
+    bool hasEditor() const override { return true; }
 
     //==============================================================================
-    const juce::String getName() const override;
+    const juce::String getName() const override { return JucePlugin_Name; }
 
-    bool acceptsMidi() const override;
-    bool producesMidi() const override;
-    bool isMidiEffect() const override;
-    double getTailLengthSeconds() const override;
+    bool acceptsMidi() const override { return false; }
+    bool producesMidi() const override { return false; }
+    bool isMidiEffect() const override { return false; }
+    double getTailLengthSeconds() const override { return 0.0; }
 
     //==============================================================================
-    int getNumPrograms() override;
-    int getCurrentProgram() override;
-    void setCurrentProgram(int index) override;
-    const juce::String getProgramName(int index) override;
-    void changeProgramName(int index, const juce::String& newName) override;
+    int getNumPrograms() override { return 1; }
+    int getCurrentProgram() override { return 0; }
+    void setCurrentProgram(int index) override {}
+    const juce::String getProgramName(int index) override { return {}; }
+    void changeProgramName(int index, const juce::String& newName) override {}
 
     //==============================================================================
     void getStateInformation(juce::MemoryBlock& destData) override;
@@ -116,7 +116,7 @@ public:
 
     std::atomic<bool> recordingStopped{false}, labelsWritten{false};
 
-    std::vector<std::string> outputLabels;
+    std::vector<std::tuple<float, float, std::string>> outputLabels;
     std::vector<size_t> outputLabelsInt;
 
 private:
@@ -152,10 +152,14 @@ public:
     // Feature extraction
     emosmi::MusicnnFeatureExtractor extractionPipeline;
 
-    // Silence detection
-    emosmi::FilteredRTisSilent silenceDetector {SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO,SD_ALPHA};
+    // Silence detection for RT gui
+    emosmi::FilteredRTisSilent silenceDetector{SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO, SD_ALPHA};
     std::atomic<bool> isSilent{false};
     float silenceThreshold = SD_THRESHOLD;
+
+    // Actual Offline silence detection
+    // emosmi::FilteredIsSilent offlineSilenceDetector {16000.0, SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO,SD_ALPHA};
+    emosmi::PerformanceStartStop performanceStartStop{16000.0, SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO, SD_ALPHA};
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECProcessor)

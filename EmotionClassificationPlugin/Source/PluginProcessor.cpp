@@ -25,6 +25,9 @@
 #define STATE_RECORDING 1
 #define STATE_CLASSIFYING 2
 
+// If defined, STARTSTOP_KEEP_LAST_CHUNK will keep the last chunk of audio in the non-silent section of the recording even if up to 50% of it is in the silent section (math rounding).
+#define STARTSTOP_KEEP_LAST_CHUNK
+
 std::map<size_t, std::string> emotions = {
     {0, "Aggressive"},
     {1, "Relaxed"},
@@ -350,14 +353,14 @@ size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const 
     const bool VERBOSE = false;
     if (VERBOSE) std::cout << "SoftMax inputs:\n";
     for (auto &v : input) {
-        std::cout << "[ ";
+        if (VERBOSE) std::cout << "[ ";
         for (size_t i = 0; i < NUM_EMOTIONS; ++i) {
-            std::cout << v[i] << " ";
+            if (VERBOSE) std::cout << v[i] << " ";
             avg[i] += v[i];
         }
-        std::cout << "]\n";
+        if (VERBOSE) std::cout << "]\n";
     }
-    std::cout << "---\n";
+    if (VERBOSE) std::cout << "---\n";
     // Average
     for (size_t i = 0; i < avg.size(); ++i)
         avg[i] = avg[i] / input.size();
@@ -439,9 +442,19 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
     print2DVectorHead(featvec);
 #endif
 
+    std::pair<size_t, size_t> startstop = performanceStartStop.computeFromFile(audioFilePath, silenceThreshold);
+    size_t startIdx = startstop.first;
+    size_t stopIdx = startstop.second;
+
     // Now we split the feature matrix in 3 second chunks (187 frames), call the classifier and then call voting subroutine
-    size_t numFrames = featvec.size();
+    size_t numFrames = stopIdx - startIdx;
+#ifdef STARTSTOP_KEEP_LAST_CHUNK
+    size_t numChunks = roundf((float)numFrames / FRAMES_IN_3_SECONDS);      // Take ceiling to include the last chunk even if it's 50% silent (math round)
+    numChunks = std::min(numChunks, featvec.size() / FRAMES_IN_3_SECONDS);  // If the last chunk is too small, then don't include it
+    //
+#else
     size_t numChunks = numFrames / FRAMES_IN_3_SECONDS;
+#endif
 
     if (numChunks == 0) {
         extractorState = extractorState + "\nNot enough frames to classify (Please record for more than 3 seconds)";
@@ -465,7 +478,8 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
 
     for (size_t i = 0; i < numChunks; ++i) {
         res.at(i).resize(NUM_EMOTIONS);
-        classifyChunk(std::vector<std::vector<float>>(featvec.begin() + i * FRAMES_IN_3_SECONDS, featvec.begin() + (i + 1) * FRAMES_IN_3_SECONDS), res.at(i));
+        std::cout << "Classifying chunk " << i << " which goes from " << (i)*FRAMES_IN_3_SECONDS + startIdx << " to " << (i + 1) * FRAMES_IN_3_SECONDS + startIdx << std::endl;
+        classifyChunk(std::vector<std::vector<float>>(featvec.begin() + (i)*FRAMES_IN_3_SECONDS + startIdx, featvec.begin() + (i + 1) * FRAMES_IN_3_SECONDS + startIdx), res.at(i));
         // Check if the result is ambivalent or only one class prevails (if the result is ambivalent, the resultBest vector will contain true values corresponding the emotions that fall into the thresholdDistance distance)
         ambivalentRes(res.at(i), this->topPredictedEmotions);
         // Add to log all the emotions that fall into the thresholdDistance distance
@@ -489,7 +503,9 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
         }
         chunkEmotions.pop_back();
 
-        this->outputLabels.push_back(chunkEmotions);
+        float startTime = (startIdx * SD_HOP_SIZE / (float)SD_SAMPLERATE) + (i * 3.0f);
+        float endTime = startTime + 3.0f;
+        this->outputLabels.push_back(std::make_tuple(startTime, endTime, chunkEmotions));
         if (std::count(topPredictedEmotions.begin(), topPredictedEmotions.end(), true) > 1)
             this->outputLabelsInt.push_back(NUM_EMOTIONS);
         else
@@ -531,8 +547,13 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
     std::string emotionLabels = "", softmaxLabels = "";
 
     for (size_t i = 0; i < numChunks; ++i) {
-        emotionLabels += std::to_string((float)(i * 3)) + "\t" + std::to_string((float)((i + 1) * 3)) + "\t" + allPerChunkEmotions[i] + "\n";
-        softmaxLabels += std::to_string((float)(i * 3)) + "\t" + std::to_string((float)((i + 1) * 3)) + "\t" + softmaxOutsPrintable[i] + "\n";
+        float startTime = std::get<0>(outputLabels[i]);
+        float endTime = std::get<1>(outputLabels[i]);
+        // float startTime = (startIdx * SD_HOP_SIZE / (float)SD_SAMPLERATE) + (i * 3.0f);
+        // float endTime = startTime + 3.0f;
+        std::cout << "Labeling chunk " << i << " which goes from " << startTime << " to " << endTime << std::endl;
+        emotionLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + allPerChunkEmotions[i] + "\n";
+        softmaxLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + softmaxOutsPrintable[i] + "\n";
     }
 
     // std::cout << emotionLabels << std::endl;
@@ -596,7 +617,7 @@ AudioProcessorValueTreeState::ParameterLayout ECProcessor::createParameterLayout
                                                                                         false),
                                                                1.f));
     parameters.push_back(std::make_unique<AudioParameterFloat>(SILENCE_THRESH_ID, SILENCE_THRESH_NAME,
-                                                               NormalisableRange<float>(-120.0f,0.0f,0.5f),
+                                                               NormalisableRange<float>(-120.0f, 0.0f, 0.5f),
                                                                -60.0f));
 
     return {parameters.begin(), parameters.end()};
@@ -648,24 +669,13 @@ float ECProcessor::getPeakValue() const {
 }
 
 void ECProcessor::setInputGain(float newGain) {
-    inputGain = newGain;
+    this->inputGain = newGain;
 }
 
 //==============================================================================
-bool ECProcessor::acceptsMidi() const { return false; }
-bool ECProcessor::producesMidi() const { return false; }
-bool ECProcessor::isMidiEffect() const { return false; }
-double ECProcessor::getTailLengthSeconds() const { return 0.0; }
-int ECProcessor::getNumPrograms() { return 1; }
-int ECProcessor::getCurrentProgram() { return 0; }
-void ECProcessor::setCurrentProgram(int index) {}
-const juce::String ECProcessor::getProgramName(int index) { return {}; }
-void ECProcessor::changeProgramName(int index, const juce::String &newName) {}
-bool ECProcessor::hasEditor() const { return true; }
 juce::AudioProcessorEditor *ECProcessor::createEditor() { return new ECEditor(*this); }
 
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter() { return new ECProcessor(); }
-const juce::String ECProcessor::getName() const { return JucePlugin_Name; }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool ECProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const {
