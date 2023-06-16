@@ -1,4 +1,4 @@
-#N canvas 1921 96 1278 1315 10;
+#N canvas 1921 96 2558 1315 10;
 #X declare -lib zexy -lib mrpeach;
 #X obj 1195 693 bng 20 250 50 0 main_reset empty Main_Reset 23 13 1
 11 -261234 -1 -1;
@@ -262,7 +262,7 @@ to keep the last or one of the previous ones, f 21;
 #X obj 516 205 inlet;
 #X text 516 170 Reset;
 #X obj 329 241 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -237178
--91543 -91543 0;
+-91543 -91543 1;
 #X msg 308 463 0;
 #X msg 285 439 1;
 #X msg 357 463 0;
@@ -291,7 +291,7 @@ to keep the last or one of the previous ones, f 21;
 #X connect 11 1 5 0;
 #X restore 694 1308 pd 2waytoggler;
 #X obj 694 1252 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -228856
--91543 -91543 0;
+-91543 -91543 1;
 #X msg 694 1228 0;
 #X obj 694 1203 r dsc;
 #X msg 733 1229 1;
@@ -422,16 +422,16 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 -1 -1 0 1;
 #X obj 331 655 tgl 40 0 empty oscrx_res_sad Sad 0 -10 1 15 -174763
 -1 -1 0 1;
-#X obj 30 200 cnv 15 160 100 empty empty Connection_State 13 19 1 14
+#X obj 32 246 cnv 15 160 100 empty empty Connection_State 13 19 1 14
 -33289 -262144 0;
-#X obj 50 261 cnv 15 120 25 empty empty empty 20 12 1 15 -204786 -66577
+#X obj 52 307 cnv 15 120 25 empty empty empty 20 12 1 15 -204786 -66577
 0;
-#X obj 50 236 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
+#X obj 52 282 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
 0;
-#X obj 50 236 tgl 25 0 empty disconnected Disconnected 28 15 1 10 -261234
--91543 -258113 1 1;
-#X obj 50 261 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
--91543 -13381 0 1;
+#X obj 52 282 tgl 25 0 empty disconnected Disconnected 28 15 1 10 -261234
+-91543 -258113 0 1;
+#X obj 52 307 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
+-91543 -13381 1 1;
 #X obj 747 71 cnv 15 110 280 empty empty empty 8 12 1 10 -33289 -262144
 0;
 #X obj 992 212 cnv 15 160 140 empty empty empty 8 12 1 14 -33289 -66577
@@ -468,11 +468,14 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X obj 24 112 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
 #X obj 668 106 vsl 20 210 -100 0 0 0 s_gain initial_gain Recording_gain
--28 -12 1 10 -262144 -1 -1 20900 1;
+-28 -12 1 10 -262144 -1 -1 41800 1;
 #X text 108 91 Computer IP;
 #X obj 109 112 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
 #X text 37 92 Board IP;
+#X obj 68 216 _osc_conn2;
+#X obj 27 181 r \$0-conn_m;
+#X obj 79 199 r \$0-disc_m;
 #X obj 388 50 cnv 15 240 305 empty empty 2._Start_A_Plugin 8 16 1 15
 -233467 -66577 0;
 #X obj 404 81 bng 25 250 50 0 start_electric empty Start_Electric_Guitar_Plugin
@@ -483,12 +486,15 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 30 14 1 11 -204786 -1 -1;
 #X obj 404 173 bng 25 250 50 0 stop_plugin empty Stop_Plugin 30 14
 1 11 -261234 -1 -1;
+#X obj 100 161 r \$0-handshake;
 #X obj 517 518 cnv 15 110 20 empty empty Recording_too 0 12 1 14 -228856
 -33289 0;
 #X obj 517 540 cnv 15 110 20 empty empty short_or 0 12 1 14 -228856
 -33289 0;
 #X obj 517 563 cnv 15 110 20 empty empty silent 0 12 1 14 -228856 -33289
 0;
+#X obj 97 182 r \$0-connplug;
+#X obj 27 198 t b b;
 #X obj 671 363 cnv 15 495 355 empty empty 5._RenameRecording 8 16 1
 15 -261682 -1 0;
 #X obj 891 528 bng 20 250 50 0 \$0-reserr empty Reset_Error 25 12 1
@@ -501,9 +507,10 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X obj 688 670 s \$0-ns;
 #X obj 688 623 bng 19 250 50 0 empty empty Prepare_Custom_name 25 11
 1 10 -262144 -1 -1;
+#X obj 128 139 s \$0-cIP;
 #X floatatom 895 267 8 0 0 1 dB vis_sdthresh -;
 #X obj 908 96 vsl 20 160 -120 0 0 0 s_sdthresh initial_sdthresh SilenceThreshold
--36 -12 1 10 -262144 -1 -1 7950 1;
+-36 -12 1 10 -262144 -1 -1 15900 1;
 #X msg 27 113 10.42.0.47;
 #X msg 114 113 10.42.0.1;
 #X obj 412 209 cnv 15 180 140 empty empty Plugin_State 13 19 1 14 -33289
@@ -523,7 +530,7 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X obj 761 311 cnv 15 80 30 empty empty empty 20 12 0 14 -262144 -66577
 0;
 #X floatatom 764 318 10 0 0 1 dB roundedmeter -;
-#X obj 19 355 cnv 15 290 362 empty empty COPY_recordings_here 8 23
+#X obj 19 356 cnv 15 290 362 empty empty COPY_recordings_here 8 23
 1 15 -212671 -1 0;
 #X obj 125 422 cnv 15 160 45 empty empty Local_Copy_Directory 25 12
 1 9 -204786 -66577 0;
@@ -534,13 +541,13 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X msg 132 446 ~/Desktop/RemoteRecsEmo;
 #X obj 29 423 cnv 15 90 45 empty empty Username 25 12 1 9 -204786 -66577
 0;
-#X obj 235 265 bng 25 250 50 0 \$0-setCopyDETAILS empty setCopyDETAILS
+#X obj 237 311 bng 25 250 50 0 \$0-setCopyDETAILS empty setCopyDETAILS
 30 12 0 10 -204786 -1 -1;
 #X msg 38 446 cimil-01;
 #X obj 38 469 s \$0-usern;
 #X obj 132 469 s \$0-cdir;
 #X obj 38 398 t b b;
-#X text 234 218 Change Username and directory below before pressing
+#X text 236 264 Change Username and directory below before pressing
 , f 21;
 #X obj 907 617 cnv 15 240 95 empty empty DANGER:_Delete_recordings
 6 17 1 13 -259603 -1 0;
@@ -557,17 +564,17 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X text 943 424 If blinking: look at Pd console, f 34;
 #X obj 886 396 bng 50 250 50 0 empty \$0-blinker Rename-ERROR 54 17
 1 14 -262144 -258113 -258113;
-#X obj 19 18 cnv 15 1147 28 empty empty Metering_information_in_black_boxes:_do_not_use_elements_in_black_boxes_as_controls
+#X obj 19 18 cnv 15 1147 28 empty empty Metering_information_in_black_boxes:_do_not_use_elements_in_black_boxes_as_con*
 8 14 1 14 -49933 -249661 0;
 #X text 26 572 To copy the files to to this computer you must copy
 the public SSH key of the board to the authorized_keys file in the
 ssh config folder. \; Remove the key after you are done. \; \; \; Copy
 the public key to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub"
 >> .ssh/authorized_keys, f 44;
-#X text 209 225 >;
-#X text 209 235 >;
-#X text 209 247 >;
-#X text 209 257 >;
+#X text 211 271 >;
+#X text 211 281 >;
+#X text 211 293 >;
+#X text 211 303 >;
 #X obj 1568 836 cnv 15 210 330 empty empty Extra 20 12 1 14 -233017
 -66577 0;
 #X obj 1576 879 declare -lib zexy -lib mrpeach;
@@ -683,34 +690,8 @@ doing an automatic remapping of the 0-1 range to the parameter range
 -262144 -1 -1;
 #X obj 770 559 bng 20 250 50 0 \$0-nextname empty Next -3 -10 1 10
 -262144 -1 -1;
-#N canvas 3201 96 1278 1315 connAbstraction 0;
-#X obj 303 77 inlet;
-#X obj 365 78 inlet;
-#X obj 45 267 outlet;
-#X obj 112 267 outlet;
-#X text 361 57 Computer IP;
-#X text 291 56 Board IP;
-#X obj 180 212 _osc_conn2, f 52;
-#X obj 45 107 r \$0-conn_m;
-#X obj 241 132 r \$0-disc_m;
-#X obj 489 170 r \$0-handshake;
-#X obj 427 150 r \$0-connplug;
-#X obj 383 109 s \$0-cIP;
-#X text 13 290 Bang Board IP;
-#X text 109 290 Bang Computer IP;
-#X obj 45 159 t b b b, f 23;
-#X connect 0 0 6 2;
-#X connect 1 0 11 0;
-#X connect 1 0 6 3;
-#X connect 7 0 14 0;
-#X connect 8 0 6 1;
-#X connect 9 0 6 5;
-#X connect 10 0 6 4;
-#X connect 14 0 2 0;
-#X connect 14 1 3 0;
-#X connect 14 2 6 0;
-#X restore 27 147 pd connAbstraction;
-#X f 15;
+#N canvas 1 89 450 300 connAbstraction 1;
+#X restore 227 201 pd connAbstraction;
 #X connect 13 0 12 0;
 #X connect 14 0 13 0;
 #X connect 15 0 12 0;
@@ -872,14 +853,20 @@ doing an automatic remapping of the 0-1 range to the parameter range
 #X connect 191 0 193 0;
 #X connect 192 0 183 0;
 #X connect 193 0 190 0;
-#X connect 247 0 248 0;
-#X connect 249 0 247 0;
-#X connect 252 0 298 0;
-#X connect 253 0 298 1;
-#X connect 267 0 272 0;
-#X connect 269 0 273 0;
-#X connect 270 0 271 0;
-#X connect 273 0 270 0;
-#X connect 273 1 267 0;
-#X connect 298 0 252 0;
-#X connect 298 1 253 0;
+#X connect 236 0 248 0;
+#X connect 237 0 235 1;
+#X connect 243 0 235 5;
+#X connect 247 0 235 4;
+#X connect 248 0 235 0;
+#X connect 248 0 259 0;
+#X connect 248 1 260 0;
+#X connect 253 0 254 0;
+#X connect 255 0 253 0;
+#X connect 259 0 235 2;
+#X connect 260 0 235 3;
+#X connect 260 0 256 0;
+#X connect 274 0 279 0;
+#X connect 276 0 280 0;
+#X connect 277 0 278 0;
+#X connect 280 0 277 0;
+#X connect 280 1 274 0;
