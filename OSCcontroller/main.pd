@@ -1,35 +1,33 @@
-#N canvas 599 120 1287 990 10;
+#N canvas 1920 96 2560 1316 10;
 #X declare -lib zexy -lib mrpeach;
-#X obj 505 7 cnv 15 277 270 empty empty 3._Control 8 16 1 15 -257562
+#X obj 632 38 cnv 15 530 305 empty empty 3._Control 8 16 1 15 -257562
 -1 0;
-#X obj 15 7 cnv 15 230 270 empty empty 1_Establish_Connection 8 16
+#X obj 15 37 cnv 15 360 305 empty empty 1_Establish_Connection 8 16
 1 15 -212671 -1 0;
-#X obj 16 292 cnv 15 460 355 empty empty Monitor 12 18 1 18 -261682
--1 0;
-#X obj 36 51 bng 25 250 50 0 \$0-conn_m empty <----Connect_to_board
-30 13 1 12 -150464 -1 -1;
-#X obj 1573 735 declare -lib zexy -lib mrpeach;
-#X obj 483 292 cnv 15 350 355 empty empty Results(Predicted_Emotion)
-12 18 1 18 -208051 -1 0;
-#X obj 502 348 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 200 79 bng 25 250 50 0 \$0-conn_m empty Connect_to_board 30
+13 1 12 -150464 -1 -1;
+#X obj 1573 836 declare -lib zexy -lib mrpeach;
+#X obj 313 350 cnv 15 345 355 empty empty Results(Predicted_Emotion)
+12 18 1 18 -54094 -249661 0;
+#X obj 331 394 cnv 15 100 70 empty empty empty 20 12 0 14 -262144 -91543
 0;
-#X obj 502 415 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 331 469 cnv 15 100 70 empty empty empty 20 12 0 14 -262144 -91543
 0;
-#X obj 502 482 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 331 544 cnv 15 100 70 empty empty empty 20 12 0 14 -262144 -91543
 0;
-#X obj 502 549 cnv 15 100 60 empty empty empty 20 12 0 14 -262144 -91543
+#X obj 331 619 cnv 15 100 70 empty empty empty 20 16 0 14 -262144 -91543
 0;
-#X obj 505 366 tgl 40 0 empty oscrx_res_aggressive Aggressive 0 -10
+#X obj 334 416 tgl 40 0 empty oscrx_res_aggressive Aggressive 0 -10
 1 15 -213249 -1 -1 0 1;
-#X obj 504 434 tgl 40 0 empty oscrx_res_relaxed Relaxed 0 -10 1 15
+#X obj 333 492 tgl 40 0 empty oscrx_res_relaxed Relaxed 0 -10 1 15
 -2676 -1 -1 0 1;
-#X obj 504 501 tgl 40 0 empty oscrx_res_happy Happy 0 -10 1 15 -47873
+#X obj 333 567 tgl 40 0 empty oscrx_res_happy Happy 0 -10 1 15 -47873
 -1 -1 0 1;
-#X obj 505 568 tgl 40 0 empty oscrx_res_sad Sad 0 -10 1 15 -174763
+#X obj 334 642 tgl 40 0 empty oscrx_res_sad Sad 0 -10 1 15 -174763
 -1 -1 0 1;
-#X obj 871 595 bng 20 250 50 0 main_reset empty Main_Reset 23 13 1
+#X obj 1227 180 bng 20 250 50 0 main_reset empty Main_Reset 23 13 1
 11 -261234 -1 -1;
-#N canvas 567 158 1272 678 control_logic 1;
+#N canvas 1920 96 2560 1316 control_logic 0;
 #X msg 39 85 1;
 #X msg 118 86 0;
 #X obj 39 63 r b_startrec;
@@ -53,9 +51,9 @@
 #X obj 91 220 r s_gain;
 #X obj 39 148 s osc_msg_tosend;
 #X obj 91 305 expr pow(10\\\, $f1/20);
-#X floatatom 91 334 22 0 0 0 empty - -;
-#X obj 91 385 s osc_msg_tosend;
-#X msg 91 358 /parameter/emotionclassifier/gain \$1, f 47;
+#X floatatom 91 334 22 0 0 0 - - -;
+#X obj 91 512 s osc_msg_tosend;
+#X msg 91 358 /parameter/emotionclassifier/gain \$1, f 38;
 #X msg 39 125 sendtyped /parameter/emotionclassifier/recstate f \$1
 ;
 #N canvas 1 89 450 300 round1 0;
@@ -72,9 +70,35 @@
 #X connect 3 0 0 0;
 #X connect 4 0 2 0;
 #X connect 5 0 1 0;
-#X restore 47 514 pd round1;
-#X obj 47 488 r oscrx_meter;
-#X obj 47 537 s roundedmeter;
+#X restore 487 88 pd round1;
+#X obj 487 62 r oscrx_meter;
+#X obj 487 111 s roundedmeter;
+#N canvas 1 89 450 300 round1 0;
+#X floatatom 47 157 11 0 0 1 - - -;
+#X obj 47 57 * 10, f 6;
+#X obj 47 107 int, f 6;
+#X obj 47 131 / 10, f 6;
+#X obj 47 82 0.499999, f 26;
+#X obj 48 24 inlet;
+#X obj 47 184 outlet;
+#X connect 0 0 6 0;
+#X connect 1 0 4 0;
+#X connect 2 0 3 0;
+#X connect 3 0 0 0;
+#X connect 4 0 2 0;
+#X connect 5 0 1 0;
+#X restore 345 254 pd round1;
+#X floatatom 345 336 22 0 0 0 - - -;
+#X obj 345 222 r s_sdthresh;
+#X obj 358 280 s vis_sdthresh;
+#X msg 345 470 sendtyped /parameter/emotionclassifier/silenceThresh
+f \$1;
+#X obj 345 382 / 120;
+#X obj 345 404 + 1;
+#X floatatom 345 443 5 0 0 0 - - -;
+#X text 390 383 Rescale between O and 1 because elkos seems to be already
+doing an automatic remapping of the 0-1 range to the parameter range
+, f 27;
 #X connect 0 0 12 0;
 #X connect 1 0 12 0;
 #X connect 2 0 0 0;
@@ -88,120 +112,119 @@
 #X connect 12 0 7 0;
 #X connect 13 0 15 0;
 #X connect 14 0 13 0;
-#X restore 1573 759 pd control_logic;
-#X text 869 545 You shouldn´t need this \; It disconnects the osc
+#X connect 16 0 19 0;
+#X connect 16 0 17 0;
+#X connect 17 0 21 0;
+#X connect 18 0 16 0;
+#X connect 20 0 10 0;
+#X connect 21 0 22 0;
+#X connect 22 0 23 0;
+#X connect 23 0 20 0;
+#X restore 1573 860 pd control_logic;
+#X text 1225 130 You shouldn´t need this \; It disconnects the osc
 target \; and resets initial slider values;
-#X obj 159 329 cnv 15 310 125 empty empty Connection_State 13 19 1
-14 -248615 -1 0;
-#X obj 167 404 cnv 15 120 25 empty empty empty 20 12 1 15 -204786 -66577
+#X obj 28 233 cnv 15 160 100 empty empty Connection_State 13 19 1 14
+-33289 -262144 0;
+#X obj 48 294 cnv 15 120 25 empty empty empty 20 12 1 15 -204786 -66577
 0;
-#X obj 167 379 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
+#X obj 48 269 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
 0;
-#X obj 167 379 tgl 25 0 empty disconnected Disconnected 28 15 1 10
--261234 -91543 -258113 1 1;
-#X obj 167 404 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
--91543 -13381 0 1;
-#X obj 22 329 cnv 15 125 300 empty empty empty 8 12 1 14 -248615 -66577
+#X obj 48 269 tgl 25 0 empty disconnected Disconnected 28 15 1 10 -261234
+-91543 -258113 0 1;
+#X obj 48 294 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
+-91543 -13381 1 1;
+#X obj 743 58 cnv 15 110 280 empty empty empty 8 12 1 10 -33289 -262144
 0;
-#X floatatom 57 599 10 0 0 1 dB roundedmeter -;
-#X obj 159 465 cnv 15 310 165 empty empty empty 8 12 1 14 -248615 -66577
+#X obj 988 199 cnv 15 160 140 empty empty empty 8 12 1 14 -33289 -66577
 0;
-#X obj 254 500 vradio 40 1 0 3 empty oscrx_state PluginState 0 -16
-1 15 -237178 -91543 -1 0;
-#X obj 608 348 cnv 15 200 261 empty empty empty 20 12 0 14 -228856
+#X obj 1000 238 vradio 30 1 0 3 empty oscrx_state PluginState 0 -16
+1 15 -237178 -91543 -262144 2;
+#X obj 438 393 cnv 15 200 296 empty empty empty 20 12 0 14 -228856
 -91543 0;
-#X obj 874 487 bng 20 250 50 0 emo_reset main_reset Reset_Display_manually
+#X obj 1230 72 bng 20 250 50 0 emo_reset main_reset Reset_Display_manually
 23 10 1 10 -261234 -1 -86277;
-#X obj 612 457 tgl 40 0 empty oscrx_noemo empty 46 21 1 14 -262144
+#X obj 446 515 tgl 40 0 empty oscrx_noemo empty 46 21 1 14 -262144
 -258113 -1 0 1;
-#X floatatom 524 240 8 0 0 1 dB vis_gain -;
-#X obj 613 36 cnv 15 150 70 empty empty empty 20 12 0 14 -262144 -66577
+#X floatatom 650 318 8 0 0 1 dB vis_gain -;
+#X obj 988 47 cnv 15 160 70 empty empty empty 20 12 0 14 -262144 -66577
 0;
-#X obj 627 57 bng 40 250 50 0 b_startrec empty Start_Recording 0 -10
+#X obj 1002 68 bng 40 250 50 0 b_startrec empty Start_Recording 0 -10
 1 11 -204786 -1 -1;
-#X obj 613 110 cnv 15 150 70 empty empty empty 20 12 0 14 -262144 -66577
+#X obj 988 121 cnv 15 160 70 empty empty empty 20 12 0 14 -262144 -66577
 0;
-#X obj 627 131 bng 40 250 50 0 b_stoprec empty Stop_and_classify 0
+#X obj 1002 142 bng 40 250 50 0 b_stoprec empty Stop_and_classify 0
 -10 1 11 -261234 -1 -1;
-#X obj 1572 783 _osc_receiver;
-#X obj 1571 808 _emotion_toggler;
-#X obj 301 511 cnv 15 50 18 empty empty Idle 8 12 1 14 -248615 -1 0
-;
-#X obj 302 550 cnv 15 50 18 empty empty Recording 8 12 1 14 -248615
--1 0;
-#X obj 302 587 cnv 15 50 18 empty empty Classifying 8 12 1 14 -248615
--1 0;
-#X text 871 464 Reset only the emotion display;
-#X obj 100 360 cnv 15 30 18 empty empty ----|0dB 0 12 1 8 -248615 -1
+#X obj 1572 884 _osc_receiver;
+#X obj 1571 909 _emotion_toggler;
+#X obj 1033 241 cnv 15 50 18 empty empty Idle 8 12 1 14 -33289 -262144
 0;
-#X obj 99 563 cnv 15 30 18 empty empty ----|-90dB 0 12 1 8 -248615
--1 0;
-#X obj 71 372 vsl 25 200 -90 0 0 0 empty oscrx_meter Record_level -43
--26 1 15 -262144 -1 -1 0 1;
-#X obj 36 90 bng 25 250 50 0 \$0-disc_m empty <----Disconnect 30 13
-1 12 -261234 -1 -1;
-#X obj 33 156 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
+#X obj 1034 273 cnv 15 50 18 empty empty Recording 8 12 1 14 -33289
+-262144 0;
+#X obj 1034 301 cnv 15 50 18 empty empty Classifying 8 12 1 14 -33289
+-262144 0;
+#X text 1227 49 Reset only the emotion display;
+#X obj 808 89 cnv 15 30 18 empty empty ----|0dB 0 12 1 8 -33289 -262144
 0;
-#X obj 537 71 vsl 20 160 -100 0 0 0 s_gain initial_gain Recording_gain
+#X obj 807 273 cnv 15 30 18 empty empty ----|-90dB 0 12 1 8 -33289
+-262144 0;
+#X obj 779 101 vsl 25 180 -90 0 0 0 empty oscrx_meter Record_level
+-32 -20 1 13 -228856 -1 -262144 2550 1;
+#X obj 200 118 bng 25 250 50 0 \$0-disc_m empty Disconnect 30 13 1
+12 -261234 -1 -1;
+#X obj 20 99 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
+0;
+#X obj 664 93 vsl 20 210 -100 0 0 0 s_gain initial_gain Recording_gain
 -28 -12 1 10 -262144 -1 -1 15900 1;
-#X text 117 135 Computer IP;
-#X obj 296 382 tgl 18 0 empty plg_electric Electric_Plugin_Started
-22 11 1 10 -262144 -1 -1 0 1;
-#X obj 296 432 tgl 18 0 empty plg_piano Piano_Plugin_Started 22 11
-1 10 -262144 -1 -1 0 1;
-#X obj 296 407 tgl 18 0 empty plg_acoustic Acoustic_Plugin_Started
-22 11 1 10 -262144 -1 -1 0 1;
-#X obj 296 358 tgl 18 0 empty plg_no NO_PLUGIN_STARTED 22 11 1 10 -261234
--1 -1 0 1;
-#X obj 118 156 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
+#X text 104 78 Computer IP;
+#X obj 105 99 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
-#X text 46 136 Board IP;
-#X obj 89 255 _osc_conn2;
-#X obj 23 206 r \$0-conn_m;
-#X obj 100 238 r \$0-disc_m;
-#X obj 255 7 cnv 15 240 270 empty empty 2._Start_A_Plugin 8 16 1 15
+#X text 33 79 Board IP;
+#X obj 64 203 _osc_conn2;
+#X obj 23 168 r \$0-conn_m;
+#X obj 75 186 r \$0-disc_m;
+#X obj 384 37 cnv 15 240 305 empty empty 2._Start_A_Plugin 8 16 1 15
 -233467 -66577 0;
-#X obj 271 85 bng 25 250 50 0 start_electric empty Start_Electric_Guitar_Plugin
+#X obj 400 68 bng 25 250 50 0 start_electric empty Start_Electric_Guitar_Plugin
 30 14 1 11 -204786 -1 -1;
-#X obj 271 116 bng 25 250 50 0 start_acoustic empty Start_Acoustic_Guitar_Plugin
+#X obj 400 99 bng 25 250 50 0 start_acoustic empty Start_Acoustic_Guitar_Plugin
 30 14 1 11 -204786 -1 -1;
-#X obj 271 147 bng 25 250 50 0 start_piano empty Start_Piano_Plugin
+#X obj 400 130 bng 25 250 50 0 start_piano empty Start_Piano_Plugin
 30 14 1 11 -204786 -1 -1;
-#X obj 271 201 bng 25 250 50 0 stop_plugin empty Stop_Plugin 30 14
+#X obj 400 160 bng 25 250 50 0 stop_plugin empty Stop_Plugin 30 14
 1 11 -261234 -1 -1;
-#X obj 146 204 r \$0-handshake;
-#X obj 1233 1191 cnv 15 360 355 empty empty Renamer_logic 20 12 1 14
+#X obj 87 150 r \$0-handshake;
+#X obj 1233 1292 cnv 15 360 355 empty empty Renamer_logic 20 12 1 14
 -228856 -33289 0;
-#X obj 1244 1251 cnv 25 160 25 empty empty empty 20 12 0 14 -204786
+#X obj 1244 1352 cnv 25 160 25 empty empty empty 20 12 0 14 -204786
 -66577 0;
-#X obj 1344 1358 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
+#X obj 1344 1459 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
 -66577 0;
-#X obj 1394 1481 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
+#X obj 1394 1582 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
 -66577 0;
-#X obj 1300 1323 cnv 25 160 25 empty empty empty 20 12 0 14 -204786
+#X obj 1300 1424 cnv 25 160 25 empty empty empty 20 12 0 14 -204786
 -66577 0;
-#X obj 1366 1412 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
+#X obj 1366 1513 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
 -66577 0;
-#X obj 1375 1447 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
+#X obj 1375 1548 cnv 25 100 25 empty empty empty 20 12 0 14 -262130
 -66577 0;
-#X obj 1408 1514 cnv 25 70 25 empty empty empty 20 12 0 14 -204786
+#X obj 1408 1615 cnv 25 70 25 empty empty empty 20 12 0 14 -204786
 -66577 0;
-#X obj 1252 1525 s \$0-ns;
-#X msg 1252 1257 read data/filenames.csv;
-#X obj 1252 1222 loadbang;
-#X msg 1391 1451 nextName;
-#X msg 1407 1485 prevName;
-#X msg 1380 1417 resetName;
-#X msg 1321 1325 customname ciao.wav;
-#X obj 1380 1392 loadbang;
-#X msg 1420 1517 SELECT;
-#X obj 1275 1287 cnv 25 120 25 empty empty empty 20 12 0 14 -204786
+#X obj 1252 1626 s \$0-ns;
+#X msg 1252 1358 read data/filenames.csv;
+#X obj 1252 1323 loadbang;
+#X msg 1391 1552 nextName;
+#X msg 1407 1586 prevName;
+#X msg 1380 1518 resetName;
+#X msg 1321 1426 customname ciao.wav;
+#X obj 1380 1493 loadbang;
+#X msg 1420 1618 SELECT;
+#X obj 1275 1388 cnv 25 120 25 empty empty empty 20 12 0 14 -204786
 -66577 0;
-#X msg 1291 1292 SELECT_AND_NEXT;
-#X obj 15 733 cnv 15 670 330 empty empty Script_handshake_+_plugin_start_mechanism
+#X msg 1291 1393 SELECT_AND_NEXT;
+#X obj 15 834 cnv 15 670 330 empty empty Script_handshake_+_plugin_start_mechanism
 20 12 1 14 -233017 -66577 0;
-#X obj 53 797 r pyshake_back;
-#X obj 53 826 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X obj 53 898 r pyshake_back;
+#X obj 53 927 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #N canvas 1 89 920 689 4waytoggler 0;
 #X obj 516 205 inlet;
@@ -258,55 +281,55 @@ target \; and resets initial slider values;
 #X connect 13 0 11 0;
 #X connect 15 0 3 0;
 #X connect 15 0 4 0;
-#X restore 53 947 pd 4waytoggler;
-#X obj 53 1032 s plg_no;
-#X obj 80 1010 s plg_electric;
-#X obj 107 989 s plg_acoustic;
-#X obj 134 968 s plg_piano;
-#X msg 53 853 0;
-#X obj 151 782 r oscrx_handshake;
-#X obj 196 804 r start_electric;
-#X obj 231 825 r start_acoustic;
-#X obj 265 847 r start_piano;
-#X msg 196 825 1;
-#X msg 231 846 2;
-#X msg 265 868 3;
-#X obj 151 865 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X restore 53 1048 pd 4waytoggler;
+#X obj 53 1133 s plg_no;
+#X obj 80 1111 s plg_electric;
+#X obj 107 1090 s plg_acoustic;
+#X obj 134 1069 s plg_piano;
+#X msg 53 954 0;
+#X obj 151 883 r oscrx_handshake;
+#X obj 196 905 r start_electric;
+#X obj 231 926 r start_acoustic;
+#X obj 265 948 r start_piano;
+#X msg 196 926 1;
+#X msg 231 947 2;
+#X msg 265 969 3;
+#X obj 151 966 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X msg 151 917 \$2;
-#X obj 31 772 r py_stopped;
-#X obj 31 795 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X msg 151 1018 \$2;
+#X obj 31 873 r py_stopped;
+#X obj 31 896 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X text 363 776 1 We send pyshake \; 2 We receive pyshake from python
+#X text 363 877 1 We send pyshake \; 2 We receive pyshake from python
 script \; 3 We send start plugin \; 4 We receive started plugin \,
 we send handshake \; 5 We receive handshake and show plugin as started
 \;, f 51;
-#X obj 694 734 cnv 15 370 330 empty empty Filename_selector/renamer
+#X obj 694 835 cnv 15 370 330 empty empty Filename_selector/renamer
 20 12 1 14 -233017 -66577 0;
-#X obj 732 882 nameselector, f 16;
-#X obj 825 920 print Next file will be named;
-#X obj 813 946 print Renaming;
-#X obj 732 856 r \$0-ns;
-#X obj 732 991 s osc_msg_tosend3;
-#X msg 732 968 /rename \$1;
-#X obj 732 945 pack s;
-#X text 730 821 Filename selector/renamer \; Control from the purple
+#X obj 732 983 nameselector, f 16;
+#X obj 825 1021 print Next file will be named;
+#X obj 813 1047 print Renaming;
+#X obj 732 957 r \$0-ns;
+#X obj 732 1092 s osc_msg_tosend3;
+#X msg 732 1069 /rename \$1;
+#X obj 732 1046 pack s;
+#X text 730 922 Filename selector/renamer \; Control from the purple
 canvas controls;
-#X obj 663 450 cnv 15 140 20 empty empty Recording_too 0 12 1 14 -228856
+#X obj 497 508 cnv 15 140 20 empty empty Recording_too 0 12 1 14 -228856
 -33289 0;
-#X obj 663 472 cnv 15 140 20 empty empty short_or 0 12 1 14 -228856
+#X obj 497 530 cnv 15 140 20 empty empty short_or 0 12 1 14 -228856
 -33289 0;
-#X obj 663 495 cnv 15 140 20 empty empty silent 0 12 1 14 -228856 -33289
+#X obj 497 553 cnv 15 140 20 empty empty silent 0 12 1 14 -228856 -33289
 0;
-#X obj 151 894 pack f f;
-#X obj 1073 734 cnv 15 490 330 empty empty React_to_response_to_/rename
+#X obj 151 995 pack f f;
+#X obj 1073 835 cnv 15 490 330 empty empty React_to_response_to_/rename
 20 12 1 14 -233017 -66577 0;
-#X obj 1187 761 r py_renamed;
-#X obj 1187 806 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1187 862 r py_renamed;
+#X obj 1187 907 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1264 807 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1264 908 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1344 807 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1344 908 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #N canvas 2269 302 863 427 blinlyErrorLight 0;
 #X obj 118 155 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
@@ -351,96 +374,89 @@ canvas controls;
 #X connect 14 0 10 0;
 #X connect 16 1 5 0;
 #X connect 16 1 10 0;
-#X restore 1438 852 pd blinlyErrorLight;
-#X obj 1486 827 r \$0-reserr;
-#X obj 1438 874 s \$0-blinker;
-#X msg 1187 826 1;
-#X msg 1139 863 0;
-#X obj 1187 889 s \$0-rnm_ok_toggle;
-#X obj 1081 814 r b_startrec;
-#X obj 1099 834 r b_stoprec;
-#X msg 1189 914 Error in renaming last recording: There are multiple
+#X restore 1438 953 pd blinlyErrorLight;
+#X obj 1486 928 r \$0-reserr;
+#X obj 1438 975 s \$0-blinker;
+#X msg 1187 927 1;
+#X msg 1139 964 0;
+#X obj 1187 990 s \$0-rnm_ok_toggle;
+#X obj 1081 915 r b_startrec;
+#X obj 1099 935 r b_stoprec;
+#X msg 1189 1015 Error in renaming last recording: There are multiple
 recordings that have not been renamed yet. I don't know if you want
 to keep the last or one of the previous ones, f 21;
-#X msg 1344 914 Error in renaming: There are no recordings, f 10;
-#X obj 1344 1043 print, f 7;
-#X obj 1946 1379 print;
-#X obj 1231 1073 cnv 15 130 110 empty empty empty 20 12 0 14 -233017
--66577 0;
-#X obj 1244 1083 r \$0-b_deletelast;
-#X obj 1244 1106 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
-#X obj 1244 1150 s osc_msg_tosend3;
-#X obj 617 195 cnv 15 150 77 empty empty DANGER:Delete_recordings 4
-11 1 8 -261234 -1 0;
-#X obj 624 222 bng 20 250 50 0 \$0-b_deletelast empty Delete_unnamed
-22 10 1 11 -261234 -1 -1;
-#X obj 624 247 bng 20 250 50 0 \$0-b_deleteallbutlast empty Delete_AllButLast
-22 10 1 11 -261234 -1 -1;
-#X msg 1244 1127 /deleteUnnamed;
-#X obj 1367 1073 cnv 15 160 110 empty empty empty 20 12 0 14 -233017
--66577 0;
-#X obj 1377 1106 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
-#X obj 1377 1150 s osc_msg_tosend3;
-#X obj 1377 1083 r \$0-b_deleteallbutlast;
-#X msg 1377 1127 /deleteAllButLast;
-#X obj 1187 783 route ok errorTooManyFiles errorNoFile errorOverwrite
+#X msg 1344 1015 Error in renaming: There are no recordings, f 10
 ;
-#X obj 1423 806 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1344 1144 print, f 7;
+#X obj 2477 2181 print;
+#X obj 1231 1174 cnv 15 130 110 empty empty empty 20 12 0 14 -233017
+-66577 0;
+#X obj 1244 1184 r \$0-b_deletelast;
+#X obj 1244 1207 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X msg 1423 914 Error in renaming: Name already exists!, f 9;
-#X obj 14 1072 cnv 15 290 230 empty empty Set_Date_on_board 20 12 1
+#X obj 1244 1251 s osc_msg_tosend3;
+#X msg 1244 1228 /deleteUnnamed;
+#X obj 1367 1174 cnv 15 160 110 empty empty empty 20 12 0 14 -233017
+-66577 0;
+#X obj 1377 1207 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 1377 1251 s osc_msg_tosend3;
+#X obj 1377 1184 r \$0-b_deleteallbutlast;
+#X msg 1377 1228 /deleteAllButLast;
+#X obj 1187 884 route ok errorTooManyFiles errorNoFile errorOverwrite
+;
+#X obj 1423 907 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 1423 1015 Error in renaming: Name already exists!, f 9;
+#X obj 14 1173 cnv 15 290 230 empty empty Set_Date_on_board 20 12 1
 14 -233017 -66577 0;
-#X floatatom 239 1187 0 0 0 0 - - -;
-#X floatatom 204 1187 0 0 0 0 - - -;
-#X floatatom 170 1187 0 0 0 0 - - -;
-#X obj 137 1159 time, f 11;
-#X obj 66 1159 date, f 10;
-#X floatatom 135 1187 0 0 0 0 - - -;
-#X floatatom 101 1187 0 0 0 0 - - -;
-#X floatatom 66 1187 0 0 0 0 - - -;
-#X obj 32 1100 r \$0-b_setDate;
-#X obj 32 1122 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X floatatom 239 1288 0 0 0 0 - - -;
+#X floatatom 204 1288 0 0 0 0 - - -;
+#X floatatom 170 1288 0 0 0 0 - - -;
+#X obj 137 1260 time, f 11;
+#X obj 66 1260 date, f 10;
+#X floatatom 135 1288 0 0 0 0 - - -;
+#X floatatom 101 1288 0 0 0 0 - - -;
+#X floatatom 66 1288 0 0 0 0 - - -;
+#X obj 32 1201 r \$0-b_setDate;
+#X obj 32 1223 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 32 1218 pack f f f f f f f, f 35;
-#X obj 32 1266 s osc_msg_tosend3;
-#X msg 32 1244 /setDate \$2 \$3 \$4 \$5 \$6 \$7;
-#X obj 149 1118 bng 20 250 50 0 \$0-b_setDate empty SetDateOnBoard
+#X obj 32 1319 pack f f f f f f f, f 35;
+#X obj 32 1367 s osc_msg_tosend3;
+#X msg 32 1345 /setDate \$2 \$3 \$4 \$5 \$6 \$7;
+#X obj 149 1219 bng 20 250 50 0 \$0-b_setDate empty SetDateOnBoard
 23 12 1 10 -262144 -1 -1;
-#X obj 134 221 r \$0-connplug;
-#X obj 242 899 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 93 169 r \$0-connplug;
+#X obj 242 1000 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 242 977 s \$0-connplug;
-#X obj 242 919 delay 1000;
-#X obj 331 977 s \$0-handshake;
-#X obj 331 954 delay 500;
-#X obj 23 223 t b b;
-#X obj 315 1073 cnv 15 160 230 empty empty Start_DSP 20 12 1 14 -233017
+#X obj 242 1097 s \$0-connplug;
+#X obj 331 1097 s \$0-handshake;
+#X obj 23 185 t b b;
+#X obj 315 1174 cnv 15 160 230 empty empty Start_DSP 20 12 1 14 -233017
 -66577 0;
-#X obj 329 1110 loadbang;
-#X obj 329 1136 delay 1000;
-#X msg 329 1203 \; pd dsp \$1;
-#X obj 329 1164 tgl 30 0 empty empty empty 17 7 0 10 -162280 -1 -1
-1 1;
-#X text 368 1154 <-Click to \; start/stop DSP;
-#X obj 484 1073 cnv 15 190 230 empty empty Init+reset 20 12 1 14 -233017
+#X obj 329 1211 loadbang;
+#X obj 329 1237 delay 1000;
+#X msg 329 1304 \; pd dsp \$1;
+#X obj 329 1265 tgl 30 0 empty empty empty 17 7 0 10 -162280 -1 -1
+0 1;
+#X text 368 1255 <-Click to \; start/stop DSP;
+#X obj 484 1174 cnv 15 190 230 empty empty Init+reset 20 12 1 14 -233017
 -66577 0;
-#X obj 493 1270 s disc_m;
-#X obj 493 1115 r main_reset;
-#X obj 493 1249 bng 15 250 50 0 empty empty empty 17 7 0 10 -237178
+#X obj 493 1371 s disc_m;
+#X obj 493 1216 r main_reset;
+#X obj 493 1350 bng 15 250 50 0 empty empty empty 17 7 0 10 -237178
 -91543 -91543;
-#X obj 504 1140 loadbang;
-#X obj 504 1224 s initial_gain;
-#X msg 504 1173 0;
-#X obj 514 1202 s oscrx_state;
-#X obj 682 1073 cnv 15 210 230 empty empty Connected_Toggles 20 12
+#X obj 504 1241 loadbang;
+#X obj 504 1325 s initial_gain;
+#X msg 504 1274 0;
+#X obj 514 1303 s oscrx_state;
+#X obj 682 1174 cnv 15 210 230 empty empty Connected_Toggles 20 12
 1 14 -233017 -66577 0;
 #N canvas 1 89 450 300 2waytoggler 0;
 #X obj 516 205 inlet;
 #X text 516 170 Reset;
 #X obj 329 241 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -237178
--91543 -91543 0;
+-91543 -91543 1;
 #X msg 308 463 0;
 #X msg 285 439 1;
 #X msg 357 463 0;
@@ -467,295 +483,372 @@ to keep the last or one of the previous ones, f 21;
 #X connect 11 0 3 0;
 #X connect 11 1 6 0;
 #X connect 11 1 5 0;
-#X restore 694 1207 pd 2waytoggler;
-#X obj 694 1151 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -228856
--91543 -91543 0;
-#X msg 694 1127 0;
-#X obj 694 1102 r dsc;
-#X msg 733 1128 1;
-#X obj 694 1179 s radio_conn;
-#X obj 802 1213 loadbang;
-#X obj 788 1275 s disconnected;
-#X obj 713 1231 s connected;
-#X text 784 1131 Mutual exclusive Toggles as better visualizers than
+#X restore 694 1308 pd 2waytoggler;
+#X obj 694 1252 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -228856
+-91543 -91543 1;
+#X msg 694 1228 0;
+#X obj 694 1203 r dsc;
+#X msg 733 1229 1;
+#X obj 694 1280 s radio_conn;
+#X obj 802 1314 loadbang;
+#X obj 788 1376 s disconnected;
+#X obj 713 1332 s connected;
+#X text 784 1232 Mutual exclusive Toggles as better visualizers than
 array, f 17;
-#X obj 694 1275 s oscrx_state;
-#X msg 694 1253 0;
-#X obj 733 1102 r pyshake_back;
-#X msg 802 1236 1;
-#X obj 902 1073 cnv 15 320 230 empty empty Send_Start_plugin 20 12
+#X obj 694 1376 s oscrx_state;
+#X msg 694 1354 0;
+#X obj 733 1203 r pyshake_back;
+#X msg 802 1337 1;
+#X obj 902 1174 cnv 15 320 230 empty empty Send_Start_plugin 20 12
 1 14 -233017 -66577 0;
-#X obj 916 1099 r start_electric;
-#X obj 996 1124 r start_acoustic;
-#X obj 1034 1205 r start_piano;
-#X obj 924 1123 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 916 1200 r start_electric;
+#X obj 996 1225 r start_acoustic;
+#X obj 1034 1306 r start_piano;
+#X obj 924 1224 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1004 1146 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1004 1247 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1042 1227 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1042 1328 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X msg 996 1166 acoustic;
-#X msg 915 1252 /startPlugin \$1;
-#X obj 915 1275 s osc_msg_tosend3;
-#X obj 915 1230 pack s;
-#X obj 1105 1163 s osc_msg_tosend3;
-#X obj 1105 1098 r stop_plugin;
-#X obj 1105 1120 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X msg 996 1267 acoustic;
+#X msg 915 1353 /startPlugin \$1;
+#X obj 915 1376 s osc_msg_tosend3;
+#X obj 915 1331 pack s;
+#X obj 1105 1264 s osc_msg_tosend3;
+#X obj 1105 1199 r stop_plugin;
+#X obj 1105 1221 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X msg 916 1141 electric;
-#X msg 1034 1246 piano;
-#X msg 1105 1140 /stopPlugin;
-#X obj 583 1106 r disc_m;
-#X msg 583 1150 -100;
-#X obj 583 1173 s oscrx_meter;
-#X obj 583 1128 delay 1000;
-#X obj 1470 1296 r \$0-printfilename;
-#X obj 1470 1320 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X msg 916 1242 electric;
+#X msg 1034 1347 piano;
+#X msg 1105 1241 /stopPlugin;
+#X obj 583 1207 r disc_m;
+#X msg 583 1251 -100;
+#X obj 583 1274 s oscrx_meter;
+#X obj 583 1229 delay 1000;
+#X obj 1470 1397 r \$0-printfilename;
+#X obj 1470 1421 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1424 1263 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1424 1364 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1424 1240 r \$0-rename;
-#X obj 1491 1403 r \$0-prevname;
-#X obj 1480 1345 r \$0-nextname;
-#X obj 1491 1430 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1424 1341 r \$0-rename;
+#X obj 1491 1504 r \$0-prevname;
+#X obj 1480 1446 r \$0-nextname;
+#X obj 1491 1531 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 1480 1370 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 1480 1471 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 790 8 cnv 15 420 270 empty empty 4._Renamer 8 16 1 15 -228856
+#X obj 667 350 cnv 15 495 355 empty empty 4._Renamer 8 16 1 15 -261682
 -1 0;
-#X obj 1005 164 bng 50 250 50 0 empty \$0-blinker empty 17 7 0 10 -232576
--258113 -1;
-#X obj 811 254 bng 15 250 50 0 \$0-reserr empty Reset_ERR 20 9 1 8
--232576 -1 -1;
-#X obj 1005 220 tgl 50 0 \$0-resetme \$0-rnm_ok_toggle Renamed_OK 54
-27 1 17 -232576 -13381 -33289 0 1;
-#X obj 808 96 bng 19 250 50 0 \$0-printfilename empty Print_next_filename
-25 11 1 10 -232576 -1 -1;
-#X obj 808 51 bng 21 250 50 0 \$0-rename empty Rename_&_prepare_NextName
-25 11 1 10 -232576 -1 -1;
-#X obj 811 209 bng 15 250 50 0 \$0-prevname empty Prev.Name 25 11 1
-10 -232576 -1 -1;
-#X obj 811 231 bng 15 250 50 0 \$0-nextname empty Next.Name 25 11 1
-10 -232576 -1 -1;
-#X msg 809 145 customname ciao.wav;
-#X obj 809 168 s \$0-ns;
-#X obj 809 121 bng 19 250 50 0 empty empty Prepare_Custom_name 25 11
-1 10 -232576 -1 -1;
-#X text 1069 165 Rename error if blinking: look at Pd console, f 15
+#X obj 685 507 bng 20 250 50 0 \$0-reserr empty Reset_ERR 25 12 1 9
+-262144 -1 -1;
+#X obj 686 583 bng 19 250 50 0 \$0-printfilename empty Print_next_filename
+25 11 1 10 -262144 -1 -1;
+#X obj 684 393 bng 30 250 50 0 \$0-rename empty RENAME&advance 35 17
+1 13 -262144 -1 -1;
+#X obj 685 450 bng 20 250 50 0 \$0-prevname empty Prev.Name 25 12 1
+10 -262144 -1 -1;
+#X obj 685 477 bng 20 250 50 0 \$0-nextname empty Next.Name 25 12 1
+10 -262144 -1 -1;
+#X msg 687 632 customname ciao.wav;
+#X obj 687 655 s \$0-ns;
+#X obj 687 608 bng 19 250 50 0 empty empty Prepare_Custom_name 25 11
+1 10 -262144 -1 -1;
+#X msg 1369 1462 preselect;
+#X obj 98 150 s \$0-cIP;
+#X obj 16 1414 cnv 15 1000 285 empty empty empty 20 12 0 14 -228856
+-66577 0;
+#X obj 1088 891 r main_reset;
+#X floatatom 891 254 8 0 0 1 dB vis_sdthresh -;
+#X obj 904 83 vsl 20 160 -120 0 0 0 s_sdthresh initial_sdthresh SilenceThreshold
+-36 -12 1 10 -262144 -1 -1 6950 1;
+#X msg 571 1354 -60;
+#X obj 571 1377 s initial_sdthresh;
+#X obj 242 1020 delay 2000;
+#X obj 331 1055 delay 1500;
+#X obj 242 1076 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 331 1077 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 23 100 10.42.0.47;
+#X msg 110 100 10.42.0.1;
+#X obj 408 196 cnv 15 180 140 empty empty Plugin_State 13 19 1 14 -33289
+-262144 0;
+#X obj 418 255 tgl 18 0 empty plg_electric Electric_Plugin_Started
+22 11 1 10 -262144 -1 -262144 0 1;
+#X obj 418 305 tgl 18 0 empty plg_piano Piano_Plugin_Started 22 11
+1 10 -262144 -1 -262144 0 1;
+#X obj 418 280 tgl 18 0 empty plg_acoustic Acoustic_Plugin_Started
+22 11 1 10 -262144 -1 -262144 0 1;
+#X obj 418 231 tgl 18 0 empty plg_no NO_PLUGIN_STARTED 22 11 1 10 -261234
+-1 -262144 0 1;
+#X obj 868 278 cnv 15 100 60 empty empty Sound_detected 5 8 1 9 -33289
+-262144 0;
+#X obj 898 298 tgl 35 0 empty oscrx_silence empty 17 7 0 10 -262144
+-4160 -1 0 1;
+#X obj 757 298 cnv 15 80 30 empty empty empty 20 12 0 14 -262144 -66577
+0;
+#X floatatom 760 305 10 0 0 1 dB roundedmeter -;
+#X obj 356 1616 r \$0-CopyLASTrenamed;
+#X obj 356 1640 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 355 1542 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 355 1520 r \$0-CopyALLrenamed;
+#X obj 15 343 cnv 15 290 362 empty empty COPY_recordings_here 8 23
+1 15 -212671 -1 0;
+#X obj 121 409 cnv 15 160 45 empty empty Local_Copy_Directory 25 12
+1 9 -204786 -66577 0;
+#X obj 31 487 bng 25 250 50 0 \$0-CopyALLrenamed empty CopyALLrenamed
+30 12 0 10 -262144 -1 -1;
+#X obj 31 517 bng 25 250 50 0 \$0-CopyLASTrenamed empty CopyLASTrenamed
+30 12 0 10 -262144 -1 -1;
+#X msg 128 433 ~/Desktop/RemoteRecsEmo;
+#X obj 25 410 cnv 15 90 45 empty empty Username 25 12 1 9 -204786 -66577
+0;
+#X obj 233 298 bng 25 250 50 0 \$0-setCopyDETAILS empty setCopyDETAILS
+30 12 0 10 -204786 -1 -1;
+#X msg 34 433 cimil-01;
+#X obj 34 456 s \$0-usern;
+#X obj 128 456 s \$0-cdir;
+#X obj 34 385 t b b;
+#X text 232 251 Change Username and directory below before pressing
+, f 21;
+#X obj 888 580 cnv 15 240 95 empty empty DANGER:_Delete_recordings
+6 17 1 13 -261234 -1 0;
+#X obj 944 621 bng 20 250 50 0 \$0-b_deletelast empty Delete_unnamed
+22 10 1 11 -261234 -1 -1;
+#X obj 944 646 bng 20 250 50 0 \$0-b_deleteallbutlast empty Delete_AllButLast
+22 10 1 11 -261234 -1 -1;
+#X obj 869 420 cnv 15 280 140 empty empty empty 8 12 1 14 -33289 -66577
+0;
+#X obj 878 493 tgl 50 0 \$0-resetme \$0-rnm_ok_toggle Renamed_OK 54
+27 1 17 -262144 -1 -262144 0 1;
+#X obj 932 440 cnv 15 200 45 empty empty empty 20 12 0 14 -262144 -66577
+0;
+#X text 935 465 If blinking: look at Pd console, f 34;
+#X obj 878 437 bng 50 250 50 0 empty \$0-blinker Rename-ERROR 54 17
+1 14 -262144 -258113 -258113;
+#X obj 15 5 cnv 15 1147 28 empty empty Metering_information_in_black_boxes:_do_not_use_elements_in_black_boxes_as_controls
+8 14 1 14 -49933 -249661 0;
+#X text 22 559 To copy the files to to this computer you must copy
+the public SSH key of the board to the authorized_keys file in the
+ssh config folder. \; Remove the key after you are done. \; \; \; Copy
+the public key to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub"
+>> .ssh/authorized_keys, f 44;
+#X text 207 258 >;
+#X text 207 268 >;
+#X text 207 280 >;
+#X text 207 290 >;
+#X obj 151 1433 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 188 1610 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 350 1561 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 347 1663 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 256 1433 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
+-66577 0;
+#X obj 29 1541 pack s s s, f 40;
+#X msg 29 1437 cimil-01;
+#X obj 173 1463 r \$0-cIP;
+#X obj 29 1484 cyclone/prepend symbol;
+#X obj 173 1486 cyclone/prepend symbol;
+#X obj 319 1483 cyclone/prepend symbol;
+#X text 34 1519 ControllerUser ControllerIP PathWhereToCopy, f 44
 ;
-#X msg 1369 1361 preselect;
-#X msg 36 157 10.42.0.47;
-#X msg 123 157 10.42.0.1;
-#X text 1165 312 To copy the files to to this computer you should copy
+#X obj 29 1659 s osc_msg_tosend3;
+#X msg 355 1564 /copyAllRenamed;
+#X msg 356 1667 /copyLastRenamed;
+#X msg 194 1613 /alwaysCopyRenamed;
+#X msg 29 1613 /setCopyDetails \$1@\$2:\$3;
+#X obj 194 1593 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 167 1437 r \$0-usern;
+#X obj 271 1437 r \$0-cdir;
+#X obj 194 1568 delay 1000;
+#X text 495 1430 To copy the files to to this computer you should copy
 the public SSH key of the board to the authorized_keys file in the
 ssh config folder. \; This allows the board to copy file to this computer
 without entering your password. \; It's a good idea to remove the key
 from your auth list after you are done. \; \; \; Copy the public key
-to this pc with: \; ssh mind@10.42.0.47 "cat .ssh/id_rsa.pub" >> .ssh/authorized_keys
-, f 78;
-#X obj 138 181 s \$0-cIP;
-#X obj 1179 498 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1469 493 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1350 632 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1488 635 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1635 639 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1716 499 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1726 509 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1736 519 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1746 529 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1756 539 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1766 549 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1776 559 cnv 15 130 25 empty empty empty 20 12 0 14 -204786
--66577 0;
-#X obj 1191 606 pack s s s, f 40;
-#X msg 1191 502 cimil-01;
-#X obj 1335 528 r \$0-cIP;
-#X obj 1191 549 cyclone/prepend symbol;
-#X obj 1335 551 cyclone/prepend symbol;
-#X obj 1481 548 cyclone/prepend symbol;
-#X obj 1191 457 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
-#X obj 1191 477 t b b;
-#X text 1196 584 ControllerUser ControllerIP PathWhereToCopy, f 67
-;
-#X obj 1191 681 s osc_msg_tosend3;
-#X msg 1493 638 /copyAllRenamed;
-#X msg 1644 643 /copyLastRenamed;
-#X msg 1356 635 /alwaysCopyRenamed;
-#X msg 1191 635 /setCopyDetails \$1@\$2:\$3;
-#X msg 1481 496 ~/Desktop/RemoteRecsEmo;
-#X obj 1088 790 r main_reset;
-#X connect 54 0 169 0;
-#X connect 55 0 53 1;
-#X connect 61 0 53 5;
-#X connect 71 0 70 0;
-#X connect 72 0 71 0;
-#X connect 73 0 70 0;
-#X connect 74 0 70 0;
-#X connect 75 0 70 0;
-#X connect 76 0 70 0;
-#X connect 77 0 75 0;
-#X connect 78 0 70 0;
-#X connect 80 0 70 0;
-#X connect 82 0 83 0;
-#X connect 83 0 89 0;
-#X connect 84 0 85 0;
-#X connect 84 1 86 0;
-#X connect 84 2 87 0;
-#X connect 84 3 88 0;
-#X connect 89 0 84 0;
-#X connect 90 0 97 0;
-#X connect 91 0 94 0;
-#X connect 91 0 164 0;
-#X connect 92 0 95 0;
-#X connect 92 0 164 0;
-#X connect 93 0 96 0;
-#X connect 93 0 164 0;
-#X connect 94 0 114 1;
-#X connect 95 0 114 1;
-#X connect 96 0 114 1;
-#X connect 97 0 114 0;
-#X connect 98 0 84 0;
-#X connect 99 0 100 0;
-#X connect 100 0 89 0;
-#X connect 103 0 105 0;
-#X connect 103 0 109 0;
-#X connect 103 1 104 0;
-#X connect 106 0 103 0;
-#X connect 108 0 107 0;
-#X connect 109 0 108 0;
-#X connect 114 0 98 0;
-#X connect 116 0 145 0;
-#X connect 117 0 123 0;
-#X connect 118 0 120 0;
-#X connect 118 0 124 0;
-#X connect 118 0 128 0;
-#X connect 119 0 120 0;
-#X connect 119 0 124 0;
-#X connect 119 0 129 0;
-#X connect 120 0 122 0;
-#X connect 121 0 120 1;
-#X connect 121 0 124 0;
-#X connect 123 0 125 0;
-#X connect 124 0 125 0;
-#X connect 126 0 124 0;
-#X connect 127 0 124 0;
+to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
+.ssh/authorized_keys, f 78;
+#X connect 48 0 158 0;
+#X connect 49 0 47 1;
+#X connect 55 0 47 5;
+#X connect 65 0 64 0;
+#X connect 66 0 65 0;
+#X connect 67 0 64 0;
+#X connect 68 0 64 0;
+#X connect 69 0 64 0;
+#X connect 70 0 64 0;
+#X connect 71 0 69 0;
+#X connect 72 0 64 0;
+#X connect 74 0 64 0;
+#X connect 76 0 77 0;
+#X connect 77 0 83 0;
+#X connect 78 0 79 0;
+#X connect 78 1 80 0;
+#X connect 78 2 81 0;
+#X connect 78 3 82 0;
+#X connect 83 0 78 0;
+#X connect 84 0 91 0;
+#X connect 85 0 88 0;
+#X connect 85 0 155 0;
+#X connect 86 0 89 0;
+#X connect 86 0 155 0;
+#X connect 87 0 90 0;
+#X connect 87 0 155 0;
+#X connect 88 0 108 1;
+#X connect 89 0 108 1;
+#X connect 90 0 108 1;
+#X connect 91 0 108 0;
+#X connect 92 0 78 0;
+#X connect 93 0 94 0;
+#X connect 94 0 83 0;
+#X connect 97 0 99 0;
+#X connect 97 0 103 0;
+#X connect 97 1 98 0;
+#X connect 100 0 97 0;
+#X connect 102 0 101 0;
+#X connect 103 0 102 0;
+#X connect 108 0 92 0;
+#X connect 110 0 136 0;
+#X connect 111 0 117 0;
+#X connect 112 0 114 0;
+#X connect 112 0 118 0;
+#X connect 112 0 122 0;
+#X connect 113 0 114 0;
+#X connect 113 0 118 0;
+#X connect 113 0 123 0;
+#X connect 114 0 116 0;
+#X connect 115 0 114 1;
+#X connect 115 0 118 0;
+#X connect 117 0 119 0;
+#X connect 118 0 119 0;
+#X connect 120 0 118 0;
+#X connect 121 0 118 0;
+#X connect 122 0 124 0;
+#X connect 123 0 124 0;
+#X connect 127 0 128 0;
 #X connect 128 0 130 0;
-#X connect 129 0 130 0;
-#X connect 133 0 134 0;
-#X connect 134 0 139 0;
-#X connect 139 0 135 0;
-#X connect 141 0 144 0;
-#X connect 143 0 141 0;
-#X connect 144 0 142 0;
-#X connect 145 0 117 0;
-#X connect 145 1 118 0;
-#X connect 145 2 119 0;
-#X connect 145 3 146 0;
-#X connect 146 0 120 0;
-#X connect 146 0 124 0;
-#X connect 146 0 147 0;
-#X connect 147 0 130 0;
-#X connect 149 0 159 6;
-#X connect 150 0 159 5;
-#X connect 151 0 159 4;
+#X connect 130 0 129 0;
+#X connect 132 0 135 0;
+#X connect 134 0 132 0;
+#X connect 135 0 133 0;
+#X connect 136 0 111 0;
+#X connect 136 1 112 0;
+#X connect 136 2 113 0;
+#X connect 136 3 137 0;
+#X connect 137 0 114 0;
+#X connect 137 0 118 0;
+#X connect 137 0 138 0;
+#X connect 138 0 124 0;
+#X connect 140 0 150 6;
+#X connect 141 0 150 5;
+#X connect 142 0 150 4;
+#X connect 143 0 142 0;
+#X connect 143 1 141 0;
+#X connect 143 2 140 0;
+#X connect 144 0 147 0;
+#X connect 144 1 146 0;
+#X connect 144 2 145 0;
+#X connect 145 0 150 3;
+#X connect 146 0 150 2;
+#X connect 147 0 150 1;
+#X connect 148 0 149 0;
+#X connect 149 0 144 0;
+#X connect 149 0 143 0;
+#X connect 149 0 150 0;
+#X connect 150 0 152 0;
 #X connect 152 0 151 0;
-#X connect 152 1 150 0;
-#X connect 152 2 149 0;
-#X connect 153 0 156 0;
-#X connect 153 1 155 0;
-#X connect 153 2 154 0;
-#X connect 154 0 159 3;
-#X connect 155 0 159 2;
-#X connect 156 0 159 1;
-#X connect 157 0 158 0;
-#X connect 158 0 153 0;
-#X connect 158 0 152 0;
-#X connect 158 0 159 0;
-#X connect 159 0 161 0;
-#X connect 161 0 160 0;
-#X connect 163 0 53 4;
-#X connect 164 0 166 0;
-#X connect 166 0 165 0;
-#X connect 166 0 168 0;
-#X connect 168 0 167 0;
-#X connect 169 0 53 0;
-#X connect 169 0 241 0;
-#X connect 169 1 242 0;
-#X connect 172 0 174 0;
-#X connect 174 0 173 0;
-#X connect 178 0 179 0;
-#X connect 178 0 182 0;
-#X connect 179 0 177 0;
-#X connect 180 0 182 0;
-#X connect 182 0 181 0;
-#X connect 182 0 183 0;
-#X connect 185 0 192 0;
-#X connect 185 0 196 0;
-#X connect 185 1 193 0;
-#X connect 186 0 185 0;
-#X connect 186 0 190 0;
-#X connect 187 0 186 0;
-#X connect 188 0 187 0;
-#X connect 189 0 186 0;
-#X connect 191 0 198 0;
-#X connect 196 0 195 0;
-#X connect 197 0 189 0;
-#X connect 198 0 192 0;
-#X connect 200 0 203 0;
-#X connect 200 0 213 0;
+#X connect 154 0 47 4;
+#X connect 155 0 234 0;
+#X connect 158 0 47 0;
+#X connect 158 0 238 0;
+#X connect 158 1 239 0;
+#X connect 161 0 163 0;
+#X connect 163 0 162 0;
+#X connect 167 0 168 0;
+#X connect 167 0 171 0;
+#X connect 167 0 232 0;
+#X connect 168 0 166 0;
+#X connect 169 0 171 0;
+#X connect 169 0 232 0;
+#X connect 171 0 170 0;
+#X connect 171 0 172 0;
+#X connect 174 0 181 0;
+#X connect 174 0 185 0;
+#X connect 174 1 182 0;
+#X connect 175 0 174 0;
+#X connect 175 0 179 0;
+#X connect 176 0 175 0;
+#X connect 177 0 176 0;
+#X connect 178 0 175 0;
+#X connect 180 0 187 0;
+#X connect 185 0 184 0;
+#X connect 186 0 178 0;
+#X connect 187 0 181 0;
+#X connect 189 0 192 0;
+#X connect 189 0 202 0;
+#X connect 190 0 193 0;
+#X connect 190 0 195 0;
+#X connect 191 0 194 0;
+#X connect 191 0 203 0;
+#X connect 195 0 198 0;
+#X connect 196 0 197 0;
+#X connect 198 0 196 0;
+#X connect 200 0 201 0;
 #X connect 201 0 204 0;
-#X connect 201 0 206 0;
-#X connect 202 0 205 0;
-#X connect 202 0 214 0;
-#X connect 206 0 209 0;
-#X connect 207 0 208 0;
-#X connect 209 0 207 0;
-#X connect 211 0 212 0;
-#X connect 212 0 215 0;
-#X connect 213 0 209 0;
-#X connect 214 0 209 0;
-#X connect 215 0 210 0;
-#X connect 216 0 219 0;
-#X connect 217 0 218 0;
-#X connect 219 0 217 0;
-#X connect 220 0 221 0;
-#X connect 221 0 240 0;
-#X connect 222 0 80 0;
-#X connect 223 0 222 0;
-#X connect 224 0 226 0;
-#X connect 225 0 227 0;
-#X connect 226 0 74 0;
-#X connect 227 0 73 0;
-#X connect 236 0 237 0;
-#X connect 238 0 236 0;
-#X connect 240 0 70 0;
-#X connect 241 0 53 2;
-#X connect 242 0 53 3;
-#X connect 242 0 244 0;
-#X connect 257 0 270 0;
-#X connect 258 0 260 0;
-#X connect 259 0 261 0;
-#X connect 260 0 257 0;
-#X connect 261 0 257 1;
-#X connect 262 0 257 2;
-#X connect 263 0 264 0;
-#X connect 264 0 258 0;
-#X connect 264 1 271 0;
-#X connect 267 0 266 0;
-#X connect 268 0 266 0;
-#X connect 269 0 266 0;
-#X connect 270 0 266 0;
-#X connect 271 0 262 0;
-#X connect 272 0 124 0;
+#X connect 202 0 198 0;
+#X connect 203 0 198 0;
+#X connect 204 0 199 0;
+#X connect 205 0 208 0;
+#X connect 206 0 207 0;
+#X connect 208 0 206 0;
+#X connect 209 0 210 0;
+#X connect 210 0 226 0;
+#X connect 211 0 74 0;
+#X connect 212 0 211 0;
+#X connect 213 0 215 0;
+#X connect 214 0 216 0;
+#X connect 215 0 68 0;
+#X connect 216 0 67 0;
+#X connect 223 0 224 0;
+#X connect 225 0 223 0;
+#X connect 226 0 64 0;
+#X connect 229 0 118 0;
+#X connect 232 0 233 0;
+#X connect 234 0 235 0;
+#X connect 234 0 236 0;
+#X connect 235 0 237 0;
+#X connect 236 0 156 0;
+#X connect 237 0 157 0;
+#X connect 238 0 47 2;
+#X connect 239 0 47 3;
+#X connect 239 0 227 0;
+#X connect 249 0 250 0;
+#X connect 250 0 293 0;
+#X connect 251 0 292 0;
+#X connect 252 0 251 0;
+#X connect 257 0 262 0;
+#X connect 259 0 263 0;
+#X connect 260 0 261 0;
+#X connect 263 0 260 0;
+#X connect 263 1 257 0;
+#X connect 284 0 295 0;
+#X connect 285 0 287 0;
+#X connect 286 0 288 0;
+#X connect 287 0 284 0;
+#X connect 288 0 284 1;
+#X connect 289 0 284 2;
+#X connect 292 0 291 0;
+#X connect 293 0 291 0;
+#X connect 294 0 291 0;
+#X connect 295 0 291 0;
+#X connect 296 0 294 0;
+#X connect 297 0 287 0;
+#X connect 297 0 299 0;
+#X connect 298 0 289 0;
+#X connect 299 0 296 0;
