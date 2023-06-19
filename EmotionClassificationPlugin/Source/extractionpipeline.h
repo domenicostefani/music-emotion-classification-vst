@@ -355,22 +355,31 @@ class PerformanceStartStop {
 public:
     PerformanceStartStop(float sampleRate, size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1) : fis(sampleRate, frameSize, hopSize, threshold_dB, filterLength, trueToFalseTransitionRatio, alphaDecay) {}
 
-    std::pair<size_t, size_t> computeFromFile (std::string audioFilename, float threshold_dB) {
+    std::pair<size_t, size_t> computeFromFile (std::string audioFilename, float threshold_dB, bool _verbose = false) {
         fis.setThreshold(threshold_dB);
         fis.resetFilter();
         std::vector<bool> silenceVec = fis.computeFromFile(audioFilename);
 
-        // Set the first 4 values to true
-        // for (size_t i = 0; i < 4; ++i) silenceVec[i] = true; //TODO: Fix this bug with the silence detector where sometimes the first is not silent.
+        // Set the first few values to true
 
-        for (auto e : silenceVec) std::cout << (e?'1':'0'); std::cout << std::endl;
+        size_t numToSetSilentAtStart = 4;
+        if (silenceVec[numToSetSilentAtStart] == true)
+            for (size_t i = 0; i < numToSetSilentAtStart; ++i) 
+                silenceVec[i] = true; //TODO: Fix this bug with the silence detector where sometimes the first is not silent.
+
+        if (_verbose) for (auto e : silenceVec) std::cout << (e?'1':'0'); std::cout << std::endl;
         
         // Take the first non silent block (false) as start index and the last non silent block as stop index
         size_t startIdx = std::find(silenceVec.begin(), silenceVec.end(), false) - silenceVec.begin();
         size_t stopIdx = std::find(silenceVec.rbegin(), silenceVec.rend(), false) - silenceVec.rbegin();
         stopIdx = silenceVec.size() - stopIdx;
+
+        if (startIdx >= stopIdx) {
+            if (_verbose) std::cout << "Silent recording" << std::endl;
+            return std::make_pair(0, 0);
+        }
         
-        std::cout << "startIdx = " << startIdx << " | stopIdx = " << stopIdx << std::endl;
+        if (_verbose) std::cout << "startIdx = " << startIdx << " | stopIdx = " << stopIdx << std::endl;
 
         return std::make_pair(startIdx, stopIdx);
     }

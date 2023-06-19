@@ -105,7 +105,7 @@ public:
 
     std::string extractorState = "Idle.";
 
-    void extractAndClassify(std::string audioFilePath);
+    void extractAndClassify(std::string audioFilePath, bool _verbose = false);
     const size_t FRAMES_IN_3_SECONDS = 187;
     const size_t NUM_EMOTIONS = 4;
 
@@ -155,7 +155,7 @@ public:
     // Silence detection for RT gui
     emosmi::FilteredRTisSilent silenceDetector{SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO, SD_ALPHA};
     std::atomic<bool> isSilent{false};
-    float silenceThreshold = SD_THRESHOLD;
+    std::atomic<float> silenceThreshold;
 
     // Actual Offline silence detection
     // emosmi::FilteredIsSilent offlineSilenceDetector {16000.0, SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO,SD_ALPHA};

@@ -19,7 +19,12 @@
 // #define DO_REMOVE_OLD_RECORDINGS
 #define GENERATE_AUDACITY_LABELS
 #define VERBOSE_CLASSIFICATION false
-#define MUTE_OUTPUT true
+
+#ifdef ELK_OS_ARM
+    #define MUTE_OUTPUT false
+#else
+    #define MUTE_OUTPUT true
+#endif
 
 #define STATE_IDLE 0
 #define STATE_RECORDING 1
@@ -52,6 +57,8 @@ ECProcessor::ECProcessor()
 #endif
 {
     suspendProcessing(true);
+
+    silenceThreshold.store(SD_THRESHOLD);
 
     // Try to create the output folder if it doesn't exist
     if (!saveDir.exists()) {
@@ -109,9 +116,7 @@ void ECProcessor::oscMessageReceived(const juce::OSCMessage &message) {
         if (message.size() == 1 && message[0].isString()) {
             std::cout << "-> ip: " << message[0].getString() << std::endl;
             this->oscSender.enableAndReplyToHandshake(message[0].getString(), TX_PORT);
-#ifdef ELK_OS_ARM
             oscMeterPoller = std::make_unique<Poller>(24, [&]() { this->oscSendPollingRoutine(); });
-#endif
             this->oscSender.sendMessage("/state", (int)STATE_IDLE);
         }
     } else if (message.getAddressPattern() == juce::OSCAddressPattern("/disconnect")) {
@@ -127,6 +132,9 @@ void ECProcessor::oscMessageReceived(const juce::OSCMessage &message) {
 void ECProcessor::oscSendPollingRoutine() {
     float peak = getPeakValue();
     oscSender.sendMessage("/meter", peak);
+
+    bool isSilent = this->isSilent.load();
+    oscSender.sendMessage("/silence", isSilent);
 }
 
 void ECProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
@@ -405,7 +413,7 @@ size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const 
     return largestIndex;
 }
 
-void ECProcessor::extractAndClassify(std::string audioFilePath) {
+void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
     this->oscSender.sendMessage("/state", (int)STATE_CLASSIFYING);
 #ifdef VERBOSE_PRINT
     std::cout << "Extracting and classifying " << audioFilePath << std::endl;
@@ -457,7 +465,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
 #endif
 
     if (numChunks == 0) {
-        extractorState = extractorState + "\nNot enough frames to classify (Please record for more than 3 seconds)";
+        extractorState = extractorState + "\nNot enough frames to classify (Please record for more than 3 NON-SILENT seconds)";
         this->oscSender.sendMessage("/emotion", (int)-1);
         this->oscSender.sendMessage("/state", (int)STATE_IDLE);
         return;
@@ -478,7 +486,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
 
     for (size_t i = 0; i < numChunks; ++i) {
         res.at(i).resize(NUM_EMOTIONS);
-        std::cout << "Classifying chunk " << i << " which goes from " << (i)*FRAMES_IN_3_SECONDS + startIdx << " to " << (i + 1) * FRAMES_IN_3_SECONDS + startIdx << std::endl;
+        if (_verbose) std::cout << "Classifying chunk " << i << " which goes from " << (i)*FRAMES_IN_3_SECONDS + startIdx << " to " << (i + 1) * FRAMES_IN_3_SECONDS + startIdx << std::endl;
         classifyChunk(std::vector<std::vector<float>>(featvec.begin() + (i)*FRAMES_IN_3_SECONDS + startIdx, featvec.begin() + (i + 1) * FRAMES_IN_3_SECONDS + startIdx), res.at(i));
         // Check if the result is ambivalent or only one class prevails (if the result is ambivalent, the resultBest vector will contain true values corresponding the emotions that fall into the thresholdDistance distance)
         ambivalentRes(res.at(i), this->topPredictedEmotions);
@@ -551,7 +559,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath) {
         float endTime = std::get<1>(outputLabels[i]);
         // float startTime = (startIdx * SD_HOP_SIZE / (float)SD_SAMPLERATE) + (i * 3.0f);
         // float endTime = startTime + 3.0f;
-        std::cout << "Labeling chunk " << i << " which goes from " << startTime << " to " << endTime << std::endl;
+        if (_verbose) std::cout << "Labeling chunk " << i << " which goes from " << startTime << " to " << endTime << std::endl;
         emotionLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + allPerChunkEmotions[i] + "\n";
         softmaxLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + softmaxOutsPrintable[i] + "\n";
     }
@@ -597,9 +605,9 @@ void ECProcessor::updateGain() {
 }
 void ECProcessor::updateSilenceThresh() {
     float val = ((AudioParameterFloat *)valueTreeState.getParameter(SILENCE_THRESH_ID))->get();
-    if (val != silenceThreshold) {
-        silenceThreshold = val;
-        silenceDetector.setThreshold(silenceThreshold);
+    if (val != silenceThreshold.load()) {
+        silenceThreshold.store(val);
+        silenceDetector.setThreshold(silenceThreshold.load());
     }
 }
 
@@ -616,9 +624,10 @@ AudioProcessorValueTreeState::ParameterLayout ECProcessor::createParameterLayout
                                                                                         0.4,
                                                                                         false),
                                                                1.f));
-    parameters.push_back(std::make_unique<AudioParameterFloat>(SILENCE_THRESH_ID, SILENCE_THRESH_NAME,
-                                                               NormalisableRange<float>(-120.0f, 0.0f, 0.5f),
-                                                               -60.0f));
+    // parameters.push_back(std::make_unique<AudioParameterFloat>(SILENCE_THRESH_ID, SILENCE_THRESH_NAME,
+    //                                                            NormalisableRange<float>(-120.0f, 0.0f, 0.5f),
+    //                                                            -60.0f));
+    parameters.push_back(std::make_unique<AudioParameterFloat>(SILENCE_THRESH_ID, SILENCE_THRESH_NAME, -120.0f, 0.0f, -60.0f));
 
     return {parameters.begin(), parameters.end()};
 }

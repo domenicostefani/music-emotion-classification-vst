@@ -12,8 +12,8 @@ chmod +x $1/Builds/linux-amd64/compileRelease.sh
 
 mkdir -p $1/Builds/linux-amd64/bin/
 
-# INPUT_MODE="mono"
-INPUT_MODE="stereo"
+INPUT_MODE="mono"
+# INPUT_MODE="stereo"
 
 if [ "$INPUT_MODE" == "mono" ]; then
     echo -e '{\n    "host_config" : {\n        "samplerate" : 48000\n    },\n    "tracks" : [\n        {\n            "name" : "main",\n            "mode" : "mono",\n            "inputs" : [\n                {\n                    "engine_channel" : 1,\n                    "track_channel" : 0\n                }\n            ],\n            "outputs" : [\n                {\n                    "engine_channel" : 1,\n                    "track_channel" : 1\n                }\n            ],\n            "plugins" : [\n                {\n                    "path" : "/home/mind/EmotionClassificationPlugin_Offline/Electric_EmotionClassificationPlugin.so",\n                    "name" : "emotionclassifier",\n                    "type"   : "vst2x"\n                }\n            ]\n        }\n    ],\n    "midi" : {\n        "cc_mappings": [\n        ]\n    }\n}\n' > $1/Builds/linux-aarch64/bin/config_electric.json
@@ -34,8 +34,7 @@ echo -e '#!/bin/bash\nsushi -r -c /home/mind/EmotionClassificationPlugin_Offline
 echo -e '#!/bin/bash\nsushi -r -c /home/mind/EmotionClassificationPlugin_Offline/config_piano.json' > $1/Builds/linux-aarch64/bin/run_piano.sh
 echo -e 'pkill -SIGINT -f sushi' > $1/Builds/linux-aarch64/bin/stop.sh
 
-
-echo -e 'scp ./bin/* mind@elk-pi.local:~/EmotionClassificationPlugin_Offline/' > $1/Builds/linux-aarch64/copyover.sh 
+echo -e '#!/bin/bash\ncp ../../python-osc-server/*.py ./bin/\nscp ./bin/* mind@elk-pi.local:~/EmotionClassificationPlugin_Offline/' > $1/Builds/linux-aarch64/copyover.sh 
 
 cp $1/python-osc-server/server.py $1/Builds/linux-aarch64/bin/
 
