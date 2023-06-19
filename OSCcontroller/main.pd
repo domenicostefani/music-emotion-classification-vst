@@ -45,7 +45,7 @@ target \; and resets initial slider values;
 #X text 516 170 Reset;
 #X text 245 170 Value 0-3;
 #X obj 329 241 hradio 20 1 0 4 empty empty empty 0 -8 0 10 -237178
--91543 -91543 0;
+-91543 -91543 1;
 #X obj 441 379 select 0 1 2 3;
 #X msg 408 467 0;
 #X msg 385 443 1;
@@ -262,7 +262,7 @@ to keep the last or one of the previous ones, f 21;
 #X obj 516 205 inlet;
 #X text 516 170 Reset;
 #X obj 329 241 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -237178
--91543 -91543 0;
+-91543 -91543 1;
 #X msg 308 463 0;
 #X msg 285 439 1;
 #X msg 357 463 0;
@@ -291,7 +291,7 @@ to keep the last or one of the previous ones, f 21;
 #X connect 11 1 5 0;
 #X restore 694 1308 pd 2waytoggler;
 #X obj 694 1252 hradio 20 1 0 2 empty empty empty 0 -8 0 10 -228856
--91543 -91543 0;
+-91543 -91543 1;
 #X msg 694 1228 0;
 #X obj 694 1203 r dsc;
 #X msg 733 1229 1;
@@ -429,9 +429,9 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X obj 50 236 cnv 15 120 25 empty empty empty 20 12 0 14 -261234 -66577
 0;
 #X obj 50 236 tgl 25 0 empty disconnected Disconnected 28 15 1 10 -261234
--91543 -258113 1 1;
+-91543 -258113 0 1;
 #X obj 50 261 tgl 25 0 empty connected CONNECTED! 28 15 1 10 -237178
--91543 -13381 0 1;
+-91543 -13381 1 1;
 #X obj 747 71 cnv 15 110 280 empty empty empty 8 12 1 10 -33289 -262144
 0;
 #X obj 992 212 cnv 15 160 140 empty empty empty 8 12 1 14 -33289 -66577
@@ -462,13 +462,13 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X obj 811 286 cnv 15 30 18 empty empty ----|-90dB 0 12 1 8 -33289
 -262144 0;
 #X obj 783 114 vsl 25 180 -90 0 0 0 empty oscrx_meter Record_level
--32 -20 1 13 -228856 -13381 -262144 0 1;
+-32 -20 1 13 -228856 -13381 -262144 13196 1;
 #X obj 204 131 bng 25 250 50 0 \$0-disc_m empty Disconnect 30 13 1
 12 -261234 -1 -1;
 #X obj 24 112 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
-#X obj 668 106 vsl 20 210 -100 0 0 0 s_gain initial_gain Recording_gain
--28 -12 1 10 -262144 -1 -1 20900 1;
+#X obj 668 106 vsl 20 210 -50 0 0 0 s_gain initial_gain Recording_gain
+-28 -12 1 10 -262144 -1 -1 19300 1;
 #X text 108 91 Computer IP;
 #X obj 109 112 cnv 15 70 20 empty empty empty 20 12 0 14 -204786 -66577
 0;
@@ -509,17 +509,17 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X obj 412 209 cnv 15 180 140 empty empty Plugin_State 13 19 1 14 -33289
 -262144 0;
 #X obj 422 268 tgl 18 0 empty plg_electric Electric_Plugin_Started
-22 11 1 10 -262144 -1 -262144 0 1;
+22 11 1 10 -262144 -1 -262144 1 1;
 #X obj 422 318 tgl 18 0 empty plg_piano Piano_Plugin_Started 22 11
 1 10 -262144 -1 -262144 0 1;
 #X obj 422 293 tgl 18 0 empty plg_acoustic Acoustic_Plugin_Started
 22 11 1 10 -262144 -1 -262144 0 1;
 #X obj 422 244 tgl 18 0 empty plg_no NO_PLUGIN_STARTED 22 11 1 10 -261234
--1 -262144 1 1;
+-1 -262144 0 1;
 #X obj 872 291 cnv 15 100 60 empty empty Sound_detected 5 8 1 9 -33289
 -262144 0;
 #X obj 902 311 tgl 35 0 empty oscrx_silence empty 17 7 0 10 -262144
--4160 -1 0 1;
+-4160 -1 1 1;
 #X obj 761 311 cnv 15 80 30 empty empty empty 20 12 0 14 -262144 -66577
 0;
 #X floatatom 764 318 10 0 0 1 dB roundedmeter -;
@@ -557,7 +557,7 @@ to this pc with: \; ssh mind@elk-pi.local "cat .ssh/id_rsa.pub" >>
 #X text 943 424 If blinking: look at Pd console, f 34;
 #X obj 886 396 bng 50 250 50 0 empty \$0-blinker Rename-ERROR 54 17
 1 14 -262144 -258113 -258113;
-#X obj 19 18 cnv 15 1147 28 empty empty Metering_information_in_black_boxes:_do_not_use_elements_in_black_boxes_as_controls
+#X obj 19 18 cnv 15 1147 28 empty empty Metering_information_in_black_boxes:_do_not_use_elements_in_black_boxes_as_con*
 8 14 1 14 -49933 -249661 0;
 #X text 26 572 To copy the files to to this computer you must copy
 the public SSH key of the board to the authorized_keys file in the
