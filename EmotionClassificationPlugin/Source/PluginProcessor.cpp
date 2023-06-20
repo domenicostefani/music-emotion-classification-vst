@@ -82,18 +82,9 @@ ECProcessor::ECProcessor()
         #ifdef PIANO_MODEL
     std::string MODEL_PATH = "/udata/emotionModel_piano.tflite";
         #endif
-    #else
-    std::string MODEL_PATH = "/home/cimil-01/Develop/instrument_emotion_recognition/keras_audio_models/tflite/MSD_musicnn.tflite";
+    this->loadModel(MODEL_PATH, VERBOSE_CLASSIFICATION);
     #endif
 
-    // Check that file exists
-    std::ifstream f(MODEL_PATH);
-    if (!f.good()) {
-        std::cout << "Model file not found at " << MODEL_PATH << std::endl;
-        exit(1);
-    }
-    ECProcessor::tfliteClassifier = createClassifier(MODEL_PATH, VERBOSE_CLASSIFICATION);  // true = verbose cout
-    std::cout << "Created classifier and loaded model: '" << MODEL_PATH << "'" << std::endl;
 #endif
 
     // Set up the OSC receiver to accept specific messages
@@ -104,6 +95,34 @@ ECProcessor::ECProcessor()
     topPredictedEmotions.resize(this->NUM_EMOTIONS);
 
     suspendProcessing(false);
+}
+
+bool ECProcessor::loadModel(std::string modelPath, bool verbose) {
+    // Check that file exists
+    std::ifstream f(modelPath);
+    if (!f.good())
+        return false;
+    if (modelPath.substr(modelPath.find_last_of(".") + 1) != "tflite")
+        return false;
+
+    try {
+        ECProcessor::tfliteClassifier = createClassifier(modelPath, VERBOSE_CLASSIFICATION);  // true = verbose cout
+        if (verbose) std::cout << "Created classifier and loaded model: '" << modelPath << "'" << std::endl;
+    } catch (std::exception &e) {
+        std::cout << "Error: could not load model: '" << modelPath << "'" << std::endl;
+        return false;
+    }
+    
+    Value mpProperty = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
+    mpProperty.setValue(juce::String(modelPath));
+    this->modelPath = modelPath;
+
+    this->enableRec.store(true);
+    return true;
+}
+
+std::string ECProcessor::getModelPath() {
+    return this->modelPath;
 }
 
 ECProcessor::~ECProcessor() {
@@ -584,6 +603,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
 
 void ECProcessor::updateRecState() {
     bool recState = ((AudioParameterBool *)valueTreeState.getParameter(RECSTATE_ID))->get();
+    recState = bool(int(recState) * int(this->enableRec.load()));  // Disable recording if enableRec is false
 
     if (this->oldRecState != recState) {
         if (recState) {
@@ -657,16 +677,24 @@ void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
     // saveFolderPath.setValue(saveFolder.getFullPathName()); // Writing the XML after this should show the "foobar.midi"
     // DBG("Save folder path: " + saveFolderPath.getValue().toString());
     this->setSaveFolder(File(saveFolderPath.getValue().toString()));
+
+    // Same for Model path "SV_MODEL_PATH"
+    Value modelPath = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
+    if(this->loadModel(modelPath.getValue().toString().toStdString())) {
+        DBG("Model loaded successfully");
+    } else {
+        DBG("Model loading failed");
+    }
 }
 
-void ECProcessor::setSaveFolder(const File &saveFolder) {
+void ECProcessor::setSaveFolder(const File &saveDir) {
+    this->saveDir = saveDir;
     Value saveFolderPath = valueTreeState.state.getPropertyAsValue("REC_SAVEPATH", nullptr, true);
-    saveFolderPath.setValue(saveFolder.getFullPathName());  // Writing the XML after this should show the "foobar.midi"
-    saveDir = saveFolder;
+    saveFolderPath.setValue(this->saveDir.getFullPathName());  // Writing the XML after this should show the "foobar.midi"
 }
 
 File &ECProcessor::getSaveFolder() {
-    return saveDir;
+    return this->saveDir;
 }
 
 float ECProcessor::getRMSValue() const {

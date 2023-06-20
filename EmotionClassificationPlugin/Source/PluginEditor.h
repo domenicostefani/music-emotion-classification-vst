@@ -4,13 +4,11 @@
 
 #include "AudioThumbnail.h"
 #include "PluginProcessor.h"
-#include "levelMeter.h"
 #include "led.h"
+#include "levelMeter.h"
 
 #define METER_USE_PEAK
 // #define METER_USE_RMS
-
-
 
 const String OFF_TEXT = "Press to start recording";
 const String ON_TEXT = "Recording... Press to classify";
@@ -40,19 +38,21 @@ private:
     void toggle() {
         // std::cout << "Toggle: " << recButton.getState() << std::endl;
 
-        if (recButton.getToggleState()) {
-            recButton.setButtonText(ON_TEXT);
-        } else {
-            // recButton.setButtonText(CLASSIFYING_TEXT);
-            // recButton.setColour(TextButton::buttonColourId, Colours::orange);
-            // // Disable rec button for 3 seconds
-            // recButton.setEnabled(false);
-            // Timer::callAfterDelay(3000, [this] { recButton.setEnabled(true); recButton.setButtonText(OFF_TEXT); recButton.setColour(TextButton::buttonColourId, Colours::red); });
+        if (audioProcessor.enableRec.load()) {
+            if (recButton.getToggleState()) {
+                recButton.setButtonText(ON_TEXT);
+            } else {
+                // recButton.setButtonText(CLASSIFYING_TEXT);
+                // recButton.setColour(TextButton::buttonColourId, Colours::orange);
+                // // Disable rec button for 3 seconds
+                // recButton.setEnabled(false);
+                // Timer::callAfterDelay(3000, [this] { recButton.setEnabled(true); recButton.setButtonText(OFF_TEXT); recButton.setColour(TextButton::buttonColourId, Colours::red); });
 
-            {
-                recButton.setEnabled(true);
-                recButton.setButtonText(OFF_TEXT);
-                recButton.setColour(TextButton::buttonColourId, Colours::red);
+                {
+                    recButton.setEnabled(true);
+                    recButton.setButtonText(OFF_TEXT);
+                    recButton.setColour(TextButton::buttonColourId, Colours::red);
+                }
             }
         }
     }
@@ -95,15 +95,16 @@ private:
         {1, juce::Colours::lightgreen},
         {2, juce::Colours::orange},
         {3, juce::Colours::lightblue},
-        {4, juce::Colours::white}}; // White for ambivalent Emotion
+        {4, juce::Colours::white}};  // White for ambivalent Emotion
 
-    std::unique_ptr<juce::FileChooser> savedirChooser;
-    TextButton selectSaveFolderButton;
+    std::unique_ptr<juce::FileChooser> savedirChooser,modelChooser;
+    TextButton selectSaveFolderButton, selectModelButton;
     void openButtonClicked();
+    void modelButtonClicked();
     void recordStateChanged();
 
     // Waveform display
-    AudioThumbnailComponent waveformDisplayComponent{"Press the Record button to start recording."};
+    AudioThumbnailComponent waveformDisplayComponent{"Load a model and press the Record button to start recording."};
 
     // Metering
     Gui::LevelMeter meter;
@@ -114,10 +115,9 @@ private:
 
     // Silence Detector
     Gui::Led silenceLed;
-    
+
     Slider silenceThSlider;
     std::unique_ptr<SliderAttachment> silenceThSliderAttachment;
-    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECEditor)
 };

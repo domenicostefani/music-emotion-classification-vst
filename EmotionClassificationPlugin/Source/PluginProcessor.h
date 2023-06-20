@@ -161,6 +161,20 @@ public:
     // emosmi::FilteredIsSilent offlineSilenceDetector {16000.0, SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO,SD_ALPHA};
     emosmi::PerformanceStartStop performanceStartStop{16000.0, SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO, SD_ALPHA};
 
+    bool loadModel(std::string modelPath, bool verbose=false);
+    std::string getModelPath();
+#ifdef ELK_OS_ARM
+    std::atomic<bool> enableRec{true};
+#else
+    std::atomic<bool> enableRec{false};
+#endif
+
+private:
+    std::string modelPath = "";
+
+
+    
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECProcessor)
 };

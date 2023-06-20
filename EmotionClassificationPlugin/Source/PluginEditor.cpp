@@ -18,6 +18,25 @@ void ECEditor::openButtonClicked() {
     });
 }
 
+void ECEditor::modelButtonClicked() {
+
+
+    modelChooser = std::make_unique<juce::FileChooser>("Select a model file...", File(), "*.tflite");
+    auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+    modelChooser->launchAsync(chooserFlags, [this](const juce::FileChooser& fc) {
+        auto file = fc.getResult();
+        if (file != juce::File{} && file.existsAsFile() && file.hasFileExtension(".tflite")) {
+            if (audioProcessor.loadModel(file.getFullPathName().toStdString())) {
+                this->recButton.setEnabled(true);
+                selectModelButton.setButtonText("Select model\n(current: \"" + file.getFileName().toStdString() + "\")");
+            } else {
+                this->audioProcessor.extractorState = "Error loading model. Try again.";
+            }
+        }
+    });
+}
+
 ECEditor::ECEditor(ECProcessor& p)
     : AudioProcessorEditor(&p),
       audioProcessor(p),
@@ -30,12 +49,19 @@ ECEditor::ECEditor(ECProcessor& p)
 #endif
 {
     setResizable(true, true);
-    setSize(970, 350);
+    setSize(970, 380);
     setResizeLimits(970, 350, 1920, 1080);		
 
     selectSaveFolderButton.setButtonText("Select save folder\nDefault: \"" + audioProcessor.getSaveFolder().getFullPathName().toStdString() + "\"");
     selectSaveFolderButton.onClick = [this] { openButtonClicked(); };
     addAndMakeVisible(selectSaveFolderButton);
+
+    std::string loadedModPath = audioProcessor.getModelPath();
+    // take only basename with extension
+    std::string loadedModName = loadedModPath.substr(loadedModPath.find_last_of("/\\") + 1);
+    selectModelButton.setButtonText("Select model\nDefault: \"" + loadedModName);
+    selectModelButton.onClick = [this] { modelButtonClicked(); };
+    addAndMakeVisible(selectModelButton);
 
     addAndMakeVisible(recButton);
     recButton.setButtonText("Record");
@@ -47,6 +73,7 @@ ECEditor::ECEditor(ECProcessor& p)
     // recButton.onClick = [this] { audioProcessor.record(); };
     recButton.onClick = [this] { toggle(); };
     recButton.setClickingTogglesState(true);
+    recButton.setEnabled(audioProcessor.enableRec.load());
 
     recButtonAttachment.reset(new ButtonAttachment(audioProcessor.valueTreeState, audioProcessor.RECSTATE_ID, recButton));
 
@@ -125,6 +152,7 @@ void ECEditor::paint(juce::Graphics& g) {
     int leftHeight = usableControlArea.getHeight();
 
     selectSaveFolderButton.setBounds(usableControlArea.removeFromTop(70).reduced(5));
+    selectModelButton.setBounds(usableControlArea.removeFromTop(60).reduced(5));
     recButton.setBounds(usableControlArea.removeFromTop(40).reduced(5));
 
     g.setFont(Font(17.0f, Font::bold));
