@@ -18,7 +18,16 @@ Embedded implementation of an emotion classifier for a Smart Musical Instrument 
 
 The plugin is made to be used both as a headless plugin in [Elk Audio Os](https://www.elk.audio/start) and standalone/VST2/3 plugin on a regular computer (currently only compiled for `linux amd64` though).  
 ### GUI version
-On a regular computer, the usage is straightforward: open the plugin either as a standalone or in a DAW, select the folder where to save the recordings and the neural model, and press the record button. Upon a second press, the recording stops and inference is executed for every 3 seconds of audio.
+On a regular computer, the usage is straightforward: 
+1. Open the plugin either as a standalone or in a DAW;
+2. Select the folder where to save the recordings;
+3. Select the TFlite model for the instrument of choice (contact the authors if not available);
+4. Tune input gain: Try playing the instrument and check in the meter that the signal is coming through and the peak level is not too low or too high (clipping).
+5. Tune the Playing/Silence detector: Try playing the instrument and check that the orange light turns on when you play and off when you stop playing. If it doesn't, change the threshold value until it does. If you change the input gain, repeat this step.
+6. Press record, play an improvised emotional piece for more than 3 seconds, then press "Stop and classify".
+7. Wait for the classifier to finish (~1 second for every 3 seconds of recording).
+8. Check the results in the GUI and/or using Audacity and the label files in the recording folder.
+
 ### Elk OS Version
 Since the execution on the Elk board is headless, the plugin is controlled via OSC messages from a desktop or laptop computer (we will refer to this as *controller*). A Pure Data controller application is provided in `OSCcontroller/`.
 

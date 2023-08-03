@@ -67,7 +67,9 @@ ECProcessor::ECProcessor()
     } else if (saveDir.existsAsFile())
         throw std::runtime_error("Error: output save directory exists as a file. Please delete the file at " + saveDir.getFullPathName().toStdString());
 
+#ifndef ELK_OS_ARM
     extractorState.reserve(1048576);
+#endif
 
 #ifndef DUMMY_INFERENCE
     // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/Builds/linux-amd64/MSD_musicnn.tflite";
@@ -112,7 +114,7 @@ bool ECProcessor::loadModel(std::string modelPath, bool verbose) {
         std::cout << "Error: could not load model: '" << modelPath << "'" << std::endl;
         return false;
     }
-    
+
     Value mpProperty = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
     mpProperty.setValue(juce::String(modelPath));
     this->modelPath = modelPath;
@@ -250,10 +252,10 @@ void ECProcessor::startRecording(unsigned int numChannels) {
 
     this->lastRecording = saveDir.getNonexistentChildFile("EmoAwSMIs-recording-" + timestr, ".wav");
     this->lastRecording2 = this->lastRecording;
-    this->extractorState = "Recording to disk: \"";
+    clearGUIstate();
+    appendToGUIstate("Recording to disk: \"");
     this->audioFilename = lastRecording.getFullPathName().toStdString();
-    this->extractorState = this->extractorState + audioFilename;
-    this->extractorState = this->extractorState + "\"...";
+    appendToGUIstate(audioFilename + "\"...");
 
 #ifdef RECORDER_DEBUG_LOG
     logText("Recording " + lastRecording.getFullPathName().toStdString());
@@ -271,7 +273,7 @@ void ECProcessor::stopRecording() {
 #endif
     recorder.stop();
 
-    this->extractorState = this->extractorState + "\nStopped recording.";
+    appendToGUIstate("\nStopped recording.");
 
 #if (JUCE_ANDROID || JUCE_IOS)
     SafePointer<AudioRecordingDemo> safeThis(this);
@@ -447,7 +449,14 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
         std::cout << "File " << audioFilePath << " DOES NOT EXIST\n"
                   << std::flush;
 #endif
-        throw std::logic_error("File " + audioFilePath + " does not exist!");
+// throw std::logic_error("File " + audioFilePath + " does not exist!");
+#ifdef ELK_OS_ARM
+        std::cerr << "File " << audioFilePath << " does not exist! Check that the recording savedir exists\n"
+                  << std::flush;
+#else
+        appendToGUIstate("\nRec File " + audioFilePath + " does not exist! Check that the recording savedir exists\n");
+#endif
+
     }
 #ifdef VERBOSE_PRINT
     else {
@@ -463,7 +472,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
     DBG("Extracted features:\n");
 #endif
 
-    extractorState = extractorState + "\nExtracted " + std::to_string(featvec[0].size()) + " features from " + std::to_string(featvec.size()) + " frames";
+    appendToGUIstate("\nExtracted " + std::to_string(featvec[0].size()) + " features from " + std::to_string(featvec.size()) + " frames");
 
 #ifdef VERBOSE_PRINT
     print2DVectorHead(featvec);
@@ -484,17 +493,17 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
 #endif
 
     if (numChunks == 0) {
-        extractorState = extractorState + "\nNot enough frames to classify (Please record for more than 3 NON-SILENT seconds)";
+        appendToGUIstate("\nNot enough frames to classify (Please record for more than 3 NON-SILENT seconds)");
         this->oscSender.sendMessage("/emotion", (int)-1);
         this->oscSender.sendMessage("/state", (int)STATE_IDLE);
         return;
     }
 
-    extractorState = extractorState + "\nSplitting into " + std::to_string(numChunks) + " chunks of 3 seconds each";
+    appendToGUIstate("\nSplitting into " + std::to_string(numChunks) + " chunks of 3 seconds each");
 
     std::vector<std::vector<float>> res;
     res.resize(numChunks);
-    extractorState = extractorState + "\nPer Chunk winners: [ ";
+    appendToGUIstate("\nPer Chunk winners: [ ");
 
 #ifdef GENERATE_AUDACITY_LABELS
     std::vector<std::string> allPerChunkEmotions;
@@ -524,7 +533,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
         for (size_t j = 0; j < topPredictedEmotions.size(); ++j) {
             if (topPredictedEmotions[j]) {
                 topEmotion = j;
-                extractorState += (std::to_string(j) + "/");
+                appendToGUIstate(std::to_string(j) + "/");
                 chunkEmotions += (emotions[j] + "/");
             }
         }
@@ -542,24 +551,24 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
         allPerChunkEmotions.push_back(chunkEmotions);
 #endif
 
-        extractorState.pop_back();
-        extractorState += " ";
+        popBackGUIstate();
+        appendToGUIstate(" ");
     }
-    extractorState = extractorState + "]";
+    appendToGUIstate("]");
 
     // Now we call the voting subroutine, which will return either a single int >= 0 or -1 if ambivalent (in this case, the resultBest vector will contain true values corresponding the emotions that fall into the thresholdDistance distance)
     int result = ambivalentSoftVoting(res, this->NUM_EMOTIONS, this->topPredictedEmotions);
 
-    extractorState = extractorState + "\nSoftVotingResult: ";
+    appendToGUIstate("\nSoftVotingResult: ");
     if (result == -1) {  // ambivalent
-        extractorState = extractorState + "Ambivalent! (";
+        appendToGUIstate("Ambivalent! (");
         for (size_t v = 0; v < topPredictedEmotions.size(); ++v)
             if (topPredictedEmotions[v])
-                extractorState = extractorState + emotions[v] + ",";
-        extractorState.pop_back();
-        extractorState = extractorState + ")";
+                appendToGUIstate(emotions[v] + ",");
+        popBackGUIstate();
+        appendToGUIstate(")");
     } else {
-        extractorState = extractorState + emotions[result] + " (id: " + std::to_string(result) + ")";
+        appendToGUIstate(emotions[result] + " (id: " + std::to_string(result) + ")");
     }
 
     labelsWritten = true;
@@ -676,11 +685,16 @@ void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
     Value saveFolderPath = valueTreeState.state.getPropertyAsValue("REC_SAVEPATH", nullptr, true);
     // saveFolderPath.setValue(saveFolder.getFullPathName()); // Writing the XML after this should show the "foobar.midi"
     // DBG("Save folder path: " + saveFolderPath.getValue().toString());
-    this->setSaveFolder(File(saveFolderPath.getValue().toString()));
+    juce::File tmpSaveFolder(saveFolderPath.getValue().toString());
+    if (tmpSaveFolder.exists() && tmpSaveFolder.isDirectory()) {
+        this->setSaveFolder(File(saveFolderPath.getValue().toString()));
+    } else {
+        DBG("Save folder path does not exist");
+    }
 
     // Same for Model path "SV_MODEL_PATH"
     Value modelPath = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
-    if(this->loadModel(modelPath.getValue().toString().toStdString())) {
+    if (this->loadModel(modelPath.getValue().toString().toStdString())) {
         DBG("Model loaded successfully");
     } else {
         DBG("Model loading failed");

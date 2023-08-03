@@ -24,7 +24,7 @@ private:
 
 public:
     juce::OSCSender innerSender;
-    
+
     HandshakedSender() {
         this->enabled = false;
         this->ipAddress = "";
@@ -59,8 +59,8 @@ public:
             innerSender.send(message, (int)arg1, (int)arg2, (int)arg3, (int)arg4);
         }
     }
-    
-    void disable () {
+
+    void disable() {
         enabled = false;
     }
 };

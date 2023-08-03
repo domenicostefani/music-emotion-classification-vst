@@ -17,6 +17,18 @@ const String CLASSIFYING_TEXT = "Classifying...";
 typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
+class CustomLookAndFeel : public juce::LookAndFeel_V4 {
+public:
+    juce::Colour textColour = juce::Colours::black;
+    CustomLookAndFeel() {
+        setColour(juce::Slider::thumbColourId, juce::Colours::red);
+        setColour(juce::Slider::backgroundColourId, juce::Colours::lightgrey);
+        setColour(juce::Slider::textBoxTextColourId, juce::Colours::black);
+        setColour(juce::ResizableWindow::backgroundColourId, juce::Colours::whitesmoke);
+        setColour(juce::Label::textColourId, juce::Colours::black);
+    }
+};
+
 class ECEditor : public juce::AudioProcessorEditor {
 public:
     ECEditor(ECProcessor&);
@@ -72,7 +84,7 @@ private:
     };
 
     void pollingRoutine() {
-        status.setText(audioProcessor.extractorState, dontSendNotification);
+        status.setText(audioProcessor.getGUIstate(), dontSendNotification);
 
         if (audioProcessor.recordingStopped.exchange(false)) {
             juce::File afile(audioProcessor.audioFilename);
@@ -97,10 +109,11 @@ private:
         {3, juce::Colours::lightblue},
         {4, juce::Colours::white}};  // White for ambivalent Emotion
 
-    std::unique_ptr<juce::FileChooser> savedirChooser,modelChooser;
-    TextButton selectSaveFolderButton, selectModelButton;
+    std::unique_ptr<juce::FileChooser> savedirChooser, modelChooser;
+    TextButton selectSaveFolderButton, selectModelButton, infoButton;
     void openButtonClicked();
     void modelButtonClicked();
+    void infoButtonClicked();
     void recordStateChanged();
 
     // Waveform display
@@ -118,6 +131,8 @@ private:
 
     Slider silenceThSlider;
     std::unique_ptr<SliderAttachment> silenceThSliderAttachment;
+
+    CustomLookAndFeel lf;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECEditor)
 };

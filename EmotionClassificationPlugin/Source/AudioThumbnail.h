@@ -28,8 +28,8 @@ public:
     void paint(juce::Graphics &g) override {
         auto backcolor = getLookAndFeel().findColour(
             juce::ResizableWindow::backgroundColourId);
-        g.setColour(backcolor);
-        g.setColour(juce::Colours::white);
+
+        g.setColour(getLookAndFeel().findColour(juce::Label::textColourId));
 
         auto area = getLocalBounds();
         auto rectbox = area.reduced(10);
@@ -89,7 +89,7 @@ private:
             juce::ResizableWindow::backgroundColourId);
         g.setColour(backcolor);
         g.fillRect(thumbnailBounds);
-        g.setColour(juce::Colours::white);
+        g.setColour(getLookAndFeel().findColour(juce::Label::textColourId));
         g.drawFittedText(nofileText, thumbnailBounds,
                          juce::Justification::centred, 1);
     }
@@ -112,7 +112,7 @@ private:
         // Draw outer Rectangle
         g.fillRect(thumbnailBounds);
         // Draw waveform (audio thumbnail)
-        g.setColour(juce::Colours::white);
+        g.setColour(getLookAndFeel().findColour(juce::Label::textColourId));
         thumbnail.drawChannels(g, thumbnailBounds,
                                0.0,                         // start time
                                thumbnail.getTotalLength(),  // end time
@@ -133,7 +133,7 @@ private:
                 std::string sectionLabel = std::get<2>(sectionLabels[i]);
 
                 drawVline(g, sectionStart * magnification + thumbNailX, thumbNailY, thumbNailHeight, 1.f, juce::Colours::red);
-                drawVline(g, sectionEnd   * magnification + thumbNailX, thumbNailY, thumbNailHeight, 1.f, juce::Colours::red);
+                drawVline(g, sectionEnd * magnification + thumbNailX, thumbNailY, thumbNailHeight, 1.f, juce::Colours::red);
 
                 g.setColour(sectionLabelColors.size() == sectionLabels.size() ? sectionLabelColors[i] : juce::Colours::white);
                 g.setFont(juce::Font(15.f, juce::Font::bold));
@@ -141,7 +141,7 @@ private:
                     sectionLabel,
                     sectionStart * magnification + thumbNailX,
                     thumbNailY + thumbNailHeight,
-                    (sectionEnd-sectionStart) * magnification, 20,
+                    (sectionEnd - sectionStart) * magnification, 20,
                     juce::Justification::centred, 2);
             }
         }

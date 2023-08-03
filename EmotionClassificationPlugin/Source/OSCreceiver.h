@@ -15,27 +15,24 @@
 
 namespace cOSC {
 
-class Receiver : public juce::OSCReceiver, public juce::OSCReceiver::ListenerWithOSCAddress<juce::OSCReceiver::MessageLoopCallback>{
+class Receiver : public juce::OSCReceiver, public juce::OSCReceiver::ListenerWithOSCAddress<juce::OSCReceiver::MessageLoopCallback> {
 private:
     int port;
     std::function<void(const juce::OSCMessage&)> callback;
 
 public:
-    Receiver(int port, std::function<void(const juce::OSCMessage& message)>&& oscMessageReceived) : 
-            callback(std::move(oscMessageReceived)) {
+    Receiver(int port, std::function<void(const juce::OSCMessage& message)>&& oscMessageReceived) : callback(std::move(oscMessageReceived)) {
         this->port = port;
         connect(port);
     }
 
-    void oscMessageReceived (const juce::OSCMessage& message) override
-    {
+    void oscMessageReceived(const juce::OSCMessage& message) override {
         callback(message);
     }
 
     void addOSCListener(juce::String oscMessage) {
-        addListener (this, oscMessage);
+        addListener(this, oscMessage);
     }
-
 };
 
 }  // namespace cOSC

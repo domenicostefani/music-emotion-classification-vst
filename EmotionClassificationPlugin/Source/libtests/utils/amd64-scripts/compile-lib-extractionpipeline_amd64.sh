@@ -20,15 +20,15 @@ fi
 EXE_NAME="LIBTESTextraction_pipeline-linux-amd64" # Name of the output executable
 EXE_NAME2="silence_detection_test" # Name of the output executable
 # Set starting path (We already checked that we are in the build folder)
-HOMEBASE='..'
+HOMEBASE='../../..'
 
 # spectrogram source file, from essentia/examples , plus utility required by the example
-SOURCE_FILES="$HOMEBASE/src/extractionpipeline.cpp"
+SOURCE_FILES="$HOMEBASE/Source/extractionpipeline.cpp"
 # Include dir for essentia
 ESSENTIA_INCLUDES="$HOMEBASE/libs/essentia/src/"
 EIGEN_INCLUDES="/usr/include/eigen3"
 
-CURRENT_INCLUDE="$HOMEBASE/include/"
+CURRENT_INCLUDE="$HOMEBASE/Source/libtests/utils/"
 
 ESSENTIA_BUILD="$HOMEBASE/libs/essentia/build-linux-x86_64/src"
 

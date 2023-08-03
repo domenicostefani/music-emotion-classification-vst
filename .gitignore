@@ -1,5 +1,9 @@
 build
 
+
+*.wav
+*.reapeaks
+
 JuceLibraryCode
 *-bak
 Builds/

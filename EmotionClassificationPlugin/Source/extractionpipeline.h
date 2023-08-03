@@ -6,12 +6,11 @@
 #include <essentia/streaming/algorithms/poolstorage.h>
 #include <essentia/streaming/algorithms/ringbufferinput.h>
 #include <essentia/streaming/algorithms/vectoroutput.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 
 #include <cmath>
 #include <string>
 #include <vector>
-
-#include <juce_audio_processors/juce_audio_processors.h>
 
 namespace emosmi {
 class MusicnnFeatureExtractor {
@@ -53,7 +52,7 @@ public:
         _threshold = pow(10.0f, threshold / 10.0f);
     }
 
-    bool storeBlockAndCompute(const float block[], size_t blockLength, bool& isSilent, bool _verbose = false) {
+    bool storeBlockAndCompute(const float block[], size_t blockLength, bool &isSilent, bool _verbose = false) {
         // Append properly to ring buffer
         int numSamplesToAppend = blockLength;
 
@@ -79,7 +78,7 @@ public:
                 std::cout << "_threshold: " << _threshold << std::endl;
                 std::cout << "power: " << power << std::endl;
             }
-            
+
             isSilent = power < _threshold;
             this->isSilent = isSilent;
 
@@ -109,7 +108,7 @@ public:
         return energy(array) / array.size();
     }
 
-    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose=false){
+    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose = false) {
         if (buffer.getNumChannels() > 1)
             throw std::logic_error("RTisSilent::processBlock: buffer must be mono");
 
@@ -244,7 +243,6 @@ public:
     }
 };
 
-
 class FilteredRTisSilent : public RTisSilent {
     SilenceFilter silenceFilter;
 
@@ -252,7 +250,7 @@ public:
     FilteredRTisSilent(size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1) : RTisSilent(frameSize, hopSize, threshold_dB), silenceFilter(filterLength, trueToFalseTransitionRatio, alphaDecay) {
     }
 
-    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose=false){
+    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose = false) {
         if (buffer.getNumChannels() > 1)
             throw std::logic_error("RTisSilent::processBlock: buffer must be mono");
 
@@ -266,7 +264,7 @@ public:
             for (size_t i = 0; i < numHops; ++i) {
                 bool res;
                 storeBlockAndCompute(buffer.getReadPointer(0) + i * hopSize, hopSize, res, _verbose);
-                if (_verbose) std::cout << "res["<< i <<"] = " << res;
+                if (_verbose) std::cout << "res[" << i << "] = " << res;
                 res = silenceFilter.filter(res);
                 if (_verbose) std::cout << " filtered = " << res << std::endl;
                 this->tmpRes[i] = res;
@@ -285,8 +283,8 @@ public:
                 if (_verbose) std::cout << " -> Computed... res:" << res;
                 this->isSilent = silenceFilter.filter(res);
                 if (_verbose) std::cout << " filtered:" << this->isSilent << std::endl;
-            } else
-                if (_verbose) std::cout << " -> Not enough samples for computation" << std::endl;
+            } else if (_verbose)
+                std::cout << " -> Not enough samples for computation" << std::endl;
         }
     }
 
@@ -295,10 +293,9 @@ public:
     }
 };
 
-
 /**
  * @brief Offline version of FilteredRTisSilentm which loads an audio recording from file
- * 
+ *
  */
 class FilteredIsSilent {
     FilteredRTisSilent rtSilenceDetector;
@@ -323,9 +320,8 @@ class FilteredIsSilent {
         return signalVec;
     }
 
-public: 
-    
-    FilteredIsSilent(float sampleRate, size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1): rtSilenceDetector(frameSize, hopSize, threshold_dB, filterLength, trueToFalseTransitionRatio, alphaDecay), sampleRate(sampleRate) {}
+public:
+    FilteredIsSilent(float sampleRate, size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1) : rtSilenceDetector(frameSize, hopSize, threshold_dB, filterLength, trueToFalseTransitionRatio, alphaDecay), sampleRate(sampleRate) {}
 
     void resetFilter() {
         rtSilenceDetector.resetFilter();
@@ -335,7 +331,7 @@ public:
         rtSilenceDetector.setThreshold(threshold_dB);
     }
 
-    std::vector<bool> computeFromFile (std::string audioFilename) {
+    std::vector<bool> computeFromFile(std::string audioFilename) {
         rtSilenceDetector.resetFilter();
         std::vector<bool> res;
         std::vector<float> signal = essentiaLoad(audioFilename, this->sampleRate);
@@ -352,10 +348,11 @@ public:
 
 class PerformanceStartStop {
     FilteredIsSilent fis;
+
 public:
     PerformanceStartStop(float sampleRate, size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1) : fis(sampleRate, frameSize, hopSize, threshold_dB, filterLength, trueToFalseTransitionRatio, alphaDecay) {}
 
-    std::pair<size_t, size_t> computeFromFile (std::string audioFilename, float threshold_dB, bool _verbose = false) {
+    std::pair<size_t, size_t> computeFromFile(std::string audioFilename, float threshold_dB, bool _verbose = false) {
         fis.setThreshold(threshold_dB);
         fis.resetFilter();
         std::vector<bool> silenceVec = fis.computeFromFile(audioFilename);
@@ -364,11 +361,13 @@ public:
 
         size_t numToSetSilentAtStart = 4;
         if (silenceVec[numToSetSilentAtStart] == true)
-            for (size_t i = 0; i < numToSetSilentAtStart; ++i) 
-                silenceVec[i] = true; //TODO: Fix this bug with the silence detector where sometimes the first is not silent.
+            for (size_t i = 0; i < numToSetSilentAtStart; ++i)
+                silenceVec[i] = true;  // TODO: Fix this bug with the silence detector where sometimes the first is not silent.
 
-        if (_verbose) for (auto e : silenceVec) std::cout << (e?'1':'0'); std::cout << std::endl;
-        
+        if (_verbose)
+            for (auto e : silenceVec) std::cout << (e ? '1' : '0');
+        std::cout << std::endl;
+
         // Take the first non silent block (false) as start index and the last non silent block as stop index
         size_t startIdx = std::find(silenceVec.begin(), silenceVec.end(), false) - silenceVec.begin();
         size_t stopIdx = std::find(silenceVec.rbegin(), silenceVec.rend(), false) - silenceVec.rbegin();
@@ -378,15 +377,11 @@ public:
             if (_verbose) std::cout << "Silent recording" << std::endl;
             return std::make_pair(0, 0);
         }
-        
+
         if (_verbose) std::cout << "startIdx = " << startIdx << " | stopIdx = " << stopIdx << std::endl;
 
         return std::make_pair(startIdx, stopIdx);
     }
-    
 };
-    
 
 }  // namespace emosmi
-
-

@@ -10,7 +10,7 @@ echo -e '#!/bin/bash\nmake -j`nproc` CONFIG=Release' > $1/Builds/linux-amd64/com
 chmod +x $1/Builds/linux-amd64/compileRelease.sh
 
 
-mkdir -p $1/Builds/linux-amd64/bin/
+mkdir -p $1/Builds/linux-aarch64/bin/
 
 INPUT_MODE="mono"
 # INPUT_MODE="stereo"

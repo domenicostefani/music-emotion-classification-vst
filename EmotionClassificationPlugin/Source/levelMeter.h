@@ -34,11 +34,10 @@ public:
         g.setColour(Colours::white);
         g.drawLine(levelticksArea.getX() + 1, bounds.getY(), levelticksArea.getX() + 5, bounds.getY());
         g.drawLine(levelticksArea.getX() + 1, bounds.getY() + MAX_HEIGHT - zeroPoint, levelticksArea.getX() + 5, bounds.getY() + MAX_HEIGHT - zeroPoint);
-        g.drawLine(levelticksArea.getX() + 1, bounds.getY() + MAX_HEIGHT-minTickOffset, levelticksArea.getX() + 5, bounds.getY() + MAX_HEIGHT-minTickOffset);
+        g.drawLine(levelticksArea.getX() + 1, bounds.getY() + MAX_HEIGHT - minTickOffset, levelticksArea.getX() + 5, bounds.getY() + MAX_HEIGHT - minTickOffset);
         g.drawText(String(MAX_DB) + " dB", levelticksArea.getX() + 5, bounds.getY(), levelticksArea.getWidth(), textHeight, Justification::centredLeft, false);
-        g.drawText(String(0) + " dB",      levelticksArea.getX() + 5, bounds.getY() + MAX_HEIGHT - zeroPoint, levelticksArea.getWidth(), textHeight, Justification::centredLeft, false);
-        g.drawText(String(MIN_DB) + " dB", levelticksArea.getX() + 5, bounds.getY() + MAX_HEIGHT-minTickOffset*3, levelticksArea.getWidth(), textHeight, Justification::centredLeft, false);
-
+        g.drawText(String(0) + " dB", levelticksArea.getX() + 5, bounds.getY() + MAX_HEIGHT - zeroPoint, levelticksArea.getWidth(), textHeight, Justification::centredLeft, false);
+        g.drawText(String(MIN_DB) + " dB", levelticksArea.getX() + 5, bounds.getY() + MAX_HEIGHT - minTickOffset * 3, levelticksArea.getWidth(), textHeight, Justification::centredLeft, false);
 
         g.setColour(Colours::black);
         g.fillRect(bounds);
@@ -46,8 +45,6 @@ public:
         g.setGradientFill(gradient);
         const auto scaLevelMeterY = jmap(valueSupplier(), MIN_DB, MAX_DB, MIN_HEIGHT, MAX_HEIGHT);
         g.fillRect(bounds.removeFromBottom(scaLevelMeterY));
-
-        
 
         // If valueSupplier clips (> 0.0) paint permanently the part between 0 and 6 dB
 

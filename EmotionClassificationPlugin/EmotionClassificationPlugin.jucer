@@ -7,6 +7,16 @@
               headerPath="../../libs/essentia/src/&#10;/usr/include/eigen3&#10;../../libs/deep-classf-runtime-wrappers/TFLiteWrapper/2.11.0/src"
               pluginFormats="buildStandalone,buildVST">
   <MAINGROUP id="iymw5S" name="EmotionClassificationPlugin">
+    <GROUP id="{59040512-CC40-C00D-A6ED-219897A95336}" name="Models">
+      <FILE id="FcLhGR" name="acoustic_guitar.tflite" compile="0" resource="1"
+            file="models/acoustic_guitar.tflite"/>
+      <FILE id="WauUns" name="electric_guitar.tflite" compile="0" resource="1"
+            file="models/electric_guitar.tflite"/>
+      <FILE id="mhx3z5" name="piano.tflite" compile="0" resource="1" file="models/piano.tflite"/>
+    </GROUP>
+    <GROUP id="{DCA8ABF0-4513-AC77-8E50-591E53E5FFED}" name="BinaryData">
+      <FILE id="EGCM0j" name="README.md" compile="0" resource="1" file="../README.md"/>
+    </GROUP>
     <GROUP id="{A9D83DBC-C6AB-9F1C-301B-AFC220A29BB5}" name="Source">
       <FILE id="VkZQYl" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
