@@ -49,8 +49,8 @@ void MusicnnFeatureExtractor::extractFromFile(const std::string &audioFilename, 
     // Now we connect the algorithms and output to a std::vector<std::vector<essentia::Real>>
     // ---
     audio->output("audio") >> fc->input("signal");
-    std::vector<essentia::Real> test; //TODO: remove
-    audio->output("audio") >> test; //TODO: remove
+    // std::vector<essentia::Real> test; //TODO: remove
+    // audio->output("audio") >> test; //TODO: remove
     
     fc->output("frame") >> extractor->input("frame");
     extractor->output("bands") >> bandsVec;  // Send the extractor's output to a std::vector
@@ -59,11 +59,11 @@ void MusicnnFeatureExtractor::extractFromFile(const std::string &audioFilename, 
     n.run();
     n.clear();
 
-    std::cout << "\n\n--------------------------------------------------" << std::endl;
-    std::cout << "Test vector length: " << test.size() << std::endl;
-    std::cout << "Theoretical minutes:seconds.milliseconds = " << test.size() / 16000 / 60 << ":"
-              << (test.size() / 16000) % 60 << "." << (test.size() % 16000) / 16 << std::endl;
-    std::cout << "--------------------------------------------------\n\n\n" << std::endl;
+    // std::cout << "\n\n--------------------------------------------------" << std::endl;
+    // std::cout << "Test vector length: " << test.size() << std::endl;
+    // std::cout << "Theoretical minutes:seconds.milliseconds = " << test.size() / 16000 / 60 << ":"
+    //           << (test.size() / 16000) % 60 << "." << (test.size() % 16000) / 16 << std::endl;
+    // std::cout << "--------------------------------------------------\n\n\n" << std::endl;
 }
 
 }  // namespace emosmi

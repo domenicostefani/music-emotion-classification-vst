@@ -108,10 +108,7 @@ public:
         return energy(array) / array.size();
     }
 
-    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose = false) {
-        if (buffer.getNumChannels() > 1)
-            throw std::logic_error("RTisSilent::processBlock: buffer must be mono");
-
+    void processBlock(juce::AudioBuffer<float> &buffer, size_t channel = 0, bool _verbose = false) {
         // buffer.addFrom(0, 0, buffer, 1, 0, buffer.getNumSamples());
         if (buffer.getNumSamples() > hopSize) {
             // If there are more samples than a single hopsize we compute the isSilent flag for each hopsize
@@ -120,7 +117,7 @@ public:
             size_t numHops = buffer.getNumSamples() / hopSize;
             for (size_t i = 0; i < numHops; ++i) {
                 bool res;
-                storeBlockAndCompute(buffer.getReadPointer(0) + i * hopSize, hopSize, res, _verbose);
+                storeBlockAndCompute(buffer.getReadPointer(channel) + i * hopSize, hopSize, res, _verbose);
                 this->tmpRes[res] = res;
             }
             // Majority vote
@@ -129,7 +126,7 @@ public:
             this->isSilent = (numSilent > numNotSilent);
         } else {
             // If there are less samples than a single hopsize we store the whole block. The isSilent flag is eventually set by storeBlockAndCompute
-            storeBlockAndCompute(buffer.getReadPointer(0), buffer.getNumSamples(), this->isSilent, _verbose);
+            storeBlockAndCompute(buffer.getReadPointer(channel), buffer.getNumSamples(), this->isSilent, _verbose);
         }
     }
 
@@ -250,10 +247,7 @@ public:
     FilteredRTisSilent(size_t frameSize, size_t hopSize, float threshold_dB, size_t filterLength, float trueToFalseTransitionRatio, float alphaDecay = 0.1) : RTisSilent(frameSize, hopSize, threshold_dB), silenceFilter(filterLength, trueToFalseTransitionRatio, alphaDecay) {
     }
 
-    void processBlock(juce::AudioBuffer<float> &buffer, bool _verbose = false) {
-        if (buffer.getNumChannels() > 1)
-            throw std::logic_error("RTisSilent::processBlock: buffer must be mono");
-
+    void processBlock(juce::AudioBuffer<float> &buffer, size_t channel=0, bool _verbose = false) {
         // buffer.addFrom(0, 0, buffer, 1, 0, buffer.getNumSamples());
         if (buffer.getNumSamples() > hopSize) {
             // If there are more samples than a single hopsize we compute the isSilent flag for each hopsize
@@ -263,7 +257,7 @@ public:
             if (_verbose) std::cout << "Repeting Silence computation " << numHops << " times" << std::endl;
             for (size_t i = 0; i < numHops; ++i) {
                 bool res;
-                storeBlockAndCompute(buffer.getReadPointer(0) + i * hopSize, hopSize, res, _verbose);
+                storeBlockAndCompute(buffer.getReadPointer(channel) + i * hopSize, hopSize, res, _verbose);
                 if (_verbose) std::cout << "res[" << i << "] = " << res;
                 res = silenceFilter.filter(res);
                 if (_verbose) std::cout << " filtered = " << res << std::endl;
@@ -279,7 +273,7 @@ public:
 
             if (_verbose) std::cout << "Single silence computation for " << buffer.getNumSamples() << " samples" << std::endl;
             bool res;
-            if (storeBlockAndCompute(buffer.getReadPointer(0), buffer.getNumSamples(), res, _verbose)) {
+            if (storeBlockAndCompute(buffer.getReadPointer(channel), buffer.getNumSamples(), res, _verbose)) {
                 if (_verbose) std::cout << " -> Computed... res:" << res;
                 this->isSilent = silenceFilter.filter(res);
                 if (_verbose) std::cout << " filtered:" << this->isSilent << std::endl;

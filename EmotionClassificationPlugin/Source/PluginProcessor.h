@@ -16,6 +16,7 @@
 #include "Poller.h"
 #include "extractionpipeline.h"
 #include "tflitewrapper.h"
+#include "rtSafeLogger.h"
 
 #ifdef JUCE_ARM
     #define ELK_OS_ARM 1
@@ -114,12 +115,16 @@ public:
     void setSaveFolder(const File& saveFolder);
     juce::File& getSaveFolder();
 
-    static ClassifierPtr tfliteClassifier;  // Tensorflow interpreter
+    static InferenceEngine::InterpreterPtr tfliteClassifier;  // Tensorflow interpreter
 
     std::atomic<bool> recordingStopped{false}, labelsWritten{false};
 
     std::vector<std::tuple<float, float, std::string>> outputLabels;
     std::vector<size_t> outputLabelsInt;
+
+    const std::string ELECTRIC_GUITAR_MODELNAME =  "electric_model.tflite";
+    const std::string ACOUSTIC_GUITAR_MODELNAME =  "acoustic_model.tflite";
+    const std::string PIANO_MODELNAME =  "piano_model.tflite";
 
 private:
 #if (JUCE_ANDROID || JUCE_IOS)
@@ -164,6 +169,9 @@ public:
     emosmi::PerformanceStartStop performanceStartStop{16000.0, SD_FRAME_SIZE, SD_HOP_SIZE, SD_THRESHOLD, SD_FILTER_LENGTH, SD_TRUE_TO_FALSE_TRANSITION_RATIO, SD_ALPHA};
 
     bool loadModel(std::string modelPath, bool verbose = false);
+    bool loadModelFromBuffer(const char *buffer, size_t bufferSize, bool verbose = false);
+    bool loadModelFromBinaryData(const juce::String& modelName, bool verbose = false);
+
     std::string getModelPath();
 #ifdef ELK_OS_ARM
     std::atomic<bool> enableRec{true};
@@ -197,9 +205,16 @@ public:
 #endif
     }
 
-private:
     std::string modelPath = "";
 
+    void muteOutput(bool mute);
+    std::atomic<float> outgain {1.0f};
+
+
+    std::string compileDate,compileTime;
+
+    rtutils::RealTimeLogger rtlogger {"emotion-classification-offline-plugin","/tmp/",1};
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ECProcessor)
 };

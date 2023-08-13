@@ -1,0 +1,6 @@
+Ok it seems to me that I should:
+- group by track
+- compute mode for each emotion
+- label the track with the emotion/s with highest mode
+
+In this case what happens if I have two modes for the same emotion? eg -1 and -2?

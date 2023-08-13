@@ -1,0 +1,1507 @@
+#N canvas 1921 96 2558 1315 12;
+#X obj 350 111 loadbang;
+#X obj 236 239 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 305 239 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X floatatom 305 259 5 0 0 0 - - -;
+#X msg 257 133 playEmo 1;
+#X obj 220 210 route playEmo numToPlay;
+#X obj 220 656 bng 15 250 50 0 \$0-agg empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 245 635 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 271 614 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 297 592 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 323 570 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 349 551 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 375 531 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 401 510 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 427 493 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 453 470 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 479 450 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 505 431 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 531 412 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 557 391 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 48 24 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+;
+#X obj 69 40 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
+;
+#X obj 89 59 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+;
+#X obj 109 77 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 28 56 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#N canvas -8 -8 1920 997 4TCLtoBin 0;
+#X obj 143 57 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 143 81 t b f, f 10;
+#X msg 143 105 1000;
+#X obj 143 130 expr if ($f2 == 1 \, $f1 \, 0), f 10;
+#X floatatom 143 211 5 0 0 0 - - -;
+#X obj 223 82 t b f, f 10;
+#X obj 223 130 expr if ($f2 == 1 \, $f1 \, 0), f 10;
+#X floatatom 223 211 5 0 0 0 - - -;
+#X msg 223 106 100;
+#X obj 223 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 125 257 +;
+#X obj 60 57 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 307 82 t b f, f 10;
+#X obj 307 130 expr if ($f2 == 1 \, $f1 \, 0), f 10;
+#X floatatom 307 211 5 0 0 0 - - -;
+#X obj 307 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 390 82 t b f, f 10;
+#X obj 390 130 expr if ($f2 == 1 \, $f1 \, 0), f 10;
+#X floatatom 390 211 5 0 0 0 - - -;
+#X obj 390 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X msg 307 106 10;
+#X msg 390 106 1;
+#X obj 60 179 t b b b b b;
+#X msg 125 233 0;
+#X obj 125 281 +;
+#X obj 125 330 +;
+#X obj 125 384 +;
+#X floatatom 125 408 5 0 0 0 - - -;
+#X obj 125 431 outlet;
+#X obj 60 21 inlet;
+#X obj 143 23 inlet;
+#X obj 223 23 inlet;
+#X obj 306 22 inlet;
+#X obj 390 18 inlet;
+#X connect 0 0 1 0;
+#X connect 1 0 2 0;
+#X connect 1 1 3 1;
+#X connect 2 0 3 0;
+#X connect 3 0 4 0;
+#X connect 4 0 10 1;
+#X connect 5 0 8 0;
+#X connect 5 1 6 1;
+#X connect 6 0 7 0;
+#X connect 7 0 24 1;
+#X connect 8 0 6 0;
+#X connect 9 0 5 0;
+#X connect 10 0 24 0;
+#X connect 11 0 22 0;
+#X connect 12 0 20 0;
+#X connect 12 1 13 1;
+#X connect 13 0 14 0;
+#X connect 14 0 25 1;
+#X connect 15 0 12 0;
+#X connect 16 0 21 0;
+#X connect 16 1 17 1;
+#X connect 17 0 18 0;
+#X connect 18 0 26 1;
+#X connect 19 0 16 0;
+#X connect 20 0 13 0;
+#X connect 21 0 17 0;
+#X connect 22 0 23 0;
+#X connect 22 1 4 0;
+#X connect 22 2 7 0;
+#X connect 22 3 14 0;
+#X connect 22 4 18 0;
+#X connect 23 0 10 0;
+#X connect 24 0 25 0;
+#X connect 25 0 26 0;
+#X connect 26 0 27 0;
+#X connect 27 0 28 0;
+#X connect 29 0 11 0;
+#X connect 30 0 0 0;
+#X connect 31 0 9 0;
+#X connect 32 0 15 0;
+#X connect 33 0 19 0;
+#X restore 28 99 pd 4TCLtoBin;
+#X msg 28 146 playEmo \$1;
+#X floatatom 28 123 5 0 0 0 - - -;
+#X obj 28 170 print;
+#X text 69 20 Aggressive;
+#X text 87 36 relaxed;
+#X text 111 56 happy;
+#X text 129 75 sad;
+#X text 240 654 Agg;
+#X text 264 634 Rel;
+#X text 290 612 Happy;
+#X text 316 591 Sad;
+#X text 342 569 Agg/Rel;
+#X text 370 549 Agg/Happy;
+#X text 397 530 Agg/Sad;
+#X text 425 510 Rel/Happy;
+#X text 451 491 Rel/Sad;
+#X text 475 470 Happy/Sad;
+#X text 500 451 Agg/Rel/Happy;
+#X text 525 432 Agg/Rel/Sad;
+#X text 581 390 Rel/Happy/Sad;
+#X text 552 411 Agg/Hap/Sad;
+#X obj 305 282 s \$0-numToPlay;
+#X msg 350 144 numToPlay 2;
+#X obj 384 990 cnv 15 120 70 empty empty empty 20 12 0 14 -261234 -66577
+0;
+#X msg 392 997 stop;
+#X obj 392 1022 s \$0-stopplay;
+#X obj 124 2793 dac~;
+#X obj 124 2748 catch~ MonoOut;
+#X text 138 2214 Dac Below;
+#X obj 391 940 loadbang;
+#X obj 391 965 delay 10;
+#X obj 98 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682 -66577
+0;
+#X text 103 1096 Aggr;
+#X obj 98 1121 sel 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+;
+#X msg 98 1151 norm_249_aggressive_i2_classical-guitar_CesSam_fingers_20200720.wav
+, f 75;
+#X msg 98 1181 norm_332_aggressive_i1_classical-guitar_AntDel_pick_20200831.wav
+, f 75;
+#X msg 98 1211 norm_237_aggressive_i2_classical-guitar_FedCer_fingers_20200714.wav
+, f 75;
+#X msg 98 1241 norm_87_aggressive_i3_steelstring-guitar_TomCan_pick_20200707.wav
+, f 75;
+#X msg 98 1271 norm_160_aggressive_i1_steelstring-guitar_MasChi_pick_20200729.wav
+, f 75;
+#X msg 98 1301 norm_162_aggressive_i3_steelstring-guitar_MasChi_pick_20200729.wav
+, f 75;
+#X msg 98 1331 norm_163_aggressive_i4_steelstring-guitar_MasChi_pick_20200729.wav
+, f 75;
+#X msg 98 1361 norm_85_aggressive_i1_steelstring-guitar_TomCan_pick_20200707.wav
+, f 75;
+#X msg 98 1391 norm_236_aggressive_i1_classical-guitar_FedCer_fingers_20200714.wav
+, f 75;
+#X msg 98 1421 norm_73_aggressive_i1_classical-guitar_MatRig_fingers_20200618.wav
+, f 75;
+#X msg 98 1451 norm_176_aggressive_i1_steelstring-guitar_FilMel_pick_20200729.wav
+, f 75;
+#X msg 98 1481 norm_178_aggressive_i3_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 98 1511 norm_322_aggressive_i3_steelstring-guitar_NicCon_pick_20200804.wav
+, f 75;
+#X msg 98 1541 norm_74_aggressive_i2_classical-guitar_MatRig_fingers_20200618.wav
+, f 75;
+#X msg 98 1571 norm_214_aggressive_i3_classical-guitar_SalOli_pick_20200714.wav
+, f 75;
+#X msg 98 1601 norm_190_aggressive_i3_classical-guitar_GioAcq_fingers_20200706.wav
+, f 75;
+#X msg 98 1631 norm_321_aggressive_i2_steelstring-guitar_NicCon_pick_20200804.wav
+, f 75;
+#X msg 98 1661 norm_50_aggressive_i2_steelstring-guitar_ValFui_pick_20200627.wav
+, f 75;
+#X msg 98 1691 norm_213_aggressive_i2_classical-guitar_SalOli_pick_20200714.wav
+, f 75;
+#X msg 98 1721 norm_308_aggressive_i1_steelstring-guitar_GioDic_fingers_20200821.wav
+, f 75;
+#X obj 98 1751 list;
+#X msg 98 1781 ./database/\$1;
+#X obj 98 1811 list;
+#X msg 98 1841 play \$1;
+#X obj 138 1871 r \$0-stopplay;
+#X obj 178 1901 r \$0-numToPlay;
+#X msg 178 1931 numToPlay \$1;
+#X obj 98 1961 playMultipTracks;
+#X obj 98 1991 throw~ MonoOut;
+#X obj 207 1991 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 207 2021 s \$0-Aggr;
+#X obj 648 1001 r \$0-AggrRel;
+#X obj 799 1001 loadbang;
+#X obj 648 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 799 1031 4;
+#X obj 648 1061 cycleCounter, f 22;
+#X obj 648 1091 vradio 15 1 0 4 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 678 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 683 1096 Aggr/Rel;
+#X obj 678 1121 sel 0 1 2 3;
+#X msg 678 1151 norm_103_relaxed_i1_steelstring-guitar_TizCam_pick_20200715.wav
+, f 75;
+#X msg 678 1181 norm_77_happy_i2_classical-guitar_MatRig_fingers_20200618.wav
+, f 75;
+#X msg 678 1211 norm_186_sad_i2_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 678 1241 norm_323_happy_i1_steelstring-guitar_NicCon_pick_20200804.wav
+, f 75;
+#X obj 678 1271 list;
+#X msg 678 1301 ./database/\$1;
+#X obj 678 1331 list;
+#X msg 678 1361 play \$1;
+#X obj 718 1391 r \$0-stopplay;
+#X obj 758 1421 r \$0-numToPlay;
+#X msg 758 1451 numToPlay \$1;
+#X obj 678 1481 playMultipTracks;
+#X obj 678 1511 throw~ MonoOut;
+#X obj 787 1511 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 787 1541 s \$0-AggrRel;
+#X obj 1228 1001 r \$0-AggrRelHap;
+#X obj 1379 1001 loadbang;
+#X obj 1228 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 1379 1031 4;
+#X obj 1228 1061 cycleCounter, f 22;
+#X obj 1228 1091 vradio 15 1 0 4 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 1258 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 1263 1096 Aggr/Rel/Hap;
+#X obj 1258 1121 sel 0 1 2 3;
+#X msg 1258 1151 norm_181_happy_i3_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 1258 1181 norm_77_happy_i2_classical-guitar_MatRig_fingers_20200618.wav
+, f 75;
+#X msg 1258 1211 norm_179_happy_i1_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 1258 1241 norm_323_happy_i1_steelstring-guitar_NicCon_pick_20200804.wav
+, f 75;
+#X obj 1258 1271 list;
+#X msg 1258 1301 ./database/\$1;
+#X obj 1258 1331 list;
+#X msg 1258 1361 play \$1;
+#X obj 1298 1391 r \$0-stopplay;
+#X obj 1338 1421 r \$0-numToPlay;
+#X msg 1338 1451 numToPlay \$1;
+#X obj 1258 1481 playMultipTracks;
+#X obj 1258 1511 throw~ MonoOut;
+#X obj 1367 1511 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 1367 1541 s \$0-AggrRelHap;
+#X obj 1808 1001 r \$0-AggrRelHapSad;
+#X obj 1959 1001 loadbang;
+#X obj 1808 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 1959 1031 5;
+#X obj 1808 1061 cycleCounter, f 22;
+#X obj 1808 1091 vradio 15 1 0 5 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 1838 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 1843 1096 Aggr/Rel/Hap/Sad;
+#X obj 1838 1121 sel 0 1 2 3 4;
+#X msg 1838 1151 norm_187_sad_i3_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 1838 1181 norm_56_relaxed_i2_steelstring-guitar_ValFui_fingers_20200627.wav
+, f 75;
+#X msg 1838 1211 norm_348_happy_i2_classical-guitar_NicLat_pick_20200730.wav
+, f 75;
+#X msg 1838 1241 norm_358_aggressive_i3_steelstring-guitar_LucFra_fingers_20200914.wav
+, f 75;
+#X msg 1838 1271 norm_292_relaxed_i3_steelstring-guitar_FraBen_pick_20200801.wav
+, f 75;
+#X obj 1838 1301 list;
+#X msg 1838 1331 ./database/\$1;
+#X obj 1838 1361 list;
+#X msg 1838 1391 play \$1;
+#X obj 1878 1421 r \$0-stopplay;
+#X obj 1918 1451 r \$0-numToPlay;
+#X msg 1918 1481 numToPlay \$1;
+#X obj 1838 1511 playMultipTracks;
+#X obj 1838 1541 throw~ MonoOut;
+#X obj 1947 1541 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 1947 1571 s \$0-AggrRelHapSad;
+#X obj 2388 1001 r \$0-AggrRelSad;
+#X obj 2539 1001 loadbang;
+#X obj 2388 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 2539 1031 4;
+#X obj 2388 1061 cycleCounter, f 22;
+#X obj 2388 1091 vradio 15 1 0 4 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 2418 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 2423 1096 Aggr/Rel/Sad;
+#X obj 2418 1121 sel 0 1 2 3;
+#X msg 2418 1151 norm_278_relaxed_i1_steelstring-guitar_DavRos_pick_20200901.wav
+, f 75;
+#X msg 2418 1181 norm_198_sad_i2_classical-guitar_GioAcq_fingers_20200706.wav
+, f 75;
+#X msg 2418 1211 norm_186_sad_i2_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 2418 1241 norm_56_relaxed_i2_steelstring-guitar_ValFui_fingers_20200627.wav
+, f 75;
+#X obj 2418 1271 list;
+#X msg 2418 1301 ./database/\$1;
+#X obj 2418 1331 list;
+#X msg 2418 1361 play \$1;
+#X obj 2458 1391 r \$0-stopplay;
+#X obj 2498 1421 r \$0-numToPlay;
+#X msg 2498 1451 numToPlay \$1;
+#X obj 2418 1481 playMultipTracks;
+#X obj 2418 1511 throw~ MonoOut;
+#X obj 2527 1511 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 2527 1541 s \$0-AggrRelSad;
+#X obj 2968 1001 r \$0-AggrHap;
+#X obj 3119 1001 loadbang;
+#X obj 2968 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 3119 1031 6;
+#X obj 2968 1061 cycleCounter, f 22;
+#X obj 2968 1091 vradio 15 1 0 6 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 2998 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 3003 1096 Aggr/Hap;
+#X obj 2998 1121 sel 0 1 2 3 4 5;
+#X msg 2998 1151 norm_27_aggressive_i3_classical-guitar_DavBen_pick_20200526.wav
+, f 75;
+#X msg 2998 1181 norm_109_aggressive_i1_steelstring-guitar_SteRom_fingers_20200715.wav
+, f 75;
+#X msg 2998 1211 norm_215_happy_i1_classical-guitar_SalOli_pick_20200714.wav
+, f 75;
+#X msg 2998 1241 norm_274_aggressive_i3_steelstring-guitar_DavRos_pick_20200901.wav
+, f 75;
+#X msg 2998 1271 norm_28_happy_i1_classical-guitar_DavBen_pick_20200526.wav
+, f 75;
+#X msg 2998 1301 norm_149_happy_i1_steelstring-guitar_AleMar_pick_20200724.wav
+, f 75;
+#X obj 2998 1331 list;
+#X msg 2998 1361 ./database/\$1;
+#X obj 2998 1391 list;
+#X msg 2998 1421 play \$1;
+#X obj 3038 1451 r \$0-stopplay;
+#X obj 3078 1481 r \$0-numToPlay;
+#X msg 3078 1511 numToPlay \$1;
+#X obj 2998 1541 playMultipTracks;
+#X obj 2998 1571 throw~ MonoOut;
+#X obj 3107 1571 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 3107 1601 s \$0-AggrHap;
+#X obj 3548 1001 r \$0-AggrHapSad;
+#X obj 3699 1001 loadbang;
+#X obj 3548 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 3699 1031 4;
+#X obj 3548 1061 cycleCounter, f 22;
+#X obj 3548 1091 vradio 15 1 0 4 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 3578 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 3583 1096 Aggr/Hap/Sad;
+#X obj 3578 1121 sel 0 1 2 3;
+#X msg 3578 1151 norm_370_aggressive_i3_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 3578 1181 norm_348_happy_i2_classical-guitar_NicLat_pick_20200730.wav
+, f 75;
+#X msg 3578 1211 norm_109_aggressive_i1_steelstring-guitar_SteRom_fingers_20200715.wav
+, f 75;
+#X msg 3578 1241 norm_274_aggressive_i3_steelstring-guitar_DavRos_pick_20200901.wav
+, f 75;
+#X obj 3578 1271 list;
+#X msg 3578 1301 ./database/\$1;
+#X obj 3578 1331 list;
+#X msg 3578 1361 play \$1;
+#X obj 3618 1391 r \$0-stopplay;
+#X obj 3658 1421 r \$0-numToPlay;
+#X msg 3658 1451 numToPlay \$1;
+#X obj 3578 1481 playMultipTracks;
+#X obj 3578 1511 throw~ MonoOut;
+#X obj 3687 1511 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 3687 1541 s \$0-AggrHapSad;
+#X obj 4128 1001 r \$0-AggrSad;
+#X obj 4279 1001 loadbang;
+#X obj 4128 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 4279 1031 11;
+#X obj 4128 1061 cycleCounter, f 22;
+#X obj 4128 1091 vradio 15 1 0 11 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 4158 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 4163 1096 Aggr/Sad;
+#X obj 4158 1121 sel 0 1 2 3 4 5 6 7 8 9 10;
+#X msg 4158 1151 norm_331_sad_i3_steelstring-guitar_NicCon_pick_20200804.wav
+, f 75;
+#X msg 4158 1181 norm_59_sad_i2_steelstring-guitar_ValFui_fingers_20200627.wav
+, f 75;
+#X msg 4158 1211 norm_393_aggressive_i2_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 4158 1241 norm_353_sad_i1_classical-guitar_NicLat_pick_20200730.wav
+, f 75;
+#X msg 4158 1271 norm_358_aggressive_i3_steelstring-guitar_LucFra_fingers_20200914.wav
+, f 75;
+#X msg 4158 1301 norm_173_sad_i2_steelstring-guitar_MasChi_pick_20200729.wav
+, f 75;
+#X msg 4158 1331 norm_212_aggressive_i1_classical-guitar_SalOli_fingers_20200714.wav
+, f 75;
+#X msg 4158 1361 norm_107_sad_i2_steelstring-guitar_TizCam_pick_20200715.wav
+, f 75;
+#X msg 4158 1391 norm_158_sad_i3_steelstring-guitar_AleMar_pick_20200724.wav
+, f 75;
+#X msg 4158 1421 norm_95_sad_i2_steelstring-guitar_TomCan_pick_20200707.wav
+, f 75;
+#X msg 4158 1451 norm_188_aggressive_i1_classical-guitar_GioAcq_fingers_20200706.wav
+, f 75;
+#X obj 4158 1481 list;
+#X msg 4158 1511 ./database/\$1;
+#X obj 4158 1541 list;
+#X msg 4158 1571 play \$1;
+#X obj 4198 1601 r \$0-stopplay;
+#X obj 4238 1631 r \$0-numToPlay;
+#X msg 4238 1661 numToPlay \$1;
+#X obj 4158 1691 playMultipTracks;
+#X obj 4158 1721 throw~ MonoOut;
+#X obj 4267 1721 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 4267 1751 s \$0-AggrSad;
+#X obj 4708 1001 r \$0-Rel;
+#X obj 4859 1001 loadbang;
+#X obj 4708 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 4859 1031 20;
+#X obj 4708 1061 cycleCounter, f 22;
+#X obj 4708 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
+-1 -1 2;
+#X obj 4738 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 4743 1096 Rel;
+#X obj 4738 1121 sel 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+19;
+#X msg 4738 1151 norm_399_relaxed_i2_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 4738 1181 norm_302_relaxed_i1_steelstring-guitar_GiaFer_fingers_20200803.wav
+, f 75;
+#X msg 4738 1211 norm_45_relaxed_i3_steelstring-guitar_OweWin_pick_20200629.wav
+, f 75;
+#X msg 4738 1241 norm_290_relaxed_i1_steelstring-guitar_FraBen_pick_20200801.wav
+, f 75;
+#X msg 4738 1271 norm_292_relaxed_i3_steelstring-guitar_FraBen_pick_20200801.wav
+, f 75;
+#X msg 4738 1301 norm_315_relaxed_i2_steelstring-guitar_GioDic_fingers_20200821.wav
+, f 75;
+#X msg 4738 1331 norm_339_relaxed_i2_classical-guitar_AntDel_fingers_20200831.wav
+, f 75;
+#X msg 4738 1361 norm_43_relaxed_i1_steelstring-guitar_OweWin_pick_20200629.wav
+, f 75;
+#X msg 4738 1391 norm_55_relaxed_i1_steelstring-guitar_ValFui_pick_20200627.wav
+, f 75;
+#X msg 4738 1421 norm_9_relaxed_i3_steelstring-guitar_LucTur_pick_20200625.wav
+, f 75;
+#X msg 4738 1451 norm_153_relaxed_i2_steelstring-guitar_AleMar_pick_20200724.wav
+, f 75;
+#X msg 4738 1481 norm_155_relaxed_i4_steelstring-guitar_AleMar_pick_20200724.wav
+, f 75;
+#X msg 4738 1511 norm_91_relaxed_i1_steelstring-guitar_TomCan_pick_20200707.wav.wav
+, f 75;
+#X msg 4738 1541 norm_183_relaxed_i2_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 4738 1571 norm_184_relaxed_i3_steelstring-guitar_FilMel_fingers_20200729.wav
+, f 75;
+#X msg 4738 1601 norm_129_relaxed_i3_steelstring-guitar_SimArm_fingers_and_harmonics_20200711.wav
+, f 75;
+#X msg 4738 1631 norm_208_relaxed_i3_classical-guitar_TizBol_fingers_20200630.wav
+, f 75;
+#X msg 4738 1661 norm_20_relaxed_i2_steelstring-guitar_DavBen_pick_20200623.wav
+, f 75;
+#X msg 4738 1691 norm_219_relaxed_i2_classical-guitar_SalOli_fingers_20200714.wav
+, f 75;
+#X msg 4738 1721 norm_243_relaxed_i2_classical-guitar_FedCer_fingers_20200714.wav
+, f 75;
+#X obj 4738 1751 list;
+#X msg 4738 1781 ./database/\$1;
+#X obj 4738 1811 list;
+#X msg 4738 1841 play \$1;
+#X obj 4778 1871 r \$0-stopplay;
+#X obj 4818 1901 r \$0-numToPlay;
+#X msg 4818 1931 numToPlay \$1;
+#X obj 4738 1961 playMultipTracks;
+#X obj 4738 1991 throw~ MonoOut;
+#X obj 4847 1991 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 4847 2021 s \$0-Rel;
+#X obj 5288 1001 r \$0-RelHap;
+#X obj 5439 1001 loadbang;
+#X obj 5288 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 5439 1031 16;
+#X obj 5288 1061 cycleCounter, f 22;
+#X obj 5288 1091 vradio 15 1 0 16 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 5318 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 5323 1096 Rel/Hap;
+#X obj 5318 1121 sel 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15;
+#X msg 5318 1151 norm_337_happy_i3_classical-guitar_AntDel_fingers_20200831.wav
+, f 75;
+#X msg 5318 1181 norm_277_happy_i3_steelstring-guitar_DavRos_pick_20200901.wav
+, f 75;
+#X msg 5318 1211 norm_16_happy_i1_steelstring-guitar_DavBen_fingers_20200623.wav
+, f 75;
+#X msg 5318 1241 norm_112_happy_i1_steelstring-guitar_SteRom_fingers_20200715.wav
+, f 75;
+#X msg 5318 1271 norm_265_happy_i3_steelstring-guitar_AntPao_pick_20200801.wav
+, f 75;
+#X msg 5318 1301 norm_42_happy_i3_steelstring-guitar_OweWin_fingers_20200629.wav
+, f 75;
+#X msg 5318 1331 norm_396_happy_i2_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 5318 1361 norm_105_relaxed_i3_steelstring-guitar_TizCam_pick_20200715.wav
+, f 75;
+#X msg 5318 1391 norm_312_happy_i2_steelstring-guitar_GioDic_fingers_20200821.wav
+, f 75;
+#X msg 5318 1421 norm_359_happy_i1_steelstring-guitar_LucFra_fingers_20200914.wav
+, f 75;
+#X msg 5318 1451 norm_395_happy_i1_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 5318 1481 norm_397_happy_i3_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 5318 1511 norm_21_relaxed_i3_steelstring-guitar_DavBen_fingers_20200623.wav
+, f 75;
+#X msg 5318 1541 norm_239_happy_i1_classical-guitar_FedCer_fingers_20200714.wav
+, f 75;
+#X msg 5318 1571 norm_93_relaxed_i3_steelstring-guitar_TomCan_pick_20200707.wav
+, f 75;
+#X msg 5318 1601 norm_398_relaxed_i1_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X obj 5318 1631 list;
+#X msg 5318 1661 ./database/\$1;
+#X obj 5318 1691 list;
+#X msg 5318 1721 play \$1;
+#X obj 5358 1751 r \$0-stopplay;
+#X obj 5398 1781 r \$0-numToPlay;
+#X msg 5398 1811 numToPlay \$1;
+#X obj 5318 1841 playMultipTracks;
+#X obj 5318 1871 throw~ MonoOut;
+#X obj 5427 1871 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 5427 1901 s \$0-RelHap;
+#X obj 5868 1001 r \$0-RelHapSad;
+#X obj 6019 1001 loadbang;
+#X obj 5868 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 6019 1031 7;
+#X obj 5868 1061 cycleCounter, f 22;
+#X obj 5868 1091 vradio 15 1 0 7 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 5898 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 5903 1096 Rel/Hap/Sad;
+#X obj 5898 1121 sel 0 1 2 3 4 5 6;
+#X msg 5898 1151 norm_376_relaxed_i3_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 5898 1181 norm_364_relaxed_i3_steelstring-guitar_LucFra_fingers_20200914.wav
+, f 75;
+#X msg 5898 1211 norm_117_relaxed_i3_steelstring-guitar_SteRom_fingers_20200715.wav
+, f 75;
+#X msg 5898 1241 norm_19_relaxed_i1_steelstring-guitar_DavBen_pick_20200623.wav
+, f 75;
+#X msg 5898 1271 norm_206_relaxed_i1_classical-guitar_TizBol_fingers_20200630.wav
+, f 75;
+#X msg 5898 1301 norm_255_relaxed_i2_classical-guitar_CesSam_fingers_20200720.wav
+, f 75;
+#X msg 5898 1331 norm_67_relaxed_i1_steelstring-guitar_AdoLaV_pick_20200619.wav
+, f 75;
+#X obj 5898 1361 list;
+#X msg 5898 1391 ./database/\$1;
+#X obj 5898 1421 list;
+#X msg 5898 1451 play \$1;
+#X obj 5938 1481 r \$0-stopplay;
+#X obj 5978 1511 r \$0-numToPlay;
+#X msg 5978 1541 numToPlay \$1;
+#X obj 5898 1571 playMultipTracks;
+#X obj 5898 1601 throw~ MonoOut;
+#X obj 6007 1601 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 6007 1631 s \$0-RelHapSad;
+#X obj 6448 1001 r \$0-RelSad;
+#X obj 6599 1001 loadbang;
+#X obj 6448 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 6599 1031 20;
+#X obj 6448 1061 cycleCounter, f 22;
+#X obj 6448 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
+-1 -1 2;
+#X obj 6478 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 6483 1096 Rel/Sad;
+#X obj 6478 1121 sel 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+19;
+#X msg 6478 1151 norm_378_sad_i2_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 6478 1181 norm_10_sad_i1_steelstring-guitar_LucTur_pick_20200625.wav
+, f 75;
+#X msg 6478 1211 norm_390_sad_i2_steelstring-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 6478 1241 norm_377_sad_i1_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 6478 1271 norm_47_sad_i2_steelstring-guitar_OweWin_pick_20200629.wav
+, f 75;
+#X msg 6478 1301 norm_268_relaxed_i3_steelstring-guitar_AntPao_pick_20200801.wav
+, f 75;
+#X msg 6478 1331 norm_8_relaxed_i2_steelstring-guitar_LucTur_pick_20200625.wav
+, f 75;
+#X msg 6478 1361 norm_281_sad_i1_steelstring-guitar_DavRos_pick_20200901.wav
+, f 75;
+#X msg 6478 1391 norm_70_sad_i1_steelstring-guitar_AdoLaV_pick_20200619.wav
+, f 75;
+#X msg 6478 1421 norm_71_sad_i2_steelstring-guitar_AdoLaV_pick_20200619.wav
+, f 75;
+#X msg 6478 1451 norm_72_sad_i3_steelstring-guitar_AdoLaV_pick_20200619.wav
+, f 75;
+#X msg 6478 1481 norm_304_relaxed_i3_steelstring-guitar_GiaFer_fingers_20200803.wav
+, f 75;
+#X msg 6478 1511 norm_80_relaxed_i2_classical-guitar_MatRig_fingers_20200618.wav
+, f 75;
+#X msg 6478 1541 norm_11_sad_i2_steelstring-guitar_LucTur_pick_20200625.wav
+, f 75;
+#X msg 6478 1571 norm_82_sad_i1_classical-guitar_MatRig_fingers_20200618.wav
+, f 75;
+#X msg 6478 1601 norm_84_sad_i3_classical-guitar_MatRig_fingers_20200618.wav
+, f 75;
+#X msg 6478 1631 norm_329_sad_i1_steelstring-guitar_NicCon_fingers_20200804.wav
+, f 75;
+#X msg 6478 1661 norm_330_sad_i1_steelstring-guitar_NicCon_fingers_20200804.wav
+, f 75;
+#X msg 6478 1691 norm_143_sad_i2_steelstring-guitar_SamLor_pick_20200715.wav
+, f 75;
+#X msg 6478 1721 norm_401_sad_i1_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X obj 6478 1751 list;
+#X msg 6478 1781 ./database/\$1;
+#X obj 6478 1811 list;
+#X msg 6478 1841 play \$1;
+#X obj 6518 1871 r \$0-stopplay;
+#X obj 6558 1901 r \$0-numToPlay;
+#X msg 6558 1931 numToPlay \$1;
+#X obj 6478 1961 playMultipTracks;
+#X obj 6478 1991 throw~ MonoOut;
+#X obj 6587 1991 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 6587 2021 s \$0-RelSad;
+#X obj 7028 1001 r \$0-Hap;
+#X obj 7179 1001 loadbang;
+#X obj 7028 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 7179 1031 20;
+#X obj 7028 1061 cycleCounter, f 22;
+#X obj 7028 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
+-1 -1 2;
+#X obj 7058 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 7063 1096 Hap;
+#X obj 7058 1121 sel 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+19;
+#X msg 7058 1151 norm_4_happy_i1_steelstring-guitar_LucTur_pick_20200625.wav
+, f 75;
+#X msg 7058 1181 norm_88_happy_i1_steelstring-guitar_TomCan_pick_palm_mute_20200707.wav
+, f 75;
+#X msg 7058 1211 norm_40_happy_i1_steelstring-guitar_OweWin_pick_20200629.wav
+, f 75;
+#X msg 7058 1241 norm_101_happy_i2_steelstring-guitar_TizCam_pick_20200715.wav
+, f 75;
+#X msg 7058 1271 norm_289_happy_i3_steelstring-guitar_FraBen_fingers_20200801.wav
+, f 75;
+#X msg 7058 1301 norm_216_happy_i2_classical-guitar_SalOli_fingers_20200714.wav
+, f 75;
+#X msg 7058 1331 norm_217_happy_i3_classical-guitar_SalOli_pick_20200714.wav
+, f 75;
+#X msg 7058 1361 norm_191_happy_i1_classical-guitar_GioAcq_fingers_20200706.wav
+, f 75;
+#X msg 7058 1391 norm_165_happy_i2_steelstring-guitar_MasChi_pick_20200729.wav
+, f 75;
+#X msg 7058 1421 norm_137_happy_i2_steelstring-guitar_SamLor_pick_20200715.wav
+, f 75;
+#X msg 7058 1451 norm_264_happy_i2_steelstring-guitar_AntPao_pick_20200801.wav
+, f 75;
+#X msg 7058 1481 norm_193_happy_i3_classical-guitar_GioAcq_fingers_20200706.wav
+, f 75;
+#X msg 7058 1511 norm_300_happy_i2_steelstring-guitar_GiaFer_pick_20200803.wav
+, f 75;
+#X msg 7058 1541 norm_29_happy_i2_classical-guitar_DavBen_fingers_20200526.wav
+, f 75;
+#X msg 7058 1571 norm_313_happy_i3_steelstring-guitar_GioDic_fingers_20200821.wav
+, f 75;
+#X msg 7058 1601 norm_372_happy_i2_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 7058 1631 norm_373_happy_i3_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 7058 1661 norm_383_happy_i1_steelstring-guitar_AngLoi_pick_20200917.wav
+, f 75;
+#X msg 7058 1691 norm_384_happy_i2_steelstring-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 7058 1721 norm_124_happy_i1_steelstring-guitar_SimArm_fingers_20200711.wav
+, f 75;
+#X obj 7058 1751 list;
+#X msg 7058 1781 ./database/\$1;
+#X obj 7058 1811 list;
+#X msg 7058 1841 play \$1;
+#X obj 7098 1871 r \$0-stopplay;
+#X obj 7138 1901 r \$0-numToPlay;
+#X msg 7138 1931 numToPlay \$1;
+#X obj 7058 1961 playMultipTracks;
+#X obj 7058 1991 throw~ MonoOut;
+#X obj 7167 1991 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 7167 2021 s \$0-Hap;
+#X obj 7608 1001 r \$0-HapSad;
+#X obj 7759 1001 loadbang;
+#X obj 7608 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 7759 1031 5;
+#X obj 7608 1061 cycleCounter, f 22;
+#X obj 7608 1091 vradio 15 1 0 5 empty empty empty 0 -8 0 10 -262144
+-1 -1 2;
+#X obj 7638 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 7643 1096 Hap/Sad;
+#X obj 7638 1121 sel 0 1 2 3 4;
+#X msg 7638 1151 norm_126_happy_i3_steelstring-guitar_SimArm_fingers_20200711.wav
+, f 75;
+#X msg 7638 1181 norm_373_happy_i3_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 7638 1211 norm_403_sad_i3_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 7638 1241 norm_203_happy_i1_classical-guitar_TizBol_fingers_20200630.wav
+, f 75;
+#X msg 7638 1271 norm_222_sad_i2_classical-guitar_SalOli_fingers_20200714.wav
+, f 75;
+#X obj 7638 1301 list;
+#X msg 7638 1331 ./database/\$1;
+#X obj 7638 1361 list;
+#X msg 7638 1391 play \$1;
+#X obj 7678 1421 r \$0-stopplay;
+#X obj 7718 1451 r \$0-numToPlay;
+#X msg 7718 1481 numToPlay \$1;
+#X obj 7638 1511 playMultipTracks;
+#X obj 7638 1541 throw~ MonoOut;
+#X obj 7747 1541 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 7747 1571 s \$0-HapSad;
+#X obj 8188 1001 r \$0-Sad;
+#X obj 8339 1001 loadbang;
+#X obj 8188 1031 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 8339 1031 20;
+#X obj 8188 1061 cycleCounter, f 22;
+#X obj 8188 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
+-1 -1 2;
+#X obj 8218 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
+-66577 0;
+#X text 8223 1096 Sad;
+#X obj 8218 1121 sel 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+19;
+#X msg 8218 1151 norm_94_sad_i1_steelstring-guitar_TomCan_pick_20200707.wav
+, f 75;
+#X msg 8218 1181 norm_108_sad_i3_steelstring-guitar_TizCam_pick_20200715.wav
+, f 75;
+#X msg 8218 1211 norm_12_sad_i3_steelstring-guitar_LucTur_pick_20200625.wav
+, f 75;
+#X msg 8218 1241 norm_130_sad_i1_steelstring-guitar_SimArm_fingers_20200711.wav
+, f 75;
+#X msg 8218 1271 norm_159_sad_i4_steelstring-guitar_AleMar_pick_20200724.wav
+, f 75;
+#X msg 8218 1301 norm_106_sad_i1_steelstring-guitar_TizCam_pick_20200715.wav
+, f 75;
+#X msg 8218 1331 norm_403_sad_i3_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 8218 1361 norm_222_sad_i2_classical-guitar_SalOli_fingers_20200714.wav
+, f 75;
+#X msg 8218 1391 norm_402_sad_i2_classical-guitar_MarPia_fingers_20201001.wav
+, f 75;
+#X msg 8218 1421 norm_245_sad_i1_classical-guitar_FedCer_fingers_20200714.wav
+, f 75;
+#X msg 8218 1451 norm_257_sad_i1_classical-guitar_CesSam_fingers_20200720.wav
+, f 75;
+#X msg 8218 1481 norm_258_sad_i2_classical-guitar_CesSam_fingers_20200720.wav
+, f 75;
+#X msg 8218 1511 norm_259_sad_i3_classical-guitar_CesSam_fingers_20200720.wav
+, f 75;
+#X msg 8218 1541 norm_270_sad_i2_steelstring-guitar_AntPao_pick_20200801.wav
+, f 75;
+#X msg 8218 1571 norm_307_sad_i3_steelstring-guitar_GiaFer_pick_20200803.wav
+, f 75;
+#X msg 8218 1601 norm_319_sad_i3_steelstring-guitar_GioDic_fingers_20200821.wav
+, f 75;
+#X msg 8218 1631 norm_343_sad_i3_classical-guitar_AntDel_fingers_20200831.wav
+, f 75;
+#X msg 8218 1661 norm_379_sad_i3_classical-guitar_AngLoi_fingers_20200917.wav
+, f 75;
+#X msg 8218 1691 norm_209_sad_i1_classical-guitar_TizBol_fingers_20200630.wav
+, f 75;
+#X msg 8218 1721 norm_23_sad_i2_steelstring-guitar_DavBen_fingers_20200623.wav
+, f 75;
+#X obj 8218 1751 list;
+#X msg 8218 1781 ./database/\$1;
+#X obj 8218 1811 list;
+#X msg 8218 1841 play \$1;
+#X obj 8258 1871 r \$0-stopplay;
+#X obj 8298 1901 r \$0-numToPlay;
+#X msg 8298 1931 numToPlay \$1;
+#X obj 8218 1961 playMultipTracks;
+#X obj 8218 1991 throw~ MonoOut;
+#X obj 8327 1991 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 8327 2021 s \$0-Sad;
+#X obj 35 985 r \$0-Aggr;
+#X obj 186 985 loadbang;
+#X obj 35 1015 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 186 1015 20;
+#X obj 35 1045 cycleCounter, f 22;
+#X obj 35 1075 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
+-1 -1 0;
+#X obj 220 820 s \$0-Aggr;
+#X obj 323 722 s \$0-AggrRel;
+#X obj 479 577 s \$0-AggrRelHap;
+#X obj 427 625 s \$0-RelSad;
+#X obj 583 475 s \$0-AggrRelHapSad;
+#X obj 505 551 s \$0-AggrRelSad;
+#X obj 557 500 s \$0-RelHapSad;
+#X obj 349 698 s \$0-AggrHap;
+#X obj 297 745 s \$0-Sad;
+#X obj 245 796 s \$0-Rel;
+#X obj 401 650 s \$0-RelHap;
+#X obj 375 674 s \$0-AggrSad;
+#X obj 271 770 s \$0-Hap;
+#X obj 453 601 s \$0-HapSad;
+#X obj 531 526 s \$0-AggrHapSad;
+#X obj 220 315 sel 1000 100 10 1 1100 1010 1001 110 101 11 1110 1101
+1011 111 1111, f 56;
+#X obj 583 366 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X text 613 364 ALL;
+#X obj 191 21 cnv 15 120 70 empty empty empty 20 12 0 14 -261234 -66577
+0;
+#X msg 199 28 stop;
+#X obj 199 53 s \$0-stopplay;
+#X connect 0 0 48 0;
+#X connect 3 0 47 0;
+#X connect 4 0 5 0;
+#X connect 5 0 1 0;
+#X connect 5 0 538 0;
+#X connect 5 1 2 0;
+#X connect 5 1 3 0;
+#X connect 6 0 523 0;
+#X connect 7 0 532 0;
+#X connect 8 0 535 0;
+#X connect 9 0 531 0;
+#X connect 10 0 524 0;
+#X connect 11 0 530 0;
+#X connect 12 0 534 0;
+#X connect 13 0 533 0;
+#X connect 14 0 526 0;
+#X connect 15 0 536 0;
+#X connect 16 0 525 0;
+#X connect 17 0 528 0;
+#X connect 18 0 537 0;
+#X connect 19 0 529 0;
+#X connect 20 0 25 1;
+#X connect 21 0 25 2;
+#X connect 22 0 25 3;
+#X connect 23 0 25 4;
+#X connect 24 0 25 0;
+#X connect 25 0 27 0;
+#X connect 26 0 28 0;
+#X connect 26 0 5 0;
+#X connect 27 0 26 0;
+#X connect 48 0 5 0;
+#X connect 50 0 51 0;
+#X connect 53 0 52 0;
+#X connect 53 0 52 1;
+#X connect 55 0 56 0;
+#X connect 56 0 50 0;
+#X connect 59 0 60 0;
+#X connect 59 1 61 0;
+#X connect 59 2 62 0;
+#X connect 59 3 63 0;
+#X connect 59 4 64 0;
+#X connect 59 5 65 0;
+#X connect 59 6 66 0;
+#X connect 59 7 67 0;
+#X connect 59 8 68 0;
+#X connect 59 9 69 0;
+#X connect 59 10 70 0;
+#X connect 59 11 71 0;
+#X connect 59 12 72 0;
+#X connect 59 13 73 0;
+#X connect 59 14 74 0;
+#X connect 59 15 75 0;
+#X connect 59 16 76 0;
+#X connect 59 17 77 0;
+#X connect 59 18 78 0;
+#X connect 59 19 79 0;
+#X connect 60 0 80 0;
+#X connect 61 0 80 0;
+#X connect 62 0 80 0;
+#X connect 63 0 80 0;
+#X connect 64 0 80 0;
+#X connect 65 0 80 0;
+#X connect 66 0 80 0;
+#X connect 67 0 80 0;
+#X connect 68 0 80 0;
+#X connect 69 0 80 0;
+#X connect 70 0 80 0;
+#X connect 71 0 80 0;
+#X connect 72 0 80 0;
+#X connect 73 0 80 0;
+#X connect 74 0 80 0;
+#X connect 75 0 80 0;
+#X connect 76 0 80 0;
+#X connect 77 0 80 0;
+#X connect 78 0 80 0;
+#X connect 79 0 80 0;
+#X connect 80 0 81 0;
+#X connect 81 0 82 0;
+#X connect 82 0 83 0;
+#X connect 83 0 87 0;
+#X connect 84 0 87 0;
+#X connect 85 0 86 0;
+#X connect 86 0 87 0;
+#X connect 87 0 88 0;
+#X connect 87 1 89 0;
+#X connect 89 0 90 0;
+#X connect 91 0 93 0;
+#X connect 92 0 94 0;
+#X connect 93 0 95 0;
+#X connect 94 0 95 2;
+#X connect 95 0 96 0;
+#X connect 96 0 99 0;
+#X connect 99 0 100 0;
+#X connect 99 1 101 0;
+#X connect 99 2 102 0;
+#X connect 99 3 103 0;
+#X connect 100 0 104 0;
+#X connect 101 0 104 0;
+#X connect 102 0 104 0;
+#X connect 103 0 104 0;
+#X connect 104 0 105 0;
+#X connect 105 0 106 0;
+#X connect 106 0 107 0;
+#X connect 107 0 111 0;
+#X connect 108 0 111 0;
+#X connect 109 0 110 0;
+#X connect 110 0 111 0;
+#X connect 111 0 112 0;
+#X connect 111 1 113 0;
+#X connect 113 0 114 0;
+#X connect 115 0 117 0;
+#X connect 116 0 118 0;
+#X connect 117 0 119 0;
+#X connect 118 0 119 2;
+#X connect 119 0 120 0;
+#X connect 120 0 123 0;
+#X connect 123 0 124 0;
+#X connect 123 1 125 0;
+#X connect 123 2 126 0;
+#X connect 123 3 127 0;
+#X connect 124 0 128 0;
+#X connect 125 0 128 0;
+#X connect 126 0 128 0;
+#X connect 127 0 128 0;
+#X connect 128 0 129 0;
+#X connect 129 0 130 0;
+#X connect 130 0 131 0;
+#X connect 131 0 135 0;
+#X connect 132 0 135 0;
+#X connect 133 0 134 0;
+#X connect 134 0 135 0;
+#X connect 135 0 136 0;
+#X connect 135 1 137 0;
+#X connect 137 0 138 0;
+#X connect 139 0 141 0;
+#X connect 140 0 142 0;
+#X connect 141 0 143 0;
+#X connect 142 0 143 2;
+#X connect 143 0 144 0;
+#X connect 144 0 147 0;
+#X connect 147 0 148 0;
+#X connect 147 1 149 0;
+#X connect 147 2 150 0;
+#X connect 147 3 151 0;
+#X connect 147 4 152 0;
+#X connect 148 0 153 0;
+#X connect 149 0 153 0;
+#X connect 150 0 153 0;
+#X connect 151 0 153 0;
+#X connect 152 0 153 0;
+#X connect 153 0 154 0;
+#X connect 154 0 155 0;
+#X connect 155 0 156 0;
+#X connect 156 0 160 0;
+#X connect 157 0 160 0;
+#X connect 158 0 159 0;
+#X connect 159 0 160 0;
+#X connect 160 0 161 0;
+#X connect 160 1 162 0;
+#X connect 162 0 163 0;
+#X connect 164 0 166 0;
+#X connect 165 0 167 0;
+#X connect 166 0 168 0;
+#X connect 167 0 168 2;
+#X connect 168 0 169 0;
+#X connect 169 0 172 0;
+#X connect 172 0 173 0;
+#X connect 172 1 174 0;
+#X connect 172 2 175 0;
+#X connect 172 3 176 0;
+#X connect 173 0 177 0;
+#X connect 174 0 177 0;
+#X connect 175 0 177 0;
+#X connect 176 0 177 0;
+#X connect 177 0 178 0;
+#X connect 178 0 179 0;
+#X connect 179 0 180 0;
+#X connect 180 0 184 0;
+#X connect 181 0 184 0;
+#X connect 182 0 183 0;
+#X connect 183 0 184 0;
+#X connect 184 0 185 0;
+#X connect 184 1 186 0;
+#X connect 186 0 187 0;
+#X connect 188 0 190 0;
+#X connect 189 0 191 0;
+#X connect 190 0 192 0;
+#X connect 191 0 192 2;
+#X connect 192 0 193 0;
+#X connect 193 0 196 0;
+#X connect 196 0 197 0;
+#X connect 196 1 198 0;
+#X connect 196 2 199 0;
+#X connect 196 3 200 0;
+#X connect 196 4 201 0;
+#X connect 196 5 202 0;
+#X connect 197 0 203 0;
+#X connect 198 0 203 0;
+#X connect 199 0 203 0;
+#X connect 200 0 203 0;
+#X connect 201 0 203 0;
+#X connect 202 0 203 0;
+#X connect 203 0 204 0;
+#X connect 204 0 205 0;
+#X connect 205 0 206 0;
+#X connect 206 0 210 0;
+#X connect 207 0 210 0;
+#X connect 208 0 209 0;
+#X connect 209 0 210 0;
+#X connect 210 0 211 0;
+#X connect 210 1 212 0;
+#X connect 212 0 213 0;
+#X connect 214 0 216 0;
+#X connect 215 0 217 0;
+#X connect 216 0 218 0;
+#X connect 217 0 218 2;
+#X connect 218 0 219 0;
+#X connect 219 0 222 0;
+#X connect 222 0 223 0;
+#X connect 222 1 224 0;
+#X connect 222 2 225 0;
+#X connect 222 3 226 0;
+#X connect 223 0 227 0;
+#X connect 224 0 227 0;
+#X connect 225 0 227 0;
+#X connect 226 0 227 0;
+#X connect 227 0 228 0;
+#X connect 228 0 229 0;
+#X connect 229 0 230 0;
+#X connect 230 0 234 0;
+#X connect 231 0 234 0;
+#X connect 232 0 233 0;
+#X connect 233 0 234 0;
+#X connect 234 0 235 0;
+#X connect 234 1 236 0;
+#X connect 236 0 237 0;
+#X connect 238 0 240 0;
+#X connect 239 0 241 0;
+#X connect 240 0 242 0;
+#X connect 241 0 242 2;
+#X connect 242 0 243 0;
+#X connect 243 0 246 0;
+#X connect 246 0 247 0;
+#X connect 246 1 248 0;
+#X connect 246 2 249 0;
+#X connect 246 3 250 0;
+#X connect 246 4 251 0;
+#X connect 246 5 252 0;
+#X connect 246 6 253 0;
+#X connect 246 7 254 0;
+#X connect 246 8 255 0;
+#X connect 246 9 256 0;
+#X connect 246 10 257 0;
+#X connect 247 0 258 0;
+#X connect 248 0 258 0;
+#X connect 249 0 258 0;
+#X connect 250 0 258 0;
+#X connect 251 0 258 0;
+#X connect 252 0 258 0;
+#X connect 253 0 258 0;
+#X connect 254 0 258 0;
+#X connect 255 0 258 0;
+#X connect 256 0 258 0;
+#X connect 257 0 258 0;
+#X connect 258 0 259 0;
+#X connect 259 0 260 0;
+#X connect 260 0 261 0;
+#X connect 261 0 265 0;
+#X connect 262 0 265 0;
+#X connect 263 0 264 0;
+#X connect 264 0 265 0;
+#X connect 265 0 266 0;
+#X connect 265 1 267 0;
+#X connect 267 0 268 0;
+#X connect 269 0 271 0;
+#X connect 270 0 272 0;
+#X connect 271 0 273 0;
+#X connect 272 0 273 2;
+#X connect 273 0 274 0;
+#X connect 274 0 277 0;
+#X connect 277 0 278 0;
+#X connect 277 1 279 0;
+#X connect 277 2 280 0;
+#X connect 277 3 281 0;
+#X connect 277 4 282 0;
+#X connect 277 5 283 0;
+#X connect 277 6 284 0;
+#X connect 277 7 285 0;
+#X connect 277 8 286 0;
+#X connect 277 9 287 0;
+#X connect 277 10 288 0;
+#X connect 277 11 289 0;
+#X connect 277 12 290 0;
+#X connect 277 13 291 0;
+#X connect 277 14 292 0;
+#X connect 277 15 293 0;
+#X connect 277 16 294 0;
+#X connect 277 17 295 0;
+#X connect 277 18 296 0;
+#X connect 277 19 297 0;
+#X connect 278 0 298 0;
+#X connect 279 0 298 0;
+#X connect 280 0 298 0;
+#X connect 281 0 298 0;
+#X connect 282 0 298 0;
+#X connect 283 0 298 0;
+#X connect 284 0 298 0;
+#X connect 285 0 298 0;
+#X connect 286 0 298 0;
+#X connect 287 0 298 0;
+#X connect 288 0 298 0;
+#X connect 289 0 298 0;
+#X connect 290 0 298 0;
+#X connect 291 0 298 0;
+#X connect 292 0 298 0;
+#X connect 293 0 298 0;
+#X connect 294 0 298 0;
+#X connect 295 0 298 0;
+#X connect 296 0 298 0;
+#X connect 297 0 298 0;
+#X connect 298 0 299 0;
+#X connect 299 0 300 0;
+#X connect 300 0 301 0;
+#X connect 301 0 305 0;
+#X connect 302 0 305 0;
+#X connect 303 0 304 0;
+#X connect 304 0 305 0;
+#X connect 305 0 306 0;
+#X connect 305 1 307 0;
+#X connect 307 0 308 0;
+#X connect 309 0 311 0;
+#X connect 310 0 312 0;
+#X connect 311 0 313 0;
+#X connect 312 0 313 2;
+#X connect 313 0 314 0;
+#X connect 314 0 317 0;
+#X connect 317 0 318 0;
+#X connect 317 1 319 0;
+#X connect 317 2 320 0;
+#X connect 317 3 321 0;
+#X connect 317 4 322 0;
+#X connect 317 5 323 0;
+#X connect 317 6 324 0;
+#X connect 317 7 325 0;
+#X connect 317 8 326 0;
+#X connect 317 9 327 0;
+#X connect 317 10 328 0;
+#X connect 317 11 329 0;
+#X connect 317 12 330 0;
+#X connect 317 13 331 0;
+#X connect 317 14 332 0;
+#X connect 317 15 333 0;
+#X connect 318 0 334 0;
+#X connect 319 0 334 0;
+#X connect 320 0 334 0;
+#X connect 321 0 334 0;
+#X connect 322 0 334 0;
+#X connect 323 0 334 0;
+#X connect 324 0 334 0;
+#X connect 325 0 334 0;
+#X connect 326 0 334 0;
+#X connect 327 0 334 0;
+#X connect 328 0 334 0;
+#X connect 329 0 334 0;
+#X connect 330 0 334 0;
+#X connect 331 0 334 0;
+#X connect 332 0 334 0;
+#X connect 333 0 334 0;
+#X connect 334 0 335 0;
+#X connect 335 0 336 0;
+#X connect 336 0 337 0;
+#X connect 337 0 341 0;
+#X connect 338 0 341 0;
+#X connect 339 0 340 0;
+#X connect 340 0 341 0;
+#X connect 341 0 342 0;
+#X connect 341 1 343 0;
+#X connect 343 0 344 0;
+#X connect 345 0 347 0;
+#X connect 346 0 348 0;
+#X connect 347 0 349 0;
+#X connect 348 0 349 2;
+#X connect 349 0 350 0;
+#X connect 350 0 353 0;
+#X connect 353 0 354 0;
+#X connect 353 1 355 0;
+#X connect 353 2 356 0;
+#X connect 353 3 357 0;
+#X connect 353 4 358 0;
+#X connect 353 5 359 0;
+#X connect 353 6 360 0;
+#X connect 354 0 361 0;
+#X connect 355 0 361 0;
+#X connect 356 0 361 0;
+#X connect 357 0 361 0;
+#X connect 358 0 361 0;
+#X connect 359 0 361 0;
+#X connect 360 0 361 0;
+#X connect 361 0 362 0;
+#X connect 362 0 363 0;
+#X connect 363 0 364 0;
+#X connect 364 0 368 0;
+#X connect 365 0 368 0;
+#X connect 366 0 367 0;
+#X connect 367 0 368 0;
+#X connect 368 0 369 0;
+#X connect 368 1 370 0;
+#X connect 370 0 371 0;
+#X connect 372 0 374 0;
+#X connect 373 0 375 0;
+#X connect 374 0 376 0;
+#X connect 375 0 376 2;
+#X connect 376 0 377 0;
+#X connect 377 0 380 0;
+#X connect 380 0 381 0;
+#X connect 380 1 382 0;
+#X connect 380 2 383 0;
+#X connect 380 3 384 0;
+#X connect 380 4 385 0;
+#X connect 380 5 386 0;
+#X connect 380 6 387 0;
+#X connect 380 7 388 0;
+#X connect 380 8 389 0;
+#X connect 380 9 390 0;
+#X connect 380 10 391 0;
+#X connect 380 11 392 0;
+#X connect 380 12 393 0;
+#X connect 380 13 394 0;
+#X connect 380 14 395 0;
+#X connect 380 15 396 0;
+#X connect 380 16 397 0;
+#X connect 380 17 398 0;
+#X connect 380 18 399 0;
+#X connect 380 19 400 0;
+#X connect 381 0 401 0;
+#X connect 382 0 401 0;
+#X connect 383 0 401 0;
+#X connect 384 0 401 0;
+#X connect 385 0 401 0;
+#X connect 386 0 401 0;
+#X connect 387 0 401 0;
+#X connect 388 0 401 0;
+#X connect 389 0 401 0;
+#X connect 390 0 401 0;
+#X connect 391 0 401 0;
+#X connect 392 0 401 0;
+#X connect 393 0 401 0;
+#X connect 394 0 401 0;
+#X connect 395 0 401 0;
+#X connect 396 0 401 0;
+#X connect 397 0 401 0;
+#X connect 398 0 401 0;
+#X connect 399 0 401 0;
+#X connect 400 0 401 0;
+#X connect 401 0 402 0;
+#X connect 402 0 403 0;
+#X connect 403 0 404 0;
+#X connect 404 0 408 0;
+#X connect 405 0 408 0;
+#X connect 406 0 407 0;
+#X connect 407 0 408 0;
+#X connect 408 0 409 0;
+#X connect 408 1 410 0;
+#X connect 410 0 411 0;
+#X connect 412 0 414 0;
+#X connect 413 0 415 0;
+#X connect 414 0 416 0;
+#X connect 415 0 416 2;
+#X connect 416 0 417 0;
+#X connect 417 0 420 0;
+#X connect 420 0 421 0;
+#X connect 420 1 422 0;
+#X connect 420 2 423 0;
+#X connect 420 3 424 0;
+#X connect 420 4 425 0;
+#X connect 420 5 426 0;
+#X connect 420 6 427 0;
+#X connect 420 7 428 0;
+#X connect 420 8 429 0;
+#X connect 420 9 430 0;
+#X connect 420 10 431 0;
+#X connect 420 11 432 0;
+#X connect 420 12 433 0;
+#X connect 420 13 434 0;
+#X connect 420 14 435 0;
+#X connect 420 15 436 0;
+#X connect 420 16 437 0;
+#X connect 420 17 438 0;
+#X connect 420 18 439 0;
+#X connect 420 19 440 0;
+#X connect 421 0 441 0;
+#X connect 422 0 441 0;
+#X connect 423 0 441 0;
+#X connect 424 0 441 0;
+#X connect 425 0 441 0;
+#X connect 426 0 441 0;
+#X connect 427 0 441 0;
+#X connect 428 0 441 0;
+#X connect 429 0 441 0;
+#X connect 430 0 441 0;
+#X connect 431 0 441 0;
+#X connect 432 0 441 0;
+#X connect 433 0 441 0;
+#X connect 434 0 441 0;
+#X connect 435 0 441 0;
+#X connect 436 0 441 0;
+#X connect 437 0 441 0;
+#X connect 438 0 441 0;
+#X connect 439 0 441 0;
+#X connect 440 0 441 0;
+#X connect 441 0 442 0;
+#X connect 442 0 443 0;
+#X connect 443 0 444 0;
+#X connect 444 0 448 0;
+#X connect 445 0 448 0;
+#X connect 446 0 447 0;
+#X connect 447 0 448 0;
+#X connect 448 0 449 0;
+#X connect 448 1 450 0;
+#X connect 450 0 451 0;
+#X connect 452 0 454 0;
+#X connect 453 0 455 0;
+#X connect 454 0 456 0;
+#X connect 455 0 456 2;
+#X connect 456 0 457 0;
+#X connect 457 0 460 0;
+#X connect 460 0 461 0;
+#X connect 460 1 462 0;
+#X connect 460 2 463 0;
+#X connect 460 3 464 0;
+#X connect 460 4 465 0;
+#X connect 461 0 466 0;
+#X connect 462 0 466 0;
+#X connect 463 0 466 0;
+#X connect 464 0 466 0;
+#X connect 465 0 466 0;
+#X connect 466 0 467 0;
+#X connect 467 0 468 0;
+#X connect 468 0 469 0;
+#X connect 469 0 473 0;
+#X connect 470 0 473 0;
+#X connect 471 0 472 0;
+#X connect 472 0 473 0;
+#X connect 473 0 474 0;
+#X connect 473 1 475 0;
+#X connect 475 0 476 0;
+#X connect 477 0 479 0;
+#X connect 478 0 480 0;
+#X connect 479 0 481 0;
+#X connect 480 0 481 2;
+#X connect 481 0 482 0;
+#X connect 482 0 485 0;
+#X connect 485 0 486 0;
+#X connect 485 1 487 0;
+#X connect 485 2 488 0;
+#X connect 485 3 489 0;
+#X connect 485 4 490 0;
+#X connect 485 5 491 0;
+#X connect 485 6 492 0;
+#X connect 485 7 493 0;
+#X connect 485 8 494 0;
+#X connect 485 9 495 0;
+#X connect 485 10 496 0;
+#X connect 485 11 497 0;
+#X connect 485 12 498 0;
+#X connect 485 13 499 0;
+#X connect 485 14 500 0;
+#X connect 485 15 501 0;
+#X connect 485 16 502 0;
+#X connect 485 17 503 0;
+#X connect 485 18 504 0;
+#X connect 485 19 505 0;
+#X connect 486 0 506 0;
+#X connect 487 0 506 0;
+#X connect 488 0 506 0;
+#X connect 489 0 506 0;
+#X connect 490 0 506 0;
+#X connect 491 0 506 0;
+#X connect 492 0 506 0;
+#X connect 493 0 506 0;
+#X connect 494 0 506 0;
+#X connect 495 0 506 0;
+#X connect 496 0 506 0;
+#X connect 497 0 506 0;
+#X connect 498 0 506 0;
+#X connect 499 0 506 0;
+#X connect 500 0 506 0;
+#X connect 501 0 506 0;
+#X connect 502 0 506 0;
+#X connect 503 0 506 0;
+#X connect 504 0 506 0;
+#X connect 505 0 506 0;
+#X connect 506 0 507 0;
+#X connect 507 0 508 0;
+#X connect 508 0 509 0;
+#X connect 509 0 513 0;
+#X connect 510 0 513 0;
+#X connect 511 0 512 0;
+#X connect 512 0 513 0;
+#X connect 513 0 514 0;
+#X connect 513 1 515 0;
+#X connect 515 0 516 0;
+#X connect 517 0 519 0;
+#X connect 518 0 520 0;
+#X connect 519 0 521 0;
+#X connect 520 0 521 2;
+#X connect 521 0 522 0;
+#X connect 522 0 59 0;
+#X connect 538 0 6 0;
+#X connect 538 1 7 0;
+#X connect 538 2 8 0;
+#X connect 538 3 9 0;
+#X connect 538 4 10 0;
+#X connect 538 5 11 0;
+#X connect 538 6 12 0;
+#X connect 538 7 13 0;
+#X connect 538 8 14 0;
+#X connect 538 9 15 0;
+#X connect 538 10 16 0;
+#X connect 538 11 17 0;
+#X connect 538 12 18 0;
+#X connect 538 13 19 0;
+#X connect 538 14 539 0;
+#X connect 539 0 527 0;
+#X connect 542 0 543 0;

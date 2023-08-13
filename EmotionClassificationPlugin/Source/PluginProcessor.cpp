@@ -12,6 +12,26 @@
 
 // #define VERBOSE_PRINT
 
+// Load the model and init the interpreter
+// Load either from a file in the filesystem or from JUCE binary data
+// The second is suggested for cross-platform compatibility, as the first depends on the model being on a path that is local to the target machine
+#ifdef ELK_OS_ARM
+    #define LOAD_MODEL_FROM_FILE 0
+
+    #ifdef ELECTRIC_GUITAR_MODEL
+        #define BIN_DATA_MODELNAME ELECTRIC_GUITAR_MODELNAME
+    #endif
+    #ifdef ACOUSTIC_GUITAR_MODEL
+        #define BIN_DATA_MODELNAME ACOUSTIC_GUITAR_MODELNAME
+    #endif
+    #ifdef PIANO_MODEL
+        #define BIN_DATA_MODELNAME PIANO_MODELNAME
+    #endif
+
+#else
+    #define LOAD_MODEL_FROM_FILE 1
+#endif
+
 #ifdef VERBOSE_PRINT
     #include "verbose_utils.h"
 #endif
@@ -19,12 +39,6 @@
 // #define DO_REMOVE_OLD_RECORDINGS
 #define GENERATE_AUDACITY_LABELS
 #define VERBOSE_CLASSIFICATION false
-
-#ifdef ELK_OS_ARM
-    #define MUTE_OUTPUT false
-#else
-    #define MUTE_OUTPUT true
-#endif
 
 #define STATE_IDLE 0
 #define STATE_RECORDING 1
@@ -39,67 +53,103 @@ std::map<size_t, std::string> emotions = {
     {2, "Happy"},
     {3, "Sad"}};
 
-ClassifierPtr ECProcessor::tfliteClassifier = nullptr;
+InferenceEngine::InterpreterPtr ECProcessor::tfliteClassifier = nullptr;
 
 //==============================================================================
 ECProcessor::ECProcessor()
+    :  valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout()),
+      oscReceiver(RX_PORT, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); })
 #ifndef JucePlugin_PreferredChannelConfigurations
-    : AudioProcessor(BusesProperties()
+    , AudioProcessor(BusesProperties()
     #if !JucePlugin_IsMidiEffect
         #if !JucePlugin_IsSynth
                          .withInput("Input", juce::AudioChannelSet::mono(), true)
         #endif
                          .withOutput("Output", juce::AudioChannelSet::mono(), true)
     #endif
-                         ),
-      valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout()),
-      oscReceiver(RX_PORT, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); })
+                         )
 #endif
 {
+    rtlogger.logInfo("ECProcessor constructor");
+    rtlogger.logInfo(((std::string("WrapperType: ") + getWrapperTypeDescription(wrapperType)).c_str()));
     suspendProcessing(true);
 
+    this->compileDate = __DATE__;
+    this->compileTime = __TIME__;
+
+    rtlogger.logInfo("Storing silence threshold value in atomic");
     silenceThreshold.store(SD_THRESHOLD);
 
+    appendToGUIstate("\nECProcessor constructor");
     // Try to create the output folder if it doesn't exist
     if (!saveDir.exists()) {
-        if (saveDir.createDirectory().failed())
-            throw std::runtime_error("Error: could not create output save directory at " + saveDir.getFullPathName().toStdString());
-    } else if (saveDir.existsAsFile())
-        throw std::runtime_error("Error: output save directory exists as a file. Please delete the file at " + saveDir.getFullPathName().toStdString());
+        rtlogger.logInfo("Creating output save directory at ", saveDir.getFullPathName().toStdString().c_str());
+        appendToGUIstate("\nCreating output save directory at " + saveDir.getFullPathName().toStdString());
+        if (saveDir.createDirectory().failed()) {
+            std::cout << "Error: could not create output save directory at " << saveDir.getFullPathName().toStdString() << std::endl;
+            appendToGUIstate("\nError: could not create output save directory at " + saveDir.getFullPathName().toStdString());
+        }
+        // throw std::runtime_error("Error: could not create output save directory at " + saveDir.getFullPathName().toStdString());
+    } else if (saveDir.existsAsFile()) {
+        rtlogger.logInfo("Error: output save directory exists as a file. Please delete the file at ", saveDir.getFullPathName().toStdString().c_str());
+        std::cout << "Error: output save directory exists as a file. Please delete the file at " << saveDir.getFullPathName().toStdString() << std::endl;
+        appendToGUIstate("\nError: output save directory exists as a file. Please delete the file at " + saveDir.getFullPathName().toStdString());
+    } else {
+        rtlogger.logInfo("Output save directory already exists at ", saveDir.getFullPathName().toStdString().c_str());
+    }
+
+    // throw std::runtime_error("Error: output save directory exists as a file. Please delete the file at " + saveDir.getFullPathName().toStdString());
 
 #ifndef ELK_OS_ARM
     extractorState.reserve(1048576);
 #endif
 
 #ifndef DUMMY_INFERENCE
-    // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/Builds/linux-amd64/MSD_musicnn.tflite";
-    // std::string MODEL_PATH = "/home/cimil-01/Develop/emotionally-aware-SMIs/EmotionClassificationPlugin/convdense_testmodel.tflite";
     #ifdef ELK_OS_ARM
-        #ifdef ELECTRIC_GUITAR_MODEL
+    rtlogger.logInfo("Loading model from binary data (from constructor since we are running on ELK OS)");
+        #if LOAD_MODEL_FROM_FILE
+            #ifdef ELECTRIC_GUITAR_MODEL
     std::string MODEL_PATH = "/udata/emotionModel_electric.tflite";
-        #endif
-        #ifdef ACOUSTIC_GUITAR_MODEL
+            #endif
+            #ifdef ACOUSTIC_GUITAR_MODEL
     std::string MODEL_PATH = "/udata/emotionModel_acoustic.tflite";
-        #endif
-        #ifdef PIANO_MODEL
+            #endif
+            #ifdef PIANO_MODEL
     std::string MODEL_PATH = "/udata/emotionModel_piano.tflite";
-        #endif
+            #endif
+
+    std::cout << std::setfill('-') << std::setw(40) << "" << std::endl;
+    std::cout << std::left << std::setfill('.') << std::setw(30) << "ElkPlugin-Loading model from file: " << std::right << std::setfill('.') << std::setw(10) << MODEL_PATH << std::endl;
+    std::cout << std::setfill('-') << std::setw(40) << "" << std::endl;
+
+    rtlogger.logInfo("Loading model from file: " + MODEL_PATH);
+
     this->loadModel(MODEL_PATH, VERBOSE_CLASSIFICATION);
+        #else
+    rtlogger.logInfo("Loading model from binary data, name: ", BIN_DATA_MODELNAME.c_str());
+    juce::String modelBinaryDataFilename = BIN_DATA_MODELNAME;
+    this->loadModelFromBinaryData(modelBinaryDataFilename, VERBOSE_CLASSIFICATION);
+        #endif
     #endif
 
 #endif
 
     // Set up the OSC receiver to accept specific messages
+    rtlogger.logInfo("Setting up OSC receiver");
     std::vector<juce::String> oscMessages = {"/handshake", "/disconnect"};
     for (auto oscMessage : oscMessages)
         oscReceiver.addOSCListener(oscMessage);
+    rtlogger.logInfo("OSC receiver set up");
 
     topPredictedEmotions.resize(this->NUM_EMOTIONS);
 
+    rtlogger.logInfo("ECProcessor constructor finished");
     suspendProcessing(false);
+    rtlogger.logInfo("audio processing restored");
 }
 
 bool ECProcessor::loadModel(std::string modelPath, bool verbose) {
+    rtlogger.logInfo("Loading model from file: ", modelPath.c_str());
     // Check that file exists
     std::ifstream f(modelPath);
     if (!f.good())
@@ -108,8 +158,18 @@ bool ECProcessor::loadModel(std::string modelPath, bool verbose) {
         return false;
 
     try {
-        ECProcessor::tfliteClassifier = createClassifier(modelPath, VERBOSE_CLASSIFICATION);  // true = verbose cout
+        if (ECProcessor::tfliteClassifier != nullptr) {
+            std::cout << std::setfill('-') << std::setw(80) << "" << std::endl;
+            std::cout << std::left << std::setfill('.') << std::setw(80) << "Deleting Intepreter" << std::endl;
+            InferenceEngine::deleteInterpreter(ECProcessor::tfliteClassifier);
+            ECProcessor::tfliteClassifier = nullptr;
+        }
+        std::cout << std::setfill('-') << std::setw(80) << "" << std::endl;
+        std::cout << std::left << std::setfill('.') << std::setw(50) << "Loading model from file:" << std::right << std::setfill('.') << std::setw(30) << modelPath << std::endl;
+        std::cout << std::setfill('-') << std::setw(80) << "" << std::endl;
+        ECProcessor::tfliteClassifier = InferenceEngine::createInterpreter(modelPath, VERBOSE_CLASSIFICATION);  // true = verbose cout
         if (verbose) std::cout << "Created classifier and loaded model: '" << modelPath << "'" << std::endl;
+        rtlogger.logInfo("Created classifier and loaded model: ", modelPath.c_str());
     } catch (std::exception &e) {
         std::cout << "Error: could not load model: '" << modelPath << "'" << std::endl;
         return false;
@@ -117,10 +177,64 @@ bool ECProcessor::loadModel(std::string modelPath, bool verbose) {
 
     Value mpProperty = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
     mpProperty.setValue(juce::String(modelPath));
+    // class field modelPath is set to confirm which model has been loaded
     this->modelPath = modelPath;
 
     this->enableRec.store(true);
     return true;
+}
+
+bool ECProcessor::loadModelFromBuffer(const char *buffer, size_t bufferSize, bool verbose) {
+    try {
+        if (ECProcessor::tfliteClassifier != nullptr) {
+            std::cout << std::setfill('-') << std::setw(80) << "" << std::endl;
+            std::cout << std::left << std::setfill('.') << std::setw(80) << "Deleting Intepreter" << std::right << std::endl;
+            InferenceEngine::deleteInterpreter(ECProcessor::tfliteClassifier);
+            ECProcessor::tfliteClassifier = nullptr;
+        }
+        ECProcessor::tfliteClassifier = InferenceEngine::createInterpreterFromBuffer(buffer, bufferSize, VERBOSE_CLASSIFICATION);
+        if (verbose) std::cout << "Created classifier and loaded model from buffer" << std::endl;
+    } catch (std::exception &e) {
+        std::cout << "Error: could not load model! '" << e.what() << "'" << std::endl;
+        return false;
+    }
+
+    this->enableRec.store(true);
+    return true;
+}
+
+bool ECProcessor::loadModelFromBinaryData(const juce::String &modelName, bool verbose) {
+    rtlogger.logInfo("Loading model from binary data, name: ", modelName.toStdString().c_str());
+    size_t binresource_idx = 0;
+    for (int i = 0; i < BinaryData::namedResourceListSize; i++)
+        if (BinaryData::originalFilenames[i] == modelName.toStdString().c_str())
+            binresource_idx = i;
+
+    const char *binNameUTF8 = BinaryData::namedResourceList[binresource_idx];
+
+    // Get model content
+    int size;
+    auto model_content = BinaryData::getNamedResource(binNameUTF8, size);
+    if (ECProcessor::tfliteClassifier != nullptr) {
+        std::cout << std::setfill('-') << std::setw(80) << "" << std::endl;
+        std::cout << std::left << std::setfill('.') << std::setw(80) << "Deleting Intepreter" << std::right << std::endl;
+        InferenceEngine::deleteInterpreter(ECProcessor::tfliteClassifier);
+        ECProcessor::tfliteClassifier = nullptr;
+    }
+    std::cout << std::setfill('-') << std::setw(80) << "" << std::endl;
+    std::cout << std::left << std::setfill('.') << std::setw(50) << "Loading model from BinaryData:" << std::right << std::setfill('.') << std::setw(30) << modelName.toStdString() << std::endl;
+    std::cout << std::setfill('-') << std::setw(80) << "" << std::endl;
+
+    if (this->loadModelFromBuffer(model_content, size, true)) {
+        Value mpProperty = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
+        mpProperty.setValue(juce::String("BINARY_" + modelName.toStdString()));
+        // class field modelPath is set to confirm which model has been loaded
+        this->modelPath = "BINARY_" + modelName.toStdString();
+        std::cout << "modelPath: " << this->modelPath << std::endl;
+        rtlogger.logInfo("Loaded model from binary data, name: ", modelName.toStdString().c_str());
+        return true;
+    }
+    return false;
 }
 
 std::string ECProcessor::getModelPath() {
@@ -171,6 +285,11 @@ void ECProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
 }
 
 void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages) {
+    // If more than one channel, sum all channels to mono and write to first channel
+    if (buffer.getNumChannels() > 1)
+        for (int i = 1; i < buffer.getNumChannels(); i++)
+            buffer.addFrom(0, 0, buffer, i, 0, buffer.getNumSamples(), 1.0);
+
     // Fist apply amp gain to the input
     updateGain();
     updateSilenceThresh();
@@ -198,8 +317,13 @@ void ECProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessa
 
     updateRecState();
     recorder.writeBlock(buffer.getArrayOfReadPointers(), buffer.getNumSamples());
-    if (MUTE_OUTPUT)
-        buffer.clear();
+
+    float localoutgain = outgain.load();
+    for (size_t chan = 0; chan < buffer.getNumChannels(); chan++) {
+        for (size_t i = 0; i < buffer.getNumSamples(); i++) {
+            buffer.setSample(chan, i, buffer.getSample(chan, i) * localoutgain);
+        }
+    }
 }
 
 std::string getStrTime() {
@@ -306,6 +430,14 @@ void ECProcessor::stopRecording() {
     lastRecording = File();
 }
 
+void ECProcessor::muteOutput(bool mute) {
+    if (mute) {
+        outgain.store(0.0f);
+    } else {
+        outgain.store(1.0f);
+    }
+}
+
 void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<float> &output) {
     // Flatten the input
     size_t n_rows = input.size();
@@ -324,12 +456,12 @@ void classifyChunk(const std::vector<std::vector<float>> &input, std::vector<flo
     output[2] = 0.9f;
     output[3] = 0.0f;
 #else
-    classifyFlat2D(ECProcessor::tfliteClassifier,
-                   flat_input.data(),
-                   n_rows,
-                   n_cols,
-                   output.data(),
-                   output.size(), VERBOSE_CLASSIFICATION);
+    InferenceEngine::invokeFlat2D(ECProcessor::tfliteClassifier,
+                                  flat_input.data(),
+                                  n_rows,
+                                  n_cols,
+                                  output.data(),
+                                  output.size(), VERBOSE_CLASSIFICATION);
 #endif
 }
 
@@ -667,9 +799,6 @@ void ECProcessor::releaseResources() {
 void ECProcessor::getStateInformation(juce::MemoryBlock &destData) {
     juce::MemoryOutputStream stream(destData, false);
     valueTreeState.state.writeToStream(stream);
-
-    // DBG("Writing to XML:");
-    // DBG(valueTreeState.state.toXmlString());
 }
 
 void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
@@ -693,11 +822,24 @@ void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
     }
 
     // Same for Model path "SV_MODEL_PATH"
-    Value modelPath = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
-    if (this->loadModel(modelPath.getValue().toString().toStdString())) {
-        DBG("Model loaded successfully");
+    Value sv_model_path = valueTreeState.state.getPropertyAsValue("SV_MODEL_PATH", nullptr, true);
+    std::string restoredModelPath = sv_model_path.getValue().toString().toStdString();
+
+    // if restoredModelPath is empty do nothing
+    if (restoredModelPath.empty()) {
+        DBG("Model path is empty");
     } else {
-        DBG("Model loading failed");
+        if (restoredModelPath == "BINARY_" + this->ELECTRIC_GUITAR_MODELNAME) {
+            this->loadModelFromBinaryData(this->ELECTRIC_GUITAR_MODELNAME);
+        } else if (restoredModelPath == "BINARY_" + this->ACOUSTIC_GUITAR_MODELNAME) {
+            this->loadModelFromBinaryData(this->ACOUSTIC_GUITAR_MODELNAME);
+        } else if (restoredModelPath == "BINARY_" + this->PIANO_MODELNAME) {
+            this->loadModelFromBinaryData(this->PIANO_MODELNAME);
+        } else if (this->loadModel(restoredModelPath)) {
+            DBG("Model loaded successfully");
+        } else {
+            DBG("Model loading failed");
+        }
     }
 }
 

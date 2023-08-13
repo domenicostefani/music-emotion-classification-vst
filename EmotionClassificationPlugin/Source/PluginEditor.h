@@ -109,12 +109,17 @@ private:
         {3, juce::Colours::lightblue},
         {4, juce::Colours::white}};  // White for ambivalent Emotion
 
+
+    ToggleButton electricGuitarButton, acousticGuitarButton, pianoButton, customModelButton;
+
     std::unique_ptr<juce::FileChooser> savedirChooser, modelChooser;
     TextButton selectSaveFolderButton, selectModelButton, infoButton;
     void openButtonClicked();
     void modelButtonClicked();
     void infoButtonClicked();
     void recordStateChanged();
+
+    ToggleButton muteOutputButton;
 
     // Waveform display
     AudioThumbnailComponent waveformDisplayComponent{"Load a model and press the Record button to start recording."};

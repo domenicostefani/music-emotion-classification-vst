@@ -1,0 +1,25 @@
+#N canvas 1920 96 2560 1316 12;
+#X msg 55 77 249_aggressive_2_classical-guitar_CesSam_fingers_new4_20200720.wav
+, f 80;
+#X msg 55 107 249_aggressive_2_classical-guitar_CesSam_fingers_new4_20200720.wav
+, f 80;
+#X msg 55 137 249_aggressive_2_classical-guitar_CesSam_fingers_new4_20200720.wav
+, f 80;
+#X msg 55 166 249_aggressive_2_classical-guitar_CesSam_fingers_new4_20200720.wav
+, f 80;
+#X msg 55 195 249_aggressive_2_classical-guitar_CesSam_fingers_new4_20200720.wav
+, f 80;
+#X obj 54 226 list;
+#X obj 34 46 sel 0 1 2 3 4;
+#X text 150 49 Emotype;
+#X text 2950 1469 comment;
+#X connect 0 0 5 0;
+#X connect 1 0 5 0;
+#X connect 2 0 5 0;
+#X connect 3 0 5 0;
+#X connect 4 0 5 0;
+#X connect 6 0 0 0;
+#X connect 6 1 1 0;
+#X connect 6 2 2 0;
+#X connect 6 3 3 0;
+#X connect 6 4 4 0;

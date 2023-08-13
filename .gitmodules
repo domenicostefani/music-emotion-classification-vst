@@ -14,3 +14,7 @@
 	path = EmotionClassificationPlugin/libs/deep-classf-runtime-wrappers
 	url = https://github.com/domenicostefani/deep-classf-runtime-wrappers
     ignore = dirty
+[submodule "EmotionClassificationPlugin/libs/choc"]
+	path = EmotionClassificationPlugin/libs/choc
+	url = https://github.com/Tracktion/choc
+    ignore = dirty

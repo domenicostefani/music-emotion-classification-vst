@@ -29,7 +29,7 @@ void ECEditor::modelButtonClicked() {
         if (file != juce::File{} && file.existsAsFile() && file.hasFileExtension(".tflite")) {
             if (audioProcessor.loadModel(file.getFullPathName().toStdString())) {
                 this->recButton.setEnabled(true);
-                selectModelButton.setButtonText("Select model\n(current: \"" + file.getFileName().toStdString() + "\")");
+                selectModelButton.setButtonText("Open custom model\n(current: \"" + file.getFileName().toStdString() + "\")");
             } else {
                 this->audioProcessor.clearGUIstate();
                 this->audioProcessor.appendToGUIstate("Error loading model. Try again.");
@@ -39,7 +39,6 @@ void ECEditor::modelButtonClicked() {
 }
 
 void ECEditor::infoButtonClicked() {
-    
     // Get README_md index
     size_t readme_index = 0;
     for (int i = 0; i < BinaryData::namedResourceListSize; i++)
@@ -101,14 +100,12 @@ void ECEditor::infoButtonClicked() {
     // Insert new text before the "## References" section
     pos = readme_content.find("## References");
     if (pos != std::string::npos) {
-        readme_content.insert(pos,"\n\nMore information can be found in the Github project repository, in the README.md file.\n\n");
+        readme_content.insert(pos, "\n\nMore information can be found in the Github project repository, in the README.md file.\n\n");
     }
-
-
 
     std::string infotext = readme_content;
 
-    juce::TextEditor * label = new juce::TextEditor ();
+    juce::TextEditor* label = new juce::TextEditor();
     label->setMultiLine(true);
     label->setScrollbarsShown(true);
     label->setReadOnly(true);
@@ -117,8 +114,7 @@ void ECEditor::infoButtonClicked() {
 
     label->setText(infotext, juce::dontSendNotification);
 
-
-    juce::DialogWindow::LaunchOptions o;      
+    juce::DialogWindow::LaunchOptions o;
     o.content.setOwned(label);
     o.content->setSize(600, 450);
     o.dialogTitle = "Emotion Classificatio Plugin Info";
@@ -127,7 +123,7 @@ void ECEditor::infoButtonClicked() {
     o.useNativeTitleBar = false;
     o.resizable = false;
     o.componentToCentreAround = this;
-    
+
     o.launchAsync();
 }
 
@@ -143,12 +139,16 @@ ECEditor::ECEditor(ECProcessor& p)
 #endif
 {
     setResizable(true, true);
-    setSize(970, 380);
+    setSize(970, 450);
     setResizeLimits(970, 350, 1920, 1080);
 
 #ifdef LIGHT_THEME
     setLookAndFeel(&lf);
 #endif
+
+    addAndMakeVisible(muteOutputButton);
+    muteOutputButton.setButtonText("Mute Output");
+    muteOutputButton.onClick = [this] { if (muteOutputButton.getToggleState()) audioProcessor.muteOutput(true); else audioProcessor.muteOutput(false); };
 
     selectSaveFolderButton.setButtonText("Select save folder\nDefault: \"" + audioProcessor.getSaveFolder().getFullPathName().toStdString() + "\"");
     selectSaveFolderButton.onClick = [this] { openButtonClicked(); };
@@ -158,10 +158,58 @@ ECEditor::ECEditor(ECProcessor& p)
     infoButton.onClick = [this] { infoButtonClicked(); };
     addAndMakeVisible(infoButton);
 
-    std::string loadedModPath = audioProcessor.getModelPath();
+    enum RadioButtonIds {
+        ModelButtons = 1001
+    };
+
+    // electricGuitarButton, acousticGuitarButton, pianoButton, customModelButton;
+    addAndMakeVisible(electricGuitarButton);
+    electricGuitarButton.setButtonText("Electric Guitar");
+    electricGuitarButton.setRadioGroupId(ModelButtons);
+    electricGuitarButton.onClick = [this] { if (electricGuitarButton.getToggleState()) if(audioProcessor.loadModelFromBinaryData(audioProcessor.ELECTRIC_GUITAR_MODELNAME)) {recButton.setEnabled(true);} };
+
+    addAndMakeVisible(acousticGuitarButton);
+    acousticGuitarButton.setButtonText("Acoustic Guitar");
+    acousticGuitarButton.setRadioGroupId(ModelButtons);
+    acousticGuitarButton.onClick = [this] { if (acousticGuitarButton.getToggleState()) if(audioProcessor.loadModelFromBinaryData(audioProcessor.ACOUSTIC_GUITAR_MODELNAME)){recButton.setEnabled(true);} };
+
+    addAndMakeVisible(pianoButton);
+    pianoButton.setButtonText("Piano");
+    pianoButton.setRadioGroupId(ModelButtons);
+    pianoButton.onClick = [this] { if (pianoButton.getToggleState()) if(audioProcessor.loadModelFromBinaryData(audioProcessor.PIANO_MODELNAME)){recButton.setEnabled(true);} };
+
+    addAndMakeVisible(customModelButton);
+    customModelButton.setButtonText("Custom Model");
+    customModelButton.setRadioGroupId(ModelButtons);
+    customModelButton.onClick = [this] { if (customModelButton.getToggleState()) selectModelButton.setEnabled(true); else selectModelButton.setEnabled(false); };
+
+
+    if (audioProcessor.getModelPath() == "BINARY_" + audioProcessor.ELECTRIC_GUITAR_MODELNAME) {
+        customModelButton.setToggleState(false, dontSendNotification);
+        selectModelButton.setEnabled(false);
+        electricGuitarButton.setToggleState(true, dontSendNotification);
+    } else if (audioProcessor.getModelPath() == "BINARY_" + audioProcessor.ACOUSTIC_GUITAR_MODELNAME) {
+        customModelButton.setToggleState(false, dontSendNotification);
+        selectModelButton.setEnabled(false);
+        acousticGuitarButton.setToggleState(true, dontSendNotification);
+    } else if (audioProcessor.getModelPath() == "BINARY_" + audioProcessor.PIANO_MODELNAME) {
+        customModelButton.setToggleState(false, dontSendNotification);
+        selectModelButton.setEnabled(false);
+        pianoButton.setToggleState(true, dontSendNotification);
+    } else {
+        customModelButton.setToggleState(true, dontSendNotification);
+        selectModelButton.setEnabled(true);
+        recButton.setEnabled(false);
+    }
+
     // take only basename with extension
-    std::string loadedModName = loadedModPath.substr(loadedModPath.find_last_of("/\\") + 1);
-    selectModelButton.setButtonText("Select model\nDefault: \"" + loadedModName);
+    if (audioProcessor.getModelPath().find("BINARY_") != std::string::npos) {
+        selectModelButton.setButtonText("Open custom model");
+    } else {
+        std::string loadedModPath = audioProcessor.getModelPath();
+        std::string loadedModName = loadedModPath.substr(loadedModPath.find_last_of("/\\") + 1);
+        selectModelButton.setButtonText("Open custom model\nDefault: \"" + loadedModPath + "\"");
+    }
     selectModelButton.onClick = [this] { modelButtonClicked(); };
     addAndMakeVisible(selectModelButton);
 
@@ -240,7 +288,9 @@ void ECEditor::paint(juce::Graphics& g) {
     meterArea.removeFromBottom(20);
     meterArea.removeFromLeft(10);
     meterArea.removeFromRight(10);
+    muteOutputButton.setBounds(meterArea.removeFromTop(20));
     meter.setBounds(meterArea);
+
 
     auto silenceArea = leftGainArea;
     silenceArea.removeFromLeft(10);
@@ -254,9 +304,6 @@ void ECEditor::paint(juce::Graphics& g) {
 
     waveformDisplayComponent.setBounds(area.reduced(10));
 
-    std::string date(__DATE__);
-    std::string time(__TIME__);
-
     // Draw a slightly lighter rectangle under bottom strip text
     g.setColour(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId).darker(-0.2f));
     g.fillRect(bottomStrip);
@@ -267,12 +314,30 @@ void ECEditor::paint(juce::Graphics& g) {
     infoButton.setBounds(bottomStrip.removeFromLeft(30));
     bottomStrip.removeFromLeft(15);
     g.drawFittedText("Domenico Stefani, Luca Turchet, Johan Pauwels", bottomStrip.removeFromLeft(bottomStrip.getWidth() * 0.5), juce::Justification::centredLeft, 1);
-    g.drawFittedText("Compiled on: " + date + " at " + time, bottomStrip, juce::Justification::centredRight, 1);
+    g.drawFittedText("Compiled on: " + audioProcessor.compileDate + " at " + audioProcessor.compileTime, bottomStrip, juce::Justification::centredRight, 1);
 
     int leftHeight = usableControlArea.getHeight();
 
     selectSaveFolderButton.setBounds(usableControlArea.removeFromTop(70).reduced(5));
+    auto toggleareaheight = 70;
+    auto toggletextarea = usableControlArea.removeFromTop(18);
+    usableControlArea.removeFromTop(7);
+    g.drawFittedText("Neural Network Model to use", toggletextarea, juce::Justification::centred, 1);
+    auto togglearea = usableControlArea.removeFromTop(toggleareaheight);
+    auto toggleareawidth = togglearea.getWidth();
+
+    auto lefttogglearea = togglearea.removeFromLeft(toggleareawidth / 2);
+    auto righttogglearea = togglearea;
+
+    electricGuitarButton.setBounds(lefttogglearea.removeFromTop(toggleareaheight / 2).reduced(5));
+    acousticGuitarButton.setBounds(lefttogglearea.reduced(5));
+    pianoButton.setBounds(righttogglearea.removeFromTop(toggleareaheight / 2).reduced(5));
+    customModelButton.setBounds(righttogglearea.reduced(5));
+
+    // , acousticGuitarButton, pianoButton, customModelButton;
+
     selectModelButton.setBounds(usableControlArea.removeFromTop(60).reduced(5));
+
     recButton.setBounds(usableControlArea.removeFromTop(40).reduced(5));
 
     // g.setFont(Font(17.0f, Font::bold));

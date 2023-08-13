@@ -1,0 +1,54 @@
+#N canvas 1 148 1918 997 12;
+#X obj 263 103 inlet;
+#X obj 263 147 route stop play numToPlay;
+#X obj 456 253 cycleCounter;
+#X floatatom 456 277 5 0 0 0 - - -;
+#X obj 456 302 expr if ($f1 == 0 \, 0 \, 1);
+#X floatatom 456 326 5 0 0 0 - - -;
+#X obj 456 349 route 0;
+#X obj 502 373 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 513 174 loadbang 1;
+#X obj 263 345 readsf~;
+#X msg 320 252 open \$1;
+#X msg 387 279 1;
+#X obj 309 369 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 387 253 delay 10;
+#X obj 320 219 t s b, f 10;
+#X obj 502 393 outlet replay;
+#X obj 358 186 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 320 185 list;
+#X floatatom 377 185 5 0 0 0 - - -;
+#X msg 263 214 stop;
+#X obj 263 187 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 263 395 outlet~;
+#X obj 157 170 loadbang;
+#X connect 0 0 1 0;
+#X connect 1 0 20 0;
+#X connect 1 1 16 0;
+#X connect 1 1 17 0;
+#X connect 1 2 18 0;
+#X connect 2 0 3 0;
+#X connect 3 0 4 0;
+#X connect 4 0 5 0;
+#X connect 5 0 6 0;
+#X connect 6 1 7 0;
+#X connect 7 0 15 0;
+#X connect 8 0 2 2;
+#X connect 9 0 21 0;
+#X connect 9 1 12 0;
+#X connect 10 0 9 0;
+#X connect 11 0 9 0;
+#X connect 12 0 2 0;
+#X connect 13 0 11 0;
+#X connect 14 0 10 0;
+#X connect 14 1 13 0;
+#X connect 17 0 14 0;
+#X connect 18 0 2 2;
+#X connect 19 0 9 0;
+#X connect 20 0 19 0;
+#X connect 20 0 2 1;
+#X connect 22 0 19 0;
