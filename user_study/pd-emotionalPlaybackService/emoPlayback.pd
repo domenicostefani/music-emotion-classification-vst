@@ -1,50 +1,50 @@
 #N canvas 1921 96 2558 1315 12;
-#X obj 350 111 loadbang;
-#X obj 236 239 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 437 196 loadbang;
+#X obj 323 324 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 305 239 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 392 324 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X floatatom 305 259 5 0 0 0 - - -;
-#X msg 257 133 playEmo 1;
-#X obj 220 210 route playEmo numToPlay;
-#X obj 220 656 bng 15 250 50 0 \$0-agg empty empty 17 7 0 10 -262144
+#X floatatom 392 344 5 0 0 0 - - -;
+#X msg 344 218 playEmo 1;
+#X obj 307 295 route playEmo numToPlay;
+#X obj 307 741 bng 15 250 50 0 \$0-agg empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 245 635 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 332 720 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 271 614 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 358 699 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 297 592 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 384 677 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 323 570 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 410 655 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 349 551 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 436 636 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 375 531 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 462 616 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 401 510 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 488 595 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 427 493 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 514 578 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 453 470 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 540 555 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 479 450 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 566 535 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 505 431 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 592 516 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 531 412 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 618 497 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 557 391 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 644 476 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 48 24 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
-;
-#X obj 69 40 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1 1
-;
-#X obj 89 59 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
-;
-#X obj 109 77 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 135 109 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X obj 28 56 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
+#X obj 156 125 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 176 144 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 196 162 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 115 141 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
 #N canvas -8 -8 1920 997 4TCLtoBin 0;
 #X obj 143 57 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
@@ -56,7 +56,7 @@
 #X obj 223 130 expr if ($f2 == 1 \, $f1 \, 0), f 10;
 #X floatatom 223 211 5 0 0 0 - - -;
 #X msg 223 106 100;
-#X obj 223 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 223 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 125 257 +;
 #X obj 60 57 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
@@ -69,7 +69,7 @@
 #X obj 390 82 t b f, f 10;
 #X obj 390 130 expr if ($f2 == 1 \, $f1 \, 0), f 10;
 #X floatatom 390 211 5 0 0 0 - - -;
-#X obj 390 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 390 55 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X msg 307 106 10;
 #X msg 390 106 1;
@@ -126,39 +126,39 @@
 #X connect 31 0 9 0;
 #X connect 32 0 15 0;
 #X connect 33 0 19 0;
-#X restore 28 99 pd 4TCLtoBin;
-#X msg 28 146 playEmo \$1;
-#X floatatom 28 123 5 0 0 0 - - -;
-#X obj 28 170 print;
-#X text 69 20 Aggressive;
-#X text 87 36 relaxed;
-#X text 111 56 happy;
-#X text 129 75 sad;
-#X text 240 654 Agg;
-#X text 264 634 Rel;
-#X text 290 612 Happy;
-#X text 316 591 Sad;
-#X text 342 569 Agg/Rel;
-#X text 370 549 Agg/Happy;
-#X text 397 530 Agg/Sad;
-#X text 425 510 Rel/Happy;
-#X text 451 491 Rel/Sad;
-#X text 475 470 Happy/Sad;
-#X text 500 451 Agg/Rel/Happy;
-#X text 525 432 Agg/Rel/Sad;
-#X text 581 390 Rel/Happy/Sad;
-#X text 552 411 Agg/Hap/Sad;
-#X obj 305 282 s \$0-numToPlay;
-#X msg 350 144 numToPlay 2;
-#X obj 384 990 cnv 15 120 70 empty empty empty 20 12 0 14 -261234 -66577
+#X restore 115 184 pd 4TCLtoBin;
+#X msg 115 231 playEmo \$1;
+#X floatatom 115 208 5 0 0 0 - - -;
+#X obj 115 255 print;
+#X text 156 105 Aggressive;
+#X text 174 121 relaxed;
+#X text 198 141 happy;
+#X text 216 160 sad;
+#X text 327 739 Agg;
+#X text 351 719 Rel;
+#X text 377 697 Happy;
+#X text 403 676 Sad;
+#X text 429 654 Agg/Rel;
+#X text 457 634 Agg/Happy;
+#X text 484 615 Agg/Sad;
+#X text 512 595 Rel/Happy;
+#X text 538 576 Rel/Sad;
+#X text 562 555 Happy/Sad;
+#X text 587 536 Agg/Rel/Happy;
+#X text 612 517 Agg/Rel/Sad;
+#X text 668 475 Rel/Happy/Sad;
+#X text 639 496 Agg/Hap/Sad;
+#X obj 392 367 s \$0-numToPlay;
+#X msg 437 229 numToPlay 2;
+#X obj 783 42 cnv 15 120 70 empty empty empty 20 12 0 14 -261234 -66577
 0;
-#X msg 392 997 stop;
-#X obj 392 1022 s \$0-stopplay;
+#X msg 796 109 stop;
+#X obj 796 134 s \$0-stopplay;
 #X obj 124 2793 dac~;
 #X obj 124 2748 catch~ MonoOut;
 #X text 138 2214 Dac Below;
-#X obj 391 940 loadbang;
-#X obj 391 965 delay 10;
+#X obj 795 52 loadbang;
+#X obj 795 77 delay 10;
 #X obj 98 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682 -66577
 0;
 #X text 103 1096 Aggr;
@@ -353,7 +353,7 @@
 #X msg 3119 1031 6;
 #X obj 2968 1061 cycleCounter, f 22;
 #X obj 2968 1091 vradio 15 1 0 6 empty empty empty 0 -8 0 10 -262144
--1 -1 0;
+-1 -1 1;
 #X obj 2998 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
 -66577 0;
 #X text 3003 1096 Aggr/Hap;
@@ -467,7 +467,7 @@
 #X msg 4859 1031 20;
 #X obj 4708 1061 cycleCounter, f 22;
 #X obj 4708 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
--1 -1 2;
+-1 -1 5;
 #X obj 4738 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
 -66577 0;
 #X text 4743 1096 Rel;
@@ -532,7 +532,7 @@
 #X msg 5439 1031 16;
 #X obj 5288 1061 cycleCounter, f 22;
 #X obj 5288 1091 vradio 15 1 0 16 empty empty empty 0 -8 0 10 -262144
--1 -1 0;
+-1 -1 1;
 #X obj 5318 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
 -66577 0;
 #X text 5323 1096 Rel/Hap;
@@ -626,7 +626,7 @@
 #X msg 6599 1031 20;
 #X obj 6448 1061 cycleCounter, f 22;
 #X obj 6448 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
--1 -1 2;
+-1 -1 0;
 #X obj 6478 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
 -66577 0;
 #X text 6483 1096 Rel/Sad;
@@ -691,7 +691,7 @@
 #X msg 7179 1031 20;
 #X obj 7028 1061 cycleCounter, f 22;
 #X obj 7028 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
--1 -1 2;
+-1 -1 1;
 #X obj 7058 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
 -66577 0;
 #X text 7063 1096 Hap;
@@ -756,7 +756,7 @@
 #X msg 7759 1031 5;
 #X obj 7608 1061 cycleCounter, f 22;
 #X obj 7608 1091 vradio 15 1 0 5 empty empty empty 0 -8 0 10 -262144
--1 -1 2;
+-1 -1 0;
 #X obj 7638 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
 -66577 0;
 #X text 7643 1096 Hap/Sad;
@@ -790,7 +790,7 @@
 #X msg 8339 1031 20;
 #X obj 8188 1061 cycleCounter, f 22;
 #X obj 8188 1091 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
--1 -1 2;
+-1 -1 1;
 #X obj 8218 1091 cnv 15 180 30 empty empty empty 20 12 0 14 -261682
 -66577 0;
 #X text 8223 1096 Sad;
@@ -855,31 +855,37 @@
 #X msg 186 1015 20;
 #X obj 35 1045 cycleCounter, f 22;
 #X obj 35 1075 vradio 15 1 0 20 empty empty empty 0 -8 0 10 -262144
--1 -1 0;
-#X obj 220 820 s \$0-Aggr;
-#X obj 323 722 s \$0-AggrRel;
-#X obj 479 577 s \$0-AggrRelHap;
-#X obj 427 625 s \$0-RelSad;
-#X obj 583 475 s \$0-AggrRelHapSad;
-#X obj 505 551 s \$0-AggrRelSad;
-#X obj 557 500 s \$0-RelHapSad;
-#X obj 349 698 s \$0-AggrHap;
-#X obj 297 745 s \$0-Sad;
-#X obj 245 796 s \$0-Rel;
-#X obj 401 650 s \$0-RelHap;
-#X obj 375 674 s \$0-AggrSad;
-#X obj 271 770 s \$0-Hap;
-#X obj 453 601 s \$0-HapSad;
-#X obj 531 526 s \$0-AggrHapSad;
-#X obj 220 315 sel 1000 100 10 1 1100 1010 1001 110 101 11 1110 1101
+-1 -1 5;
+#X obj 307 905 s \$0-Aggr;
+#X obj 410 807 s \$0-AggrRel;
+#X obj 566 662 s \$0-AggrRelHap;
+#X obj 514 710 s \$0-RelSad;
+#X obj 670 560 s \$0-AggrRelHapSad;
+#X obj 592 636 s \$0-AggrRelSad;
+#X obj 644 585 s \$0-RelHapSad;
+#X obj 436 783 s \$0-AggrHap;
+#X obj 384 830 s \$0-Sad;
+#X obj 332 881 s \$0-Rel;
+#X obj 488 735 s \$0-RelHap;
+#X obj 462 759 s \$0-AggrSad;
+#X obj 358 855 s \$0-Hap;
+#X obj 540 686 s \$0-HapSad;
+#X obj 618 611 s \$0-AggrHapSad;
+#X obj 307 400 sel 1000 100 10 1 1100 1010 1001 110 101 11 1110 1101
 1011 111 1111, f 56;
-#X obj 583 366 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 670 451 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X text 613 364 ALL;
-#X obj 191 21 cnv 15 120 70 empty empty empty 20 12 0 14 -261234 -66577
+#X text 700 449 ALL;
+#X obj 547 89 cnv 15 120 70 empty empty empty 20 12 0 14 -261234 -66577
 0;
-#X msg 199 28 stop;
-#X obj 199 53 s \$0-stopplay;
+#X msg 555 96 stop;
+#X obj 555 121 s \$0-stopplay;
+#X obj 555 50 inlet BangStop;
+#X obj 433 49 inlet ToggleSad;
+#X obj 342 49 inlet happy;
+#X obj 236 49 inlet Relaxed;
+#X obj 113 49 inlet Aggressive;
+#X obj 35 49 inlet Play;
 #X connect 0 0 48 0;
 #X connect 3 0 47 0;
 #X connect 4 0 5 0;
@@ -1505,3 +1511,9 @@
 #X connect 538 14 539 0;
 #X connect 539 0 527 0;
 #X connect 542 0 543 0;
+#X connect 544 0 542 0;
+#X connect 545 0 23 0;
+#X connect 546 0 22 0;
+#X connect 547 0 21 0;
+#X connect 548 0 20 0;
+#X connect 549 0 24 0;
