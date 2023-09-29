@@ -155,6 +155,7 @@ public:
     void oscMessageReceived(const juce::OSCMessage& message);
 
     std::vector<bool> topPredictedEmotions;
+    inline std::string getStrEmotion(const std::vector<bool>& predictedEmotions, std::map<size_t, std::string> emotions);
 
     // Feature extraction
     emosmi::MusicnnFeatureExtractor extractionPipeline;

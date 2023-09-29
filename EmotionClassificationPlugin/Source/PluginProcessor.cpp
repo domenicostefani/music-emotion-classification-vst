@@ -12,6 +12,8 @@
 
 // #define VERBOSE_PRINT
 
+#define VERBOSE_EXTRACT_CLASSIFY true
+
 // Load the model and init the interpreter
 // Load either from a file in the filesystem or from JUCE binary data
 // The second is suggested for cross-platform compatibility, as the first depends on the model being on a path that is local to the target machine
@@ -27,7 +29,6 @@
     #ifdef PIANO_MODEL
         #define BIN_DATA_MODELNAME PIANO_MODELNAME
     #endif
-
 #else
     #define LOAD_MODEL_FROM_FILE 1
 #endif
@@ -57,17 +58,18 @@ InferenceEngine::InterpreterPtr ECProcessor::tfliteClassifier = nullptr;
 
 //==============================================================================
 ECProcessor::ECProcessor()
-    :  valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout()),
+    : valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout()),
       oscReceiver(RX_PORT, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); })
 #ifndef JucePlugin_PreferredChannelConfigurations
-    , AudioProcessor(BusesProperties()
+      ,
+      AudioProcessor(BusesProperties()
     #if !JucePlugin_IsMidiEffect
         #if !JucePlugin_IsSynth
                          .withInput("Input", juce::AudioChannelSet::mono(), true)
         #endif
                          .withOutput("Output", juce::AudioChannelSet::mono(), true)
     #endif
-                         )
+      )
 #endif
 {
     rtlogger.logInfo("ECProcessor constructor");
@@ -499,6 +501,23 @@ void ambivalentRes(std::vector<float> softmax, std::vector<bool> &resultBest, fl
         resultBest[i] = (softmax[largestIndex] - softmax[i] < thresholdDistance);
 }
 
+inline std::string ECProcessor::getStrEmotion(const std::vector<bool> &predictedEmotions, std::map<size_t, std::string> emotions) {
+    std::string chunkEmotions = "",
+                intemo = "";
+    for (size_t j = 0; j < predictedEmotions.size(); ++j) {
+        if (predictedEmotions[j]) {
+            intemo += (std::to_string(j) + "/");
+            chunkEmotions += (emotions[j] + "/");
+        }
+    }
+    if (intemo.size() > 0)
+        intemo.pop_back();
+    this->appendToGUIstate(intemo);
+    std::cout << "Appending \"" << intemo << "\" to GUI state" << std::endl;
+    chunkEmotions.pop_back();
+    return chunkEmotions;
+}
+
 /**
  * @brief Softvoting stategy where the result can be either a single emotion or multiple emotions (ambivalent)
  *
@@ -659,31 +678,26 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
         softmaxOut += "]";
         softmaxOutsPrintable.push_back(softmaxOut);
 #endif
-
-        std::string chunkEmotions = "";
-        size_t topEmotion = 0;
-        for (size_t j = 0; j < topPredictedEmotions.size(); ++j) {
-            if (topPredictedEmotions[j]) {
-                topEmotion = j;
-                appendToGUIstate(std::to_string(j) + "/");
-                chunkEmotions += (emotions[j] + "/");
-            }
-        }
-        chunkEmotions.pop_back();
+        auto todoremove = emotions;
+        std::string chunkEmotions = getStrEmotion(this->topPredictedEmotions, emotions);
 
         float startTime = (startIdx * SD_HOP_SIZE / (float)SD_SAMPLERATE) + (i * 3.0f);
         float endTime = startTime + 3.0f;
         this->outputLabels.push_back(std::make_tuple(startTime, endTime, chunkEmotions));
         if (std::count(topPredictedEmotions.begin(), topPredictedEmotions.end(), true) > 1)
             this->outputLabelsInt.push_back(NUM_EMOTIONS);
-        else
+        else {
+            size_t topEmotion = 0;
+            for (size_t j = 0; j < topPredictedEmotions.size(); ++j)
+                if (topPredictedEmotions[j])
+                    topEmotion = j;
             this->outputLabelsInt.push_back(topEmotion);
+        }
 
 #ifdef GENERATE_AUDACITY_LABELS
         allPerChunkEmotions.push_back(chunkEmotions);
 #endif
 
-        popBackGUIstate();
         appendToGUIstate(" ");
     }
     appendToGUIstate("]");
@@ -714,30 +728,43 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
 #ifdef GENERATE_AUDACITY_LABELS
     std::string emotionLabels = "", softmaxLabels = "";
 
+    float firstStartTime = 0.0f, lastEndTime = 0.0f;
     for (size_t i = 0; i < numChunks; ++i) {
         float startTime = std::get<0>(outputLabels[i]);
         float endTime = std::get<1>(outputLabels[i]);
+        if (i == 0)
+            firstStartTime = startTime;
+        lastEndTime = endTime;
         // float startTime = (startIdx * SD_HOP_SIZE / (float)SD_SAMPLERATE) + (i * 3.0f);
         // float endTime = startTime + 3.0f;
         if (_verbose) std::cout << "Labeling chunk " << i << " which goes from " << startTime << " to " << endTime << std::endl;
         emotionLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + allPerChunkEmotions[i] + "\n";
         softmaxLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + softmaxOutsPrintable[i] + "\n";
     }
+    std::string topemo = getStrEmotion(this->topPredictedEmotions, emotions);
+    emotionLabels += std::to_string(firstStartTime) + "\t" + std::to_string(lastEndTime) + "\t" + topemo + "\n";
 
     // std::cout << emotionLabels << std::endl;
     // std::cout << softmaxLabels << std::endl;
 
+    std::replace( topemo.begin(), topemo.end(), '/', '+'); 
+    std::cout << "\"" << topemo << "\"" << std::endl;
+
     // remove extension from audioFilePath, append -audacity-emotion-labels.txt and write emotionLabels
-    std::string audacityEmotionLabelsFilePath = audioFilePath.substr(0, audioFilePath.find_last_of(".")) + "-audacity-emotion-labels.txt";
+    std::string audacityEmotionLabelsFilePath = audioFilePath.substr(0, audioFilePath.find_last_of(".")) + "-res"+topemo+"-audacity-emotion-labels.txt";
     std::ofstream audacityEmotionLabelsFile(audacityEmotionLabelsFilePath);
     audacityEmotionLabelsFile << emotionLabels;
     audacityEmotionLabelsFile.close();
 
     // remove extension from audioFilePath, append -audacity-softmax-labels.txt and write softmaxLabels
-    std::string audacitySoftmaxLabelsFilePath = audioFilePath.substr(0, audioFilePath.find_last_of(".")) + "-audacity-softmax-labels.txt";
+    std::string audacitySoftmaxLabelsFilePath = audioFilePath.substr(0, audioFilePath.find_last_of(".")) + "-res"+topemo+"-audacity-softmax-labels.txt";
     std::ofstream audacitySoftmaxLabelsFile(audacitySoftmaxLabelsFilePath);
     audacitySoftmaxLabelsFile << softmaxLabels;
     audacitySoftmaxLabelsFile.close();
+
+    // // remove extension from audioFilePath, append -result.txt and write result
+    // std::string audacityResultFilePath = audioFilePath.substr(0, audioFilePath.find_last_of(".")) + "-result.txt";
+    // std::ofstream audacityResultFile(audacityResultFilePath);
 
 #endif
 }
@@ -752,7 +779,7 @@ void ECProcessor::updateRecState() {
         } else {
             stopRecording();
             recordingStopped = true;
-            extractAndClassify(audioFilename);
+            extractAndClassify(audioFilename, VERBOSE_EXTRACT_CLASSIFY);
 #ifdef DO_REMOVE_OLD_RECORDINGS
             lastRecording2.deleteFile();
 #endif
