@@ -9,23 +9,19 @@
 #pragma once
 
 #include <JuceHeader.h>
+
+#include "OSCreceiver.h"
 #include "led.h"
 #include "levelMeter.h"
-#include "OSCreceiver.h"
 
-#define INSTRUMENT "electric"
-// #define INSTRUMENT "piano"
-
-
-class MainComponent   : public Component, public Button::Listener
-{
+class MainComponent : public Component, public Button::Listener {
 public:
     //==============================================================================
     MainComponent();
     ~MainComponent();
 
     //==============================================================================
-    void paint (Graphics&) override;
+    void paint(Graphics &) override;
     void resized() override;
 
     TextButton connectBtn;
@@ -35,20 +31,19 @@ public:
               OSC_SEND_PORT_2_TOPLUGIN = 8042,
               OSC_SEND_PORT_3_TOSUSHI = 24024;
 
+    Label instrumentLabel;
 
     TextEditor boardIpText, controllerIpText;
     Label boardIpLabel, controllerIpLabel;
 
-    
     const int RX_PORT_SERVER = 7042,
               RX_PORT_PLUGIN = 9042;
 
-    cOSC::Receiver oscReceiverFromServer,oscReceiverFromPlugin;
+    cOSC::Receiver oscReceiverFromServer, oscReceiverFromPlugin;
     void oscMessageReceived(const juce::OSCMessage &message);
     void setButtonsEnabled(bool enable);
     void setIPFieldsEnabled(bool enable);
     bool waitForHandshakeWithServer = false, waitForHandshakeWithPlugin = false;
-
 
     Slider gainSlider, silenceSlider;
     Label gainLabel, silenceLabel, silenceThresholdLabel;
@@ -59,14 +54,14 @@ public:
 
     TextButton startBtn, stopBtn;
     Label statusLabel;
-    void showStatus(int status); // 0 = disconnected, 1 = idle, 2 = recording, 3 = classifying
-
+    void showStatus(int status);  // 0 = disconnected, 1 = idle, 2 = recording, 3 = classifying
 
     class ReturnedEmotion {
         bool aggressive = false,
-            relaxed = false,
-            happy = false,
-            sad = false;
+             relaxed = false,
+             happy = false,
+             sad = false;
+
     public:
         void reset() {
             aggressive = false;
@@ -90,7 +85,7 @@ public:
             if (oneHotCode & 0b0010) happy = true;
             if (oneHotCode & 0b0001) sad = true;
         }
-        
+
         ReturnedEmotion(bool aggressive = false,
                         bool relaxed = false,
                         bool happy = false,
@@ -120,36 +115,21 @@ public:
 
     TextButton playExcerptBtn;
 
-
-    Rectangle<int> origEmoArea,resultStatusArea, wholearea, basearea;
+    Rectangle<int> origEmoArea, resultStatusArea, wholearea, basearea;
 
     TextButton renameBtn, nextFilenameBtn, prevFilenameBtn;
     TextEditor filename;
 
-
     Label fileCounterLabel;
 
-    void buttonClicked (Button *button);
+    void buttonClicked(Button *button);
 
-    void showConnectionErrorMessage (const juce::String& messageText)
-    {
-        juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon,
-                                                "Connection error",
-                                                messageText,
-                                                "OK");
+    void showConnectionErrorMessage(const juce::String &messageText) {
+        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon,
+                                               "Connection error",
+                                               messageText,
+                                               "OK");
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     typedef std::function<void(void)> TimerEventCallback;
     class PollingTimer : public Timer {
@@ -164,12 +144,10 @@ public:
     };
 
     void sendPluginHandshakePollingRoutine() {
-        oscSender2_toPlugin.send ("/handshake", juce::String(controllerIpText.getText().toStdString())); //Send handshake
+        oscSender2_toPlugin.send("/handshake", juce::String(controllerIpText.getText().toStdString()));  // Send handshake
     }
 
     PollingTimer pluginHandshakePoller{[this] { sendPluginHandshakePollingRoutine(); }};
-
-
 
 private:
     //==============================================================================
@@ -182,6 +160,5 @@ private:
     int filenameCounter = -1;
     std::vector<std::string> readnames;
 
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

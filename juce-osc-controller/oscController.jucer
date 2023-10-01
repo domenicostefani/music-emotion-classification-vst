@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="Qtu9LN" name="oscController" projectType="guiapp" displaySplashScreen="1"
-              jucerFormatVersion="1">
-  <MAINGROUP id="ZnJKpZ" name="oscController">
+<JUCERPROJECT id="Qtu9LN" name="Controller-EmotionAwareSMIs" projectType="guiapp"
+              displaySplashScreen="1" jucerFormatVersion="1" postExportShellCommandPosix="echo &quot;make CONFIG=&quot;ReleaseElectric&quot;\nmv build/Controller-EmotionAwareSMIs build/electricGuitar-controller\nmake CONFIG=&quot;ReleasePiano&quot;\nmv build/Controller-EmotionAwareSMIs build/piano-controller&quot;&gt;%%1%%/Builds/LinuxMakefile/compile.sh  &amp;&amp; chmod +x %%1%%/Builds/LinuxMakefile/compile.sh">
+  <MAINGROUP id="ZnJKpZ" name="Controller-EmotionAwareSMIs">
     <GROUP id="{C52B6BC7-4CD7-6EB0-BEB9-921967A1BF11}" name="Source">
       <FILE id="IeFWXK" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="KdQ7Ai" name="MainComponent.cpp" compile="1" resource="0"
@@ -11,31 +11,11 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <CODEBLOCKS_LINUX targetFolder="Builds/CodeBlocksLinux">
-      <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_audio_basics" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_core" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_events" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../../elkJUCE/modules"/>
-        <MODULEPATH id="juce_osc" path="../../../JUCE/modules"/>
-      </MODULEPATHS>
-    </CODEBLOCKS_LINUX>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
+        <CONFIGURATION isDebug="0" name="ReleaseElectric" defines="INSTRUMENT=&quot;electric&quot;"/>
+        <CONFIGURATION isDebug="0" name="ReleasePiano" defines="INSTRUMENT=&quot;piano&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_osc" path="../../juce"/>
