@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="TbYm8D" name="Controller-emoAsSMIs" projectType="audioplug"
+              useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
+              jucerFormatVersion="1" pluginFormats="buildStandalone" postExportShellCommandPosix="echo &quot;make CONFIG=&quot;ReleaseElectric&quot;\nmake CONFIG=&quot;ReleasePiano&quot;&quot;&gt;%%1%%/Builds/LinuxMakefile/compile.sh  &amp;&amp; chmod +x %%1%%/Builds/LinuxMakefile/compile.sh"
+              companyName="Domenico Stefani" companyEmail="domenico.stefani@unitn.it"
+              companyWebsite="http://work.domenicostefani.com/" pluginChannelConfigs="{0,2}, {0,2}">
+  <MAINGROUP id="qIy9u9" name="Controller-emoAsSMIs">
+    <GROUP id="{5E31E0A8-CDCD-82B9-D91A-F0094969E7B7}" name="Source">
+      <FILE id="T59dT4" name="initialComponent.h" compile="0" resource="0"
+            file="Source/initialComponent.h"/>
+      <FILE id="A4ulbU" name="initialComponent.cpp" compile="1" resource="0"
+            file="Source/initialComponent.cpp"/>
+      <FILE id="NQrnd1" name="OSCreceiver.h" compile="0" resource="0" file="Source/OSCreceiver.h"/>
+      <FILE id="ui0xdO" name="emotional_db.h" compile="0" resource="0" file="Source/emotional_db.h"/>
+      <FILE id="R8AiG6" name="led.h" compile="0" resource="0" file="Source/led.h"/>
+      <FILE id="ydRouv" name="levelMeter.h" compile="0" resource="0" file="Source/levelMeter.h"/>
+      <FILE id="SAlCbA" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="j4Cdb8" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="GBQzlm" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="WIV62d" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="oi7WK1" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="V4WhKb" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="DebugElectric" defines="INSTRUMENT=&quot;electric&quot;"/>
+        <CONFIGURATION isDebug="0" name="ReleaseElectric" defines="INSTRUMENT=&quot;electric&quot;"
+                       binaryPath="bin" targetName="eguitar-controller"/>
+        <CONFIGURATION isDebug="0" name="ReleasePiano" defines="INSTRUMENT=&quot;piano&quot;"
+                       binaryPath="bin" targetName="piano-Controller"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../JUCE/modules"/>
+        <MODULEPATH id="juce_osc" path="../../../JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_osc" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <LIVE_SETTINGS>
+    <LINUX/>
+  </LIVE_SETTINGS>
+</JUCERPROJECT>
