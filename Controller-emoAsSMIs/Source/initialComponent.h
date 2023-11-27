@@ -25,6 +25,8 @@ public:
 
     juce::String defdayText, defmonthText, defyearText;
 
+    // juce::Slider test; //TODO: remove
+
     std::function<void(juce::String, juce::String)> confirmDataFunction;
 private:
     

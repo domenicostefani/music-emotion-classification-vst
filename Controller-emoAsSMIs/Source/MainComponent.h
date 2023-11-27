@@ -18,7 +18,39 @@
 #include "wavPlayer.h"
 #include "emotional_db.h"
 
-// #define TEST_BTN
+#define TEST_BTN
+
+class BlinkingRectangle : public juce::Component, public juce::Timer {  
+public:
+    BlinkingRectangle(juce::Colour color) : color(color) {
+    }
+
+    void paint(juce::Graphics &g) override {
+        if (isOn) {
+            g.setColour(color);
+        } else {
+            g.setColour(juce::Colours::black);
+        }
+        g.fillRect(getLocalBounds());
+    }
+
+    void timerCallback() override {
+        isOn = !isOn;
+        repaint();
+    }
+
+    void startBlinking(int msInterval = 300) {
+        startTimer(msInterval);
+    }
+
+    void stopBlinking() {
+        stopTimer();
+        isOn = false;
+    }
+private:
+    juce::Colour color;
+    bool isOn = false;
+};
 
 class MainComponent : public juce::Component, juce::Button::Listener, juce::Slider::Listener {
 public:
@@ -30,7 +62,7 @@ public:
     void paint(juce::Graphics &) override;
     void resized() override;
 
-    juce::TextButton connectBtn, termBtn, explorerBtn;
+    juce::TextButton connectBtn, termBtn, explorerBtn, panicBtn;
     juce::TextEditor termText;
 
     const int OSC_SEND_PORT_1_TOSERVER = 6042,
@@ -50,6 +82,7 @@ public:
     void setWorkingCommandsEnabled(bool enable);
     void setIPFieldsEnabled(bool enable);
     void setRecCommandsEnabled(bool enable);
+    void setEnableExcerptButtons(bool doEnable);
     bool waitForHandshakeWithServer = false, waitForHandshakeWithPlugin = false;
 
     juce::Slider gainSlider, silenceSlider;
@@ -64,6 +97,7 @@ public:
         recNameLabel.setText("You are about to record\"" + name + "\"", juce::dontSendNotification);
     };
     juce::TextButton startBtn, stopBtn;
+    BlinkingRectangle recBlinker{juce::Colours::red};
     juce::Label statusLabel;
     void showStatus(int status);  // 0 = disconnected, 1 = idle, 2 = recording, 3 = classifying
 
@@ -150,6 +184,8 @@ public:
     void buttonClicked(juce::Button *button);
     void sliderValueChanged(juce::Slider *slider);
 
+    void openExplorer();
+
     void showConnectionErrorMessage(const juce::String &messageText) {
         juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon,
                                                "Connection error",
@@ -195,6 +231,7 @@ private:
     // void switchToPrevFilename();
     std::string getCurrentRecname();
     void advanceRecname();
+    void prevRecname();
     void resetRecname();
     int filenameCounter = 0;
     std::vector<std::string> recordingNames;
@@ -206,6 +243,9 @@ private:
     std::unique_ptr<SaveComponent> saveComponentPtr;
 
     std::unique_ptr<EmoDB> emoDB;
+
+    std::string dbTrack1 = {},
+                dbTrack2 = {};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

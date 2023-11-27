@@ -12,6 +12,7 @@
 #include <sstream>    // std::stringstream
 #include <stdexcept>  // std::runtime_error
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "initialComponent.h"
@@ -32,18 +33,22 @@ void MainComponent::showStatus(int status) {
     juce::Colour sc = juce::Colours::black;
     switch (status) {
         case 0:
+            recBlinker.stopBlinking();
             statusStr += "Disconnected";
             break;
         case 1:
             statusStr += "Idle";
+            recBlinker.stopBlinking();
             sc = juce::Colours::darkgreen;
             break;
         case 2:
             statusStr += "Recording";
             sc = juce::Colours::red;
+            recBlinker.startBlinking();
             break;
         case 3:
             statusStr += "Classifying";
+            recBlinker.stopBlinking();
             sc = juce::Colours::orange;
             break;
         default:
@@ -78,8 +83,22 @@ void MainComponent::openSaveBanner() {
         this->advanceRecname();
     };
 
+    auto advanceAndGetNext = [this]() {
+        std::cout << "getNextAndAdvance "
+                  << "\n";
+        this->advanceRecname();
+        return this->getCurrentRecname();
+    };
+
+    auto prevAndGetNext = [this]() {
+        std::cout << "getNextAndAdvance "
+                  << "\n";
+        this->prevRecname();
+        return this->getCurrentRecname();
+    };
+
     DBG("Creating saveComponentPtr");
-    saveComponentPtr = std::make_unique<SaveComponent>(getCurrentRecname(), saveAs, trash, advanceRecnameCb);
+    saveComponentPtr = std::make_unique<SaveComponent>(getCurrentRecname(), saveAs, trash, advanceRecnameCb, advanceAndGetNext, prevAndGetNext);
 
     juce::DialogWindow::LaunchOptions o;
     o.content.setOwned(saveComponentPtr.release());
@@ -224,6 +243,7 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
                                                        "Rename Error",
                                                        "Error in renaming last recording: There are multiple recordings that have not been renamed yet. I don't know if you want to keep the last or one of the previous ones",
                                                        "OK");
+                openExplorer();
 
             } else if (arg == juce::String("errorNoFile")) {
                 renamerLed.turnOn(juce::Colours::red);
@@ -231,6 +251,7 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
                                                        "Rename Error",
                                                        "Error in renaming: There are no recordings",
                                                        "OK");
+                openExplorer();
 
             } else if (arg == juce::String("errorOverwrite")) {
                 renamerLed.turnOn(juce::Colours::red);
@@ -238,6 +259,7 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
                                                        "Rename Error",
                                                        "Error in renaming: Name already exists!",
                                                        "OK");
+                openSaveBanner();
             };
         }
     } else {
@@ -263,19 +285,19 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
 }
 
 //==============================================================================
-MainComponent::MainComponent(EProcessor &p, 
+MainComponent::MainComponent(EProcessor &p,
                              std::vector<std::string> &recordingNames,
-                             std::unique_ptr<EmoDB>& emoDB) : meter([&]() { return this->getOscInLevel(); }),
-                                                                                        silenceLed([&]() { return !this->getOscIsSilent(); }),
-                                                                                        emoAggressiveLed([&]() { return this->returnedEmotion.getAggressive(); }),
-                                                                                        emoRelaxedLed([&]() { return this->returnedEmotion.getRelaxed(); }),
-                                                                                        emoHappyLed([&]() { return this->returnedEmotion.getHappy(); }),
-                                                                                        emoSadLed([&]() { return this->returnedEmotion.getSad(); }),
-                                                                                        oscReceiverFromServer(RX_PORT_SERVER, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); }),
-                                                                                        oscReceiverFromPlugin(RX_PORT_PLUGIN, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); }),
-                                                                                        audioProcessor(p),
-                                                                                        recordingNames(recordingNames),
-                                                                                        emoDB(std::move(emoDB)) {
+                             std::unique_ptr<EmoDB> &emoDB) : meter([&]() { return this->getOscInLevel(); }),
+                                                              silenceLed([&]() { return !this->getOscIsSilent(); }),
+                                                              emoAggressiveLed([&]() { return this->returnedEmotion.getAggressive(); }),
+                                                              emoRelaxedLed([&]() { return this->returnedEmotion.getRelaxed(); }),
+                                                              emoHappyLed([&]() { return this->returnedEmotion.getHappy(); }),
+                                                              emoSadLed([&]() { return this->returnedEmotion.getSad(); }),
+                                                              oscReceiverFromServer(RX_PORT_SERVER, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); }),
+                                                              oscReceiverFromPlugin(RX_PORT_PLUGIN, [&](const juce::OSCMessage &m) { this->oscMessageReceived(m); }),
+                                                              audioProcessor(p),
+                                                              recordingNames(recordingNames),
+                                                              emoDB(std::move(emoDB)) {
     setSize(600, 700);
 
     addAndMakeVisible(instrumentLabel);
@@ -300,6 +322,11 @@ MainComponent::MainComponent(EProcessor &p,
     addAndMakeVisible(explorerBtn);
     explorerBtn.setButtonText("Open Explorer");
     explorerBtn.addListener(this);
+
+    addAndMakeVisible(panicBtn);
+    panicBtn.setButtonText("Panic: RESTART PLUGIN ON THE BOARD");
+    panicBtn.addListener(this);
+    panicBtn.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkred);
 
     addAndMakeVisible(termText);
     termText.setText(TERM_TXT);
@@ -332,6 +359,7 @@ MainComponent::MainComponent(EProcessor &p,
                                                                     0.0001,
                                                                     0.4,
                                                                     false));
+    gainSlider.setSliderSnapsToMousePosition(false);
 
     gainSlider.addListener(this);
     gainSlider.setValue(0.999);  // TODO: Check why it is not working
@@ -350,6 +378,7 @@ MainComponent::MainComponent(EProcessor &p,
                                                                        0.0001,
                                                                        0.4,
                                                                        false));
+    silenceSlider.setSliderSnapsToMousePosition(false);
     silenceSlider.addListener(this);
 
     auto round1 = [](float var) {
@@ -444,11 +473,11 @@ MainComponent::MainComponent(EProcessor &p,
     sadTog.setButtonText("Sad");
 
     addAndMakeVisible(ex1Btn);
-    ex1Btn.setButtonText("1");
+    ex1Btn.setButtonText("Play/Stop 1");
     ex1Btn.addListener(this);
 
     addAndMakeVisible(ex2Btn);
-    ex2Btn.setButtonText("2");
+    ex2Btn.setButtonText("Play/Stop 2");
     ex2Btn.addListener(this);
 
     addAndMakeVisible(recNameLabel);
@@ -462,6 +491,7 @@ MainComponent::MainComponent(EProcessor &p,
     stopBtn.setButtonText("Stop");
     stopBtn.addListener(this);
 
+    addAndMakeVisible(recBlinker);
     addAndMakeVisible(statusLabel);
     // statusLabel.setText("Status: Idle",dontSendNotification);
     showStatus(0);
@@ -587,7 +617,9 @@ void MainComponent::resized() {
 
     termBtn.setBounds(termArea);
 
-    exparea.removeFromLeft(horBlock * 2 + 2 * hSeparator);
+    exparea.removeFromLeft(horBlock + hSeparator);
+    panicBtn.setBounds(exparea.removeFromLeft(horBlock));
+    exparea.removeFromLeft(hSeparator);
     explorerBtn.setBounds(exparea);
 
     auto gainControlArea = volumesArea.removeFromLeft(horBlock);
@@ -628,7 +660,9 @@ void MainComponent::resized() {
     auto stopArea = cromFromTopBottom(playStopStatusArea.removeFromLeft(horBlock * 0.7), 10, 10);
     stopBtn.setBounds(stopArea.reduced(5));
 
-    statusLabel.setBounds(cromFromTopBottom(playStopStatusArea, 10, 10));
+    auto statusArea = cromFromTopBottom(playStopStatusArea, 10, 10);
+    recBlinker.setBounds(statusArea);
+    statusLabel.setBounds(statusArea);
 
     // Emotion area
 
@@ -675,18 +709,15 @@ void MainComponent::resized() {
     aggrTog.setBounds(togglearea.removeFromLeft(fourth));
     relTog.setBounds(togglearea.removeFromLeft(fourth));
     hapTog.setBounds(togglearea.removeFromLeft(fourth));
-    sadTog.setBounds(togglearea); 
-
+    sadTog.setBounds(togglearea);
 
     playExcerptBtn.setBounds(cropFromLeftRight(databaseArea.removeFromLeft(thirdNospace * 2), 5, 5));
     ex1Btn.setBounds(cropFromLeftRight(databaseArea.removeFromLeft(thirdNospace / 2), 5, 5));
     ex2Btn.setBounds(cropFromLeftRight(databaseArea.removeFromLeft(thirdNospace / 2), 5, 5));
 
     // rename area
-
     auto renameAreaTop = renameArea.removeFromTop(renameArea.getHeight() / 2);
     auto renameAreaBottom = renameArea;
-
 #ifdef OLD_RENAMER
     nextFilenameBtn.setBounds(renameAreaTop.removeFromRight(thirdNospace / 2));
     fileCounterLabel.setBounds(renameAreaTop.removeFromRight(thirdNospace));
@@ -797,7 +828,13 @@ void MainComponent::buttonClicked(juce::Button *button) {
         }
 
     } else if (button == &termBtn) {
-        auto res = system(termText.getText().toStdString().c_str());  // -- bash -c 'ssh -t
+        // auto res = system(termText.getText().toStdString().c_str());  // -- bash -c 'ssh -t
+        // do the same but from separate thread
+        std::thread t([this]() {
+            auto res = system(termText.getText().toStdString().c_str());
+            std::cout << "Result of term: " << res << "\n";
+        });
+        t.detach();
 
     } else if (button == &playExcerptBtn) {
         auto aggr = aggrTog.getToggleState();
@@ -805,26 +842,50 @@ void MainComponent::buttonClicked(juce::Button *button) {
         auto hap = hapTog.getToggleState();
         auto sad = sadTog.getToggleState();
 
-        std::string t1 = emoDB->getTrackFromEmo(aggr, rel, hap, sad);
-        std::string t2 = emoDB->getTrackFromEmo(aggr, rel, hap, sad);
+        if (!aggr && !rel && !hap && !sad) {
+            std::cout << "No emotions selected\n";
+            return;
+        }
 
-        std::cout << "play 2 excerpts: " << t1 << " and " << t2 << "\n";
+        dbTrack1 = emoDB->getTrackFromEmo(aggr, rel, hap, sad);
+        dbTrack2 = emoDB->getTrackFromEmo(aggr, rel, hap, sad);
+
+        std::cout << "play 2 excerpts: " << dbTrack1 << " and " << dbTrack2 << "\n";
         std::cout << "With emotions " << (aggr ? "aggr" : "") << (rel ? "rel" : "") << (hap ? "hap" : "") << (sad ? "sad" : "") << "\n";
+        // audioProcessor.wavPlayer.play(dbTrack1.c_str());
+        // while (audioProcessor.wavPlayer.isPlaying());
+        // audioProcessor.wavPlayer.play(dbTrack2.c_str());
 
+        std::vector<std::string> tracks = {dbTrack1, dbTrack2};
+        audioProcessor.wavPlayer.play(tracks);
 
     } else if (button == &explorerBtn) {
-        juce::String expCommand = juce::String(EXPLORER) + juce::String(" sftp://mind@") + boardIpText.getText() +
-                                  juce::String("/udata/emoAwSMIs-recordings/unnamed/ &");
+        openExplorer();
+    } else if (button == &panicBtn) {
+        // use system to run ssh and send the command /home/mind/restart_emotion_service.sh
+        std::string command = "ssh -t root@" + boardIpText.getText().toStdString() + " /home/mind/restart_emotion_service.sh";
+        std::cout << "Running command: " << command << "\n";
+        auto res = system(command.c_str());
 
-        auto res = system(expCommand.toStdString().c_str());
+    } else if (button == &ex1Btn) {
+        // std::cout << "play excerpt 1\n";
+        if (dbTrack1 == "")
+            return;
+        audioProcessor.wavPlayer.clearPlaylist();
+        if (audioProcessor.wavPlayer.isPlaying() && audioProcessor.wavPlayer.getNowPlaying() == dbTrack1)
+            audioProcessor.wavPlayer.stop();
+        else
+            audioProcessor.wavPlayer.play(dbTrack1.c_str());
+    } else if (button == &ex2Btn) {
+        // std::cout << "play excerpt 2\n";
+        if (dbTrack2 == "")
+            return;
+        audioProcessor.wavPlayer.clearPlaylist();
+        if (audioProcessor.wavPlayer.isPlaying() && audioProcessor.wavPlayer.getNowPlaying() == dbTrack2)
+            audioProcessor.wavPlayer.stop();
+        else
+            audioProcessor.wavPlayer.play(dbTrack2.c_str());
     }
-    // else if (button == &ex1Btn) {
-    //     std::cout << "play excerpt 1\n";
-    //     // emoDB.playTrackEmo(1000,1); // TODO: fix
-    // } else if (button == &ex2Btn) {
-    //     std::cout << "play excerpt 2\n";
-    //     // emoDB.playTrackEmo(1000,2); // TODO: fix
-    // }
 #ifdef OLD_RENAMER
     else if (button == &renameBtn) {
         renamerLed.reset();
@@ -917,9 +978,31 @@ void MainComponent::advanceRecname() {
     setPreviewName(recordingNames.at(filenameCounter));
 }
 
+void MainComponent::prevRecname() {
+    if ((!recordingNames.empty()) && ((filenameCounter - 1) >= 0))
+        filenameCounter--;
+    setPreviewName(recordingNames.at(filenameCounter));
+}
+
 void MainComponent::resetRecname() {
     filenameCounter = 0;
     setPreviewName(recordingNames.at(filenameCounter));
+}
+
+void MainComponent::openExplorer() {
+    // juce::String expCommand = juce::String(EXPLORER) + juce::String(" sftp://mind@") + boardIpText.getText() +
+    //                           juce::String("/udata/emoAwSMIs-recordings/unnamed/ &");
+
+    // auto res = system(expCommand.toStdString().c_str());
+
+    // Run command in new thread
+    std::thread t([this]() {
+        juce::String expCommand = juce::String(EXPLORER) + juce::String(" sftp://mind@") + boardIpText.getText() +
+                                  juce::String("/udata/emoAwSMIs-recordings/unnamed/ &");
+
+        auto res = system(expCommand.toStdString().c_str());
+    });
+    t.detach();
 }
 
 void MainComponent::setWorkingCommandsEnabled(bool doEnable) {
@@ -962,4 +1045,10 @@ void MainComponent::setRecCommandsEnabled(bool doEnable) {
     startBtn.setEnabled(doEnable);
     startBtn.setColour(juce::TextButton::buttonColourId, doEnable ? juce::Colours::darkred : juce::Colours::grey);
     stopBtn.setEnabled(doEnable);
+}
+
+void MainComponent::setEnableExcerptButtons(bool doEnable) {
+    // playExcerptBtn.setEnabled(!doEnable);
+    ex1Btn.setEnabled(doEnable);
+    ex2Btn.setEnabled(doEnable);
 }

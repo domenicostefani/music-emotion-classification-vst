@@ -56,6 +56,20 @@ InitialComponent::InitialComponent(std::function<void(juce::String, juce::String
     dayText.setTextToShowWhenEmpty(defdayText, juce::Colours::lightgreen);
     monthText.setTextToShowWhenEmpty(defmonthText, juce::Colours::lightgreen);
     yearText.setTextToShowWhenEmpty(defyearText, juce::Colours::lightgreen);
+
+    // addAndMakeVisible(test); //TODO: remove
+    // test.setRange(0, 100);
+    // test.setValue(50);
+    // test.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    // test.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    // test.setColour(juce::Slider::ColourIds::textBoxTextColourId, juce::Colours::red);
+    // test.setColour(juce::Slider::ColourIds::textBoxBackgroundColourId, juce::Colours::black);
+    // test.setColour(juce::Slider::ColourIds::textBoxOutlineColourId, juce::Colours::red);
+    // // Disable click to set value, leave only dragging
+    // // Disable value jumps caused by mouse click
+    // test.setSliderSnapsToMousePosition(false);
+
+
 }
 
 InitialComponent::~InitialComponent() {
@@ -101,6 +115,8 @@ void InitialComponent::resized() {
 
 
     okBtn.setBounds(centerarea.removeFromTop(100).reduced(20));
+
+    // test.setBounds(centerarea.removeFromTop(400).reduced(20)); //TODO: remove
  
 }
 

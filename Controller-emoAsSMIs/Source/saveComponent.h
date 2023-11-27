@@ -4,35 +4,44 @@
 
 typedef std::function<void(std::string)> SvCallback;
 typedef std::function<void()> SvCallbackRoutine;
+typedef std::function<juce::String()> SvCallbackrstr;
 
 class SaveComponent : public juce::Component
 // , juce::Timer {
 {
 public:
     //==============================================================================
-    SaveComponent(juce::String saveName, SvCallback&& saveAsp, SvCallbackRoutine&& trashp, SvCallbackRoutine&& advanceRecname)
+    SaveComponent(juce::String saveName, SvCallback&& saveAsp, SvCallbackRoutine&& trashp, SvCallbackRoutine&& advanceRecname, SvCallbackrstr&& nextName, SvCallbackrstr&& prevName)
         : saveAs(std::move(saveAsp)),
           trash(std::move(trashp)),
           advanceRecname(std::move(advanceRecname)),
-          defSaveName(saveName) {
+          defSaveName(saveName),
+          nextName(std::move(nextName)),
+          prevName(std::move(prevName)){
         // startTimer(24);
 
         DBG("SaveComponent::SaveComponent() called");
-        if (defSaveName != "") {
-            DBG("SaveComponent::SaveComponent() called with saveName = " + saveName);
-            addAndMakeVisible(saveAsPrepname);
-            saveAsPrepname.setButtonText("Save as\n" + saveName);
-            saveAsPrepname.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgreen);
-            saveAsPrepname.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::green);
-            saveAsPrepname.onClick = [&] {
-                this->saveAs(this->defSaveName.toStdString());
-                advanceRecname();
-                this->close();
-            };
-        } else {
+        initGui();
+
+    }
+    ~SaveComponent() = default;
+
+    void initGui()  {
+        if (defSaveName == "") {
             defSaveName = "test.wav";
         }
 
+        DBG("SaveComponent::SaveComponent() called with saveName = " + defSaveName);
+        addAndMakeVisible(saveAsPrepname);
+        saveAsPrepname.setButtonText("Save as\n" + defSaveName);
+        saveAsPrepname.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::darkgreen);
+        saveAsPrepname.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::green);
+        saveAsPrepname.onClick = [&] {
+            this->saveAs(this->defSaveName.toStdString());
+            advanceRecname();
+            this->close();
+        };
+        
         addAndMakeVisible(SaveAsCustom);
         SaveAsCustom.setButtonText("Save as Custom Name");
         SaveAsCustom.onClick = [&] {
@@ -59,8 +68,25 @@ public:
             trash();
             close();
         };
+
+        addAndMakeVisible(tinyNext);
+        tinyNext.setButtonText(">");
+        tinyNext.onClick = [&] {
+            auto newname = nextName();
+            this->defSaveName = newname;
+            this->initGui();
+            this->repaint();
+        };
+
+        addAndMakeVisible(tinyPrev);
+        tinyPrev.setButtonText("<");
+        tinyPrev.onClick = [&] {
+            auto newname = prevName();
+            this->defSaveName = newname;
+            this->initGui();
+            this->repaint();
+        };
     }
-    ~SaveComponent() = default;
 
     //==============================================================================
     void paint(juce::Graphics& g) override {
@@ -71,6 +97,7 @@ public:
     void resized() override {
         auto area = getLocalBounds();
         auto redarea = area.reduced(20);
+        auto tinyarea = redarea.removeFromBottom(20);
         int sep = 20;
         int thirdwidth = (redarea.getWidth() - 2 * sep) / 3;
         int halfheight = (redarea.getHeight() - sep) / 2;
@@ -88,6 +115,13 @@ public:
         customName.setBounds(a2);
 
         moveToTrash.setBounds(a3);
+
+
+        int tinyBtnWidth = 30;
+        int aa = (thirdwidth - tinyBtnWidth)/2;
+        tinyarea.removeFromLeft(aa);
+        tinyPrev.setBounds(tinyarea.removeFromLeft(tinyBtnWidth));
+        tinyNext.setBounds(tinyarea.removeFromLeft(tinyBtnWidth));
     }
 
     // void timerCallback() override {
@@ -113,6 +147,9 @@ private:
 
     SvCallback saveAs;
     SvCallbackRoutine trash, advanceRecname;
+    SvCallbackrstr nextName, prevName;
+
+    juce::TextButton tinyNext, tinyPrev;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SaveComponent)
 };
