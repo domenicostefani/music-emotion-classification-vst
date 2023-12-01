@@ -57,6 +57,12 @@ public:
     
     WavPlayer wavPlayer;
 
+    // Interpolated gain
+    float playbackGain = 1.0f;
+    float lastPlaybackGain = 1.0f;
+    juce::AudioProcessorValueTreeState valueTreeState;
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EProcessor)

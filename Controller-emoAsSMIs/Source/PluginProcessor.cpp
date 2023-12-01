@@ -11,8 +11,9 @@
 
 //==============================================================================
 EProcessor::EProcessor()
+     : valueTreeState(*this, nullptr, "PARAMETERS", createParameterLayout())
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
+     ,AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
@@ -23,6 +24,18 @@ EProcessor::EProcessor()
 #endif
 {
 
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout EProcessor::createParameterLayout() {
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("gain", "gain",
+                                                               juce::NormalisableRange<float>(0.0f,
+                                                                                        5.0f,
+                                                                                        0.0001,
+                                                                                        0.4,
+                                                                                        false),
+                                                               1.f));
+    return {parameters.begin(), parameters.end()};
 }
 
 EProcessor::~EProcessor()
@@ -131,8 +144,13 @@ bool EProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 void EProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+ 
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     wavPlayer.processBlock(buffer, midiMessages);
+
+    playbackGain = ((juce::AudioParameterFloat *)valueTreeState.getParameter("gain"))->get();
+    buffer.applyGainRamp(0, buffer.getNumSamples(), lastPlaybackGain, playbackGain);
+    lastPlaybackGain = playbackGain;
 }
 
 //==============================================================================

@@ -20,6 +20,9 @@
 #define TERM_TXT "mate-terminal"
 #define EXPLORER "nautilus"
 
+typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+
+
 float MainComponent::getOscInLevel() const {
     return this->oscSaysMeter;
 }
@@ -305,6 +308,11 @@ MainComponent::MainComponent(EProcessor &p,
                                                               emoDB(std::move(emoDB)) {
     setSize(600, 800);
 
+
+    // cutoffSliderAttachment.reset(new SliderAttachment(valueTreeState,"cutoff_param",cutoffSlider));
+    playbackGainPotAttachment.reset(new SliderAttachment(p.valueTreeState,"gain",playbackGainPot));
+
+
     addAndMakeVisible(instrumentLabel);
     instrumentLabel.setJustificationType(juce::Justification::centred);
     // Set larger font
@@ -501,7 +509,18 @@ MainComponent::MainComponent(EProcessor &p,
     // statusLabel.setText("Status: Idle",dontSendNotification);
     showStatus(0);
 
-    addAndMakeVisible(renamerLed);
+    // addAndMakeVisible(renamerLed);
+
+    addAndMakeVisible(playbackGainLabel);
+    playbackGainLabel.setText("Vol.", juce::dontSendNotification);
+    playbackGainLabel.setJustificationType(juce::Justification::centred);
+    playbackGainLabel.setFont(juce::Font(10.0f, juce::Font::plain));
+
+    addAndMakeVisible(playbackGainPot);
+    playbackGainPot.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+    playbackGainPot.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    playbackGainPot.setPopupDisplayEnabled(true, true, this);
+
 
 #ifdef OLD_RENAMER
     addAndMakeVisible(renameBtn);
@@ -706,7 +725,11 @@ void MainComponent::resized() {
 
     databaseArea.removeFromTop(5);
     databaseArea.removeFromBottom(5);
+    auto ppp = databaseArea.removeFromRight(databaseArea.getHeight());
+    playbackGainLabel.setBounds(ppp.removeFromTop(10));
+    playbackGainPot.setBounds(ppp);
 
+    thirdNospace = databaseArea.getWidth() / 3;
     auto togglearea = databaseArea.removeFromTop(30);
     auto fourth = togglearea.getWidth() / 4;
     aggrTog.setBounds(togglearea.removeFromLeft(fourth));

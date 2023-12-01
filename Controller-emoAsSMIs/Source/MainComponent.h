@@ -12,15 +12,15 @@
 
 #include "OSCreceiver.h"
 #include "PluginProcessor.h"
+#include "emotional_db.h"
 #include "led.h"
 #include "levelMeter.h"
 #include "saveComponent.h"
 #include "wavPlayer.h"
-#include "emotional_db.h"
 
-#define TEST_BTN
+typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
-class BlinkingRectangle : public juce::Component, public juce::Timer {  
+class BlinkingRectangle : public juce::Component, public juce::Timer {
 public:
     BlinkingRectangle(juce::Colour color) : color(color) {
     }
@@ -47,6 +47,7 @@ public:
         stopTimer();
         isOn = false;
     }
+
 private:
     juce::Colour color;
     bool isOn = false;
@@ -55,7 +56,7 @@ private:
 class MainComponent : public juce::Component, juce::Button::Listener, juce::Slider::Listener {
 public:
     //==============================================================================
-    MainComponent(EProcessor &p, std::vector<std::string> &recordingNames, std::unique_ptr<EmoDB>& emoDB);
+    MainComponent(EProcessor &p, std::vector<std::string> &recordingNames, std::unique_ptr<EmoDB> &emoDB);
     ~MainComponent();
 
     //==============================================================================
@@ -175,10 +176,10 @@ public:
 
     juce::Rectangle<int> origEmoArea, resultStatusArea, wholearea, basearea, originalDatabaseArea;
 
-    #ifdef OLD_RENAMER
+#ifdef OLD_RENAMER
     juce::TextButton renameBtn, nextFilenameBtn, prevFilenameBtn;
     juce::TextEditor filename;
-    #endif
+#endif
     juce::Label renamerStatus;
     Gui::SimpleLed renamerLed;
 
@@ -219,6 +220,10 @@ public:
 
     void openSaveWindow();
     juce::TextButton saveWindowBtn;
+
+    juce::Label playbackGainLabel;
+    juce::Slider playbackGainPot;
+    std::unique_ptr<SliderAttachment> playbackGainPotAttachment;
 
 private:
     //==============================================================================
