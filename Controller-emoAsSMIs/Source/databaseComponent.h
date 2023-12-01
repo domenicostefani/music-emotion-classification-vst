@@ -7,15 +7,14 @@
 #pragma once
 
 #include <JuceHeader.h>
-
 #include <map>
 
-typedef std::function<void(std::map<int, std::vector<std::string>>)> DatabaseFunction;  // TODO: use
+typedef std::function<void(std::map<int, std::vector<std::string>>)> DBfunc;
 
 class DBComponent : public juce::Component {
 public:
     //==============================================================================
-    DBComponent(std::function<void(std::map<int, std::vector<std::string>>)>&& okdbfun) : confirmDbFunction(std::move(okdbfun)) {
+    DBComponent(DBfunc&& okdbfun, bool loadDefaultDb = false) : confirmDbFunction(std::move(okdbfun)) {
         addAndMakeVisible(openDir);
         openDir.setButtonText("Open Database Directory");
         openDir.onClick = [this] { openButtonClicked(); };
@@ -48,6 +47,10 @@ public:
             };
         } else
             defaultFolder = juce::File::getSpecialLocation(juce::File::userHomeDirectory);
+
+        if (tentDefaultFolder.exists() && loadDefaultDb) {
+            openDefaultDir.triggerClick();
+        }
     }
     ~DBComponent() = default;
 
@@ -177,7 +180,7 @@ public:
         confirmDbFunction(dbMap);
     }
 
-    std::function<void(std::map<int, std::vector<std::string>>)> confirmDbFunction;
+    DBfunc confirmDbFunction;
 
 private:
     juce::TextButton openDir, okBtn, openDefaultDir;

@@ -13,8 +13,8 @@
 PEditor::PEditor (EProcessor& p)
     : AudioProcessorEditor (&p), 
       audioProcessor (p),
-      initialComponent([&](juce::String a, juce::String b) {this->confirmSessionInfo(a,b); }),
-      dbComponent([&](std::map<int, std::vector<std::string>> a) {this->confirmDatabase(a);})
+      initialComponent([&](juce::String a, juce::String b) {this->confirmSessionInfo(a,b);}, [&](bool a) {this->skipDBwindow(a);}),
+      dbComponent([&](std::map<int, std::vector<std::string>> a) {this->confirmDatabase(a);},loadDefaultDb)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -124,6 +124,12 @@ void PEditor::confirmSessionInfo(juce::String playerId, juce::String dateStr) {
     this->repaint();
     this->resized();
 }
+
+void PEditor::skipDBwindow(bool doskip) {
+    this->loadDefaultDb = true;
+}
+
+
 
 
 

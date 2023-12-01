@@ -29,7 +29,7 @@ public:
         if (isOn) {
             g.setColour(color);
         } else {
-            g.setColour(juce::Colours::black);
+            g.setColour(juce::Colour(0x00000000));
         }
         g.fillRect(getLocalBounds());
     }
@@ -80,6 +80,8 @@ public:
     cOSC::Receiver oscReceiverFromServer, oscReceiverFromPlugin;
     void oscMessageReceived(const juce::OSCMessage &message);
     void setWorkingCommandsEnabled(bool enable);
+    void setDbCommandsEnabled(bool);
+    void clearDisplays();
     void setIPFieldsEnabled(bool enable);
     void setRecCommandsEnabled(bool enable);
     void setEnableExcerptButtons(bool doEnable);
@@ -94,10 +96,10 @@ public:
 
     juce::Label recNameLabel;
     std::function<void(std::string)> setPreviewName = [&](std::string name) {
-        recNameLabel.setText("You are about to record\"" + name + "\"", juce::dontSendNotification);
+        recNameLabel.setText("You are about to record \"" + name + "\"", juce::dontSendNotification);
     };
     juce::TextButton startBtn, stopBtn;
-    BlinkingRectangle recBlinker{juce::Colours::red};
+    BlinkingRectangle recBlinker{juce::Colours::darkred};
     juce::Label statusLabel;
     void showStatus(int status);  // 0 = disconnected, 1 = idle, 2 = recording, 3 = classifying
 
@@ -214,11 +216,8 @@ public:
     bool oscSaysSilent = true;
     float oscSaysMeter = -80.0f;
 
-    void openSaveBanner();
-
-#ifdef TEST_BTN
-    juce::TextButton TESTBTN;  // TODO: remove
-#endif
+    void openSaveWindow();
+    juce::TextButton saveWindowBtn;
 
 private:
     //==============================================================================

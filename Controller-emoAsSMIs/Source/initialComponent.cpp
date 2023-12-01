@@ -4,9 +4,10 @@
 
 #include "initialComponent.h"
 
-
-InitialComponent::InitialComponent(std::function<void(juce::String, juce::String)>&& confirmFunction): confirmDataFunction(std::move(confirmFunction)) {
-
+InitialComponent::InitialComponent(std::function<void(juce::String, juce::String)>&& confirmFunction,
+                                   std::function<void(bool)>&& skipDbSetupFunction)
+    : confirmDataFunction(std::move(confirmFunction)),
+      skipDbSetupFunction(std::move(skipDbSetupFunction)) {
     addAndMakeVisible(descLbl);
     descLbl.setText("Please enter an identifier for the musician and confirm the date of the experiment", juce::dontSendNotification);
     // descLbl.setMultiLine(true, true);
@@ -20,7 +21,6 @@ InitialComponent::InitialComponent(std::function<void(juce::String, juce::String
     addAndMakeVisible(playerIDText);
     playerIDText.setJustification(juce::Justification::centred);
     playerIDText.setTextToShowWhenEmpty("PlaIde", juce::Colours::red);
-
 
     addAndMakeVisible(dayLbl);
     dayLbl.setText("Day", juce::dontSendNotification);
@@ -57,30 +57,18 @@ InitialComponent::InitialComponent(std::function<void(juce::String, juce::String
     monthText.setTextToShowWhenEmpty(defmonthText, juce::Colours::lightgreen);
     yearText.setTextToShowWhenEmpty(defyearText, juce::Colours::lightgreen);
 
-    // addAndMakeVisible(test); //TODO: remove
-    // test.setRange(0, 100);
-    // test.setValue(50);
-    // test.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    // test.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
-    // test.setColour(juce::Slider::ColourIds::textBoxTextColourId, juce::Colours::red);
-    // test.setColour(juce::Slider::ColourIds::textBoxBackgroundColourId, juce::Colours::black);
-    // test.setColour(juce::Slider::ColourIds::textBoxOutlineColourId, juce::Colours::red);
-    // // Disable click to set value, leave only dragging
-    // // Disable value jumps caused by mouse click
-    // test.setSliderSnapsToMousePosition(false);
-
-
+    skipNextWindowBtn.setButtonText("Use default database path");
+    skipNextWindowBtn.setToggleState(true, juce::dontSendNotification);
+    addAndMakeVisible(skipNextWindowBtn);
 }
 
 InitialComponent::~InitialComponent() {
- 
 }
 
 //==============================================================================
-void InitialComponent::paint(juce::Graphics &g) {
+void InitialComponent::paint(juce::Graphics& g) {
     // g.setColour((isConnectionMade) ? juce::Colours::darkgreen : juce::Colours::red);
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
+    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 }
 
 void InitialComponent::resized() {
@@ -94,7 +82,7 @@ void InitialComponent::resized() {
     int pidareaheight = 50;
     auto playerIDArea = centerarea.removeFromTop(pidareaheight);
 
-    playerIDLbl.setBounds(playerIDArea.removeFromTop(pidareaheight*.5f));
+    playerIDLbl.setBounds(playerIDArea.removeFromTop(pidareaheight * .5f));
     playerIDText.setBounds(playerIDArea);
 
     int dateareaheight = 50;
@@ -102,24 +90,23 @@ void InitialComponent::resized() {
     int tirdwidth = dateArea.getWidth() / 3;
 
     auto dayArea = dateArea.removeFromLeft(tirdwidth);
-    dayLbl.setBounds(dayArea.removeFromTop(dateareaheight*.5f));
+    dayLbl.setBounds(dayArea.removeFromTop(dateareaheight * .5f));
     dayText.setBounds(dayArea);
 
     auto monthArea = dateArea.removeFromLeft(tirdwidth);
-    monthLbl.setBounds(monthArea.removeFromTop(dateareaheight*.5f));
+    monthLbl.setBounds(monthArea.removeFromTop(dateareaheight * .5f));
     monthText.setBounds(monthArea);
 
     auto yearArea = dateArea.removeFromLeft(tirdwidth);
-    yearLbl.setBounds(yearArea.removeFromTop(dateareaheight*.5f));
+    yearLbl.setBounds(yearArea.removeFromTop(dateareaheight * .5f));
     yearText.setBounds(yearArea);
 
+    centerarea.removeFromTop(20);
+    skipNextWindowBtn.setBounds(centerarea.removeFromTop(50));
+    centerarea.removeFromTop(20);
 
     okBtn.setBounds(centerarea.removeFromTop(100).reduced(20));
-
-    // test.setBounds(centerarea.removeFromTop(400).reduced(20)); //TODO: remove
- 
 }
-
 
 void InitialComponent::confirmAll() {
     auto playerId = playerIDText.getText();
@@ -130,9 +117,9 @@ void InitialComponent::confirmAll() {
         return;
     }
 
-    auto day =   dayText.getText()   == "" ? defdayText   : dayText.getText();
+    auto day = dayText.getText() == "" ? defdayText : dayText.getText();
     auto month = monthText.getText() == "" ? defmonthText : monthText.getText();
-    auto year =  yearText.getText()  == "" ? defyearText  : yearText.getText();
+    auto year = yearText.getText() == "" ? defyearText : yearText.getText();
 
     // std::cout << "Player ID: '" << playerId << "'" << std::endl;
     // std::cout << "Day: '" << day << "'" << std::endl;
@@ -141,13 +128,14 @@ void InitialComponent::confirmAll() {
     // std::cout << "Confirming all" << std::endl;
 
     auto result = juce::AlertWindow::showOkCancelBox(
-                    juce::AlertWindow::InfoIcon,
-                    "Confirm?",
-                    "Do you want to confirm the player ID and date ("+playerId.toStdString()+", "+day.toStdString()+"/"+month.toStdString()+"/"+year.toStdString()+" (dd/mm/yyyy)?\n\n",
-                    "Yes",
-                    "Cancel");
-                if (result == 1) {
-                    confirmDataFunction(playerId, year+month+day);
-                    return;
-                }
+        juce::AlertWindow::InfoIcon,
+        "Confirm?",
+        "Do you want to confirm the player ID and date (" + playerId.toStdString() + ", " + day.toStdString() + "/" + month.toStdString() + "/" + year.toStdString() + " (dd/mm/yyyy)?\n\n",
+        "Yes",
+        "Cancel");
+    if (result == 1) {
+        confirmDataFunction(playerId, year + month + day);
+        skipDbSetupFunction(skipNextWindowBtn.getToggleState());
+        return;
+    }
 }

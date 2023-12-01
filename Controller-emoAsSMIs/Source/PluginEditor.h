@@ -30,8 +30,9 @@ public:
     void resized() override;
 
 private:
-
+    bool loadDefaultDb = false;
     void confirmSessionInfo(juce::String playerId, juce::String dateStr);
+    void skipDBwindow(bool);
     void confirmDatabase(std::map<int, std::vector<std::string>> dbmap);
 
     // This reference is provided as a quick way for your editor to

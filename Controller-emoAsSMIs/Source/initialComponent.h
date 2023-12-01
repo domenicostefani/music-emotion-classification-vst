@@ -9,11 +9,12 @@
 class InitialComponent : public juce::Component {
 public:
     //==============================================================================
-    InitialComponent(std::function<void(juce::String, juce::String)>&& confirmFunction);
+    InitialComponent(std::function<void(juce::String, juce::String)>&& confirmFunction,
+                                       std::function<void(bool)>&& skipDbSetupFunction);
     ~InitialComponent();
 
     //==============================================================================
-    void paint(juce::Graphics &) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
     juce::TextButton okBtn;
@@ -25,11 +26,11 @@ public:
 
     juce::String defdayText, defmonthText, defyearText;
 
-    // juce::Slider test; //TODO: remove
-
     std::function<void(juce::String, juce::String)> confirmDataFunction;
+    std::function<void(bool)> skipDbSetupFunction;
+
 private:
-    
+    juce::ToggleButton skipNextWindowBtn;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InitialComponent)
 };
-

@@ -43,12 +43,16 @@ public:
         g.fillRect(bounds);
 
         g.setGradientFill(gradient);
-        const auto scaLevelMeterY = juce::jmap(valueSupplier(), MIN_DB, MAX_DB, MIN_HEIGHT, MAX_HEIGHT);
+
+        float value =  valueSupplier();
+        if (this->setToClear.exchange(false)) {
+            value = MIN_DB;
+        }
+        const auto scaLevelMeterY = juce::jmap(value, MIN_DB, MAX_DB, MIN_HEIGHT, MAX_HEIGHT);
         g.fillRect(bounds.removeFromBottom(scaLevelMeterY));
 
-        // If valueSupplier clips (> 0.0) paint permanently the part between 0 and 6 dB
 
-        if (valueSupplier() >= 0.f) {
+        if (value >= 0.f && !setToClear.load()) {
             clipped = true;
         }
 
@@ -81,10 +85,15 @@ public:
             backColour = juce::Colours::black;
         } else {
             stopTimer();
+            this->clear();
             textColour = juce::Colours::grey;
             backColour = juce::Colours::darkgrey;
         }
 
+    }
+
+    void clear() {
+        setToClear.store(true);
     }
 
 private:
@@ -92,6 +101,7 @@ private:
     juce::ColourGradient gradient{};
     juce::Image grill;
     bool clipped = false;
+    std::atomic<bool> setToClear{false};
 
     juce::Colour textColour{juce::Colours::white},
                 backColour{juce::Colours::black};

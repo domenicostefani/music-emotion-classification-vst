@@ -5,6 +5,7 @@
 namespace Gui {
 class Led : public juce::Component, public juce::Timer {
     juce::String text = "";
+    bool setToClear{false};
 
 public:
     Led(std::function<bool()>&& valueFunction) : valueSupplier(std::move(valueFunction)) {
@@ -16,7 +17,12 @@ public:
     }
 
     void paint(juce::Graphics& g) override {
-        g.fillAll((valueSupplier()) ? juce::Colours::orange : juce::Colours::grey);
+        auto val = valueSupplier();
+        if (setToClear) {
+            setToClear = false;
+            val = false;
+        }
+        g.fillAll(val ? juce::Colours::orange : juce::Colours::grey);
 
         g.setColour(borderColour);
         g.drawRect(getLocalBounds(), 1);  // draw an outline around the component
@@ -32,6 +38,10 @@ public:
 
     void timerCallback() override {
         repaint();
+    }
+
+    void reset() {
+        setToClear = true;
     }
 
     void setEnabled(bool enabled) {
@@ -79,16 +89,16 @@ public:
         this->state = state;
     }
 
-    void setColor (juce::Colour color) {
+    void setColor(juce::Colour color) {
         this->colorON = color;
     }
 
-    void reset(){
+    void reset() {
         state = false;
         repaint();
     }
 
-    void turnOn(juce::Colour color){
+    void turnOn(juce::Colour color) {
         setColor(color);
         set(true);
     }

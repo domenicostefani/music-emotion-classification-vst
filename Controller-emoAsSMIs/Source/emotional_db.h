@@ -16,11 +16,11 @@ public:
             // Also init map with current read position in the shuffled indexes
             readPos[pair.first] = 0;
 
-            std::cout << "Shuffled indexes for emotion " << pair.first << ": ";
-            for (auto &index : indexes) {
-                std::cout << index << " ";
-            }
-            std::cout << std::endl;
+            // std::cout << "Shuffled indexes for emotion " << pair.first << ": ";
+            // for (auto &index : indexes) {
+            //     std::cout << index << " ";
+            // }
+            // std::cout << std::endl;
         }
     }
     ~EmoDB() = default;

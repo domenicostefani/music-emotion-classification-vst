@@ -21,7 +21,6 @@
 #define EXPLORER "nautilus"
 
 float MainComponent::getOscInLevel() const {
-    // return -60.0f;  // TODO fix
     return this->oscSaysMeter;
 }
 bool MainComponent::getOscIsSilent() const {
@@ -60,8 +59,8 @@ void MainComponent::showStatus(int status) {
     statusLabel.setText(statusStr, juce::dontSendNotification);
 }
 
-void MainComponent::openSaveBanner() {
-    DBG("openSaveBanner called");
+void MainComponent::openSaveWindow() {
+    DBG("openSaveWindow called");
     auto saveAs = [this](std::string strfilename) {
         std::cout << "Saving as " << strfilename << "\n";
         if (!oscSender1_toserver.send("/rename", juce::String(strfilename)))
@@ -198,8 +197,8 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
     } else if (message.getAddressPattern() == juce::OSCAddressPattern("/emotion")) {
         // std::cout << "Received emotion result" << std::endl;
         if (message.size() == 1) {
-            resultErrorLabel.setText("Error: recording too int or silent", juce::dontSendNotification);
             resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::red);
+            resultErrorLabel.setText("Error: recording too int or silent", juce::dontSendNotification);
 
             // Send a deleteUnnamed message to the server
             oscSender1_toserver.send("/deleteUnnamed");
@@ -216,9 +215,9 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
             //     resultErrorLabel.setText("Error: recording too int or silent", juce::dontSendNotification);
             //     resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::red);
             // } else {
-            resultErrorLabel.setText(juce::String("Received result ") + juce::String(std::to_string(resEmo)), juce::dontSendNotification);
-            openSaveBanner();
+            openSaveWindow();
             resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::darkgreen);
+            resultErrorLabel.setText(juce::String("Received result ") + juce::String(std::to_string(resEmo)), juce::dontSendNotification);
             returnedEmotion.set(resEmo);
 
             aggrTog.setToggleState(returnedEmotion.getAggressive(), juce::dontSendNotification);
@@ -259,7 +258,7 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
                                                        "Rename Error",
                                                        "Error in renaming: Name already exists!",
                                                        "OK");
-                openSaveBanner();
+                openSaveWindow();
             };
         }
     } else {
@@ -298,7 +297,7 @@ MainComponent::MainComponent(EProcessor &p,
                                                               audioProcessor(p),
                                                               recordingNames(recordingNames),
                                                               emoDB(std::move(emoDB)) {
-    setSize(600, 700);
+    setSize(600, 800);
 
     addAndMakeVisible(instrumentLabel);
     instrumentLabel.setJustificationType(juce::Justification::centred);
@@ -369,7 +368,7 @@ MainComponent::MainComponent(EProcessor &p,
 
     addAndMakeVisible(silenceSlider);
     // silenceSlider.setRange(0.0, 1.0);
-    gainSlider.setValue(0.0);
+    // gainSlider.setValue(0.0);
     silenceSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     silenceSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
     silenceSlider.setTextValueSuffix(" dB");
@@ -524,11 +523,10 @@ MainComponent::MainComponent(EProcessor &p,
     // double sr = getSampleRate();
     // emoDB.prepareToPlay();
 
-#ifdef TEST_BTN
-    TESTBTN.setButtonText("SAVE TEST");              // TODO:remove
-    TESTBTN.onClick = [this] { openSaveBanner(); };  // TODO:remove
-    addAndMakeVisible(TESTBTN);                      // TODO:remove
-#endif
+    saveWindowBtn.setButtonText("Reopen Save Window");
+    saveWindowBtn.onClick = [this] { openSaveWindow(); };
+    addAndMakeVisible(saveWindowBtn);
+
     resetRecname();
 }
 
@@ -568,12 +566,9 @@ void MainComponent::resized() {
     basearea = wholearea.reduced(8);
 
     auto area = basearea.reduced(10);
-#ifdef TEST_BTN
-    TESTBTN.setBounds(area.removeFromTop(30));  // TODO: remove
-#endif
 
     instrumentLabel.setBounds(area.removeFromTop(40));
-    juce::Rectangle<int> top = area.removeFromTop(50);
+    auto connectArea = area.removeFromTop(70);
     area.removeFromTop(vSeparator);
 
     int vIntervals = 5;
@@ -588,7 +583,7 @@ void MainComponent::resized() {
     repaint();
 
     area.removeFromTop(vSeparator);
-    juce::Rectangle<int> databaseArea = area.removeFromTop(60);
+    juce::Rectangle<int> databaseArea = area.removeFromTop(90);
     originalDatabaseArea = databaseArea;
     area.removeFromTop(vSeparator);
     juce::Rectangle<int> renameArea = area;
@@ -596,12 +591,12 @@ void MainComponent::resized() {
     int hSeparator = 15, blocks = 3;
     int horBlock = (area.getWidth() - (hSeparator * (blocks - 1))) / blocks;
 
-    auto labelStrip = top.removeFromTop(top.getHeight() / 2);
+    auto labelStrip = connectArea.removeFromTop(connectArea.getHeight() / 2);
     boardIpLabel.setBounds(labelStrip.removeFromLeft(horBlock));
     labelStrip.removeFromLeft(hSeparator);
     controllerIpLabel.setBounds(labelStrip.removeFromLeft(horBlock));
 
-    auto connectInputStrip = top;
+    auto connectInputStrip = connectArea;
 
     boardIpText.setBounds(connectInputStrip.removeFromLeft(horBlock));
     connectInputStrip.removeFromLeft(hSeparator);
@@ -649,8 +644,8 @@ void MainComponent::resized() {
 
     // playStopStatusArea
 
-    auto cromFromTopBottom = [](auto area, int top, int bottom) {
-        area.removeFromTop(top);
+    auto cromFromTopBottom = [](auto area, int topam, int bottom) {
+        area.removeFromTop(topam);
         area.removeFromBottom(bottom);
         return area;
     };
@@ -660,7 +655,8 @@ void MainComponent::resized() {
     auto stopArea = cromFromTopBottom(playStopStatusArea.removeFromLeft(horBlock * 0.7), 10, 10);
     stopBtn.setBounds(stopArea.reduced(5));
 
-    auto statusArea = cromFromTopBottom(playStopStatusArea, 10, 10);
+    saveWindowBtn.setBounds(playStopStatusArea.removeFromBottom(30));
+    auto statusArea = playStopStatusArea;
     recBlinker.setBounds(statusArea);
     statusLabel.setBounds(statusArea);
 
@@ -716,19 +712,17 @@ void MainComponent::resized() {
     ex2Btn.setBounds(cropFromLeftRight(databaseArea.removeFromLeft(thirdNospace / 2), 5, 5));
 
     // rename area
+#ifdef OLD_RENAMER
     auto renameAreaTop = renameArea.removeFromTop(renameArea.getHeight() / 2);
     auto renameAreaBottom = renameArea;
-#ifdef OLD_RENAMER
     nextFilenameBtn.setBounds(renameAreaTop.removeFromRight(thirdNospace / 2));
     fileCounterLabel.setBounds(renameAreaTop.removeFromRight(thirdNospace));
     prevFilenameBtn.setBounds(renameAreaTop.removeFromRight(thirdNospace / 2));
-#endif
 
     // auto statusStrip = renameAreaBottom.removeFromBottom(25);
     // renamerStatus.setBounds(statusStrip.removeFromLeft(area.getWidth()*0.75f));
 
     renamerLed.setBounds(renameAreaBottom.removeFromLeft(20));
-#ifdef OLD_RENAMER
     renameBtn.setBounds(renameAreaBottom.removeFromLeft(thirdNospace - 20));
     filename.setBounds(renameAreaBottom.removeFromLeft(thirdNospace * 2));
 #endif
@@ -790,6 +784,7 @@ void MainComponent::buttonClicked(juce::Button *button) {
             termText.setText(juce::String(TERM_TXT));
             termBtn.setButtonText("Open Empty Term");
 
+            clearDisplays();
             repaint();
         } else {
             std::string controllerIpAddr = controllerIpText.getText().toStdString();
@@ -1005,10 +1000,42 @@ void MainComponent::openExplorer() {
     t.detach();
 }
 
+void MainComponent::setDbCommandsEnabled(bool doEnable)
+{
+    playExcerptBtn.setEnabled(doEnable);
+    ex1Btn.setEnabled(doEnable);
+    ex2Btn.setEnabled(doEnable);
+
+    aggrTog.setEnabled(doEnable);
+    relTog.setEnabled(doEnable);
+    hapTog.setEnabled(doEnable);
+    sadTog.setEnabled(doEnable);
+}
+
+/**
+ * @brief Clear all meters, text and other way of displaying board info
+ * 
+ */
+void MainComponent::clearDisplays() {
+    // Clear all meters
+    meter.clear();
+    silenceLed.reset();
+    emoAggressiveLed.reset();
+    emoRelaxedLed.reset();
+    emoHappyLed.reset();
+    emoSadLed.reset();
+
+    // Clear all text
+    recNameLabel.setText("", juce::dontSendNotification);
+    statusLabel.setText("", juce::dontSendNotification);
+    resultErrorLabel.setText("", juce::dontSendNotification);
+
+}
+
 void MainComponent::setWorkingCommandsEnabled(bool doEnable) {
-    // playExcerptBtn.setEnabled(doEnable); TODO: lock after testing
-    // ex1Btn.setEnabled(doEnable);
-    // ex2Btn.setEnabled(doEnable);
+    
+    setDbCommandsEnabled(doEnable);
+    saveWindowBtn.setEnabled(doEnable);
 
     setRecCommandsEnabled(doEnable);
 
@@ -1043,7 +1070,7 @@ void MainComponent::setIPFieldsEnabled(bool doEnable) {
 
 void MainComponent::setRecCommandsEnabled(bool doEnable) {
     startBtn.setEnabled(doEnable);
-    startBtn.setColour(juce::TextButton::buttonColourId, doEnable ? juce::Colours::darkred : juce::Colours::grey);
+    startBtn.setColour(juce::TextButton::buttonColourId, doEnable ? juce::Colours::darkgreen : juce::Colours::grey);
     stopBtn.setEnabled(doEnable);
 }
 
