@@ -74,6 +74,9 @@ void MainComponent::openSaveWindow() {
         if (!oscSender1_toserver.send("/deleteUnnamed"))
             showConnectionErrorMessage("Error: could not send OSC message.");
         setRecCommandsEnabled(true);
+        dontShowResultsBecauseTrash = true;
+        clearDisplays();
+        repaint();
     };
 
     auto advanceRecnameCb = [this]() {
@@ -216,20 +219,23 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
             //     resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::red);
             // } else {
             openSaveWindow();
-            resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::darkgreen);
-            resultErrorLabel.setText(juce::String("Received result ") + juce::String(std::to_string(resEmo)), juce::dontSendNotification);
-            returnedEmotion.set(resEmo);
 
-            aggrTog.setToggleState(returnedEmotion.getAggressive(), juce::dontSendNotification);
-            relTog.setToggleState(returnedEmotion.getRelaxed(), juce::dontSendNotification);
-            hapTog.setToggleState(returnedEmotion.getHappy(), juce::dontSendNotification);
-            sadTog.setToggleState(returnedEmotion.getSad(), juce::dontSendNotification);
-            // }
-            // emoAggressiveLed.repaint();
-            // emoRelaxedLed.repaint();
-            // emoHappyLed.repaint();
-            // emoSadLed.repaint();
-        }
+            if (!dontShowResultsBecauseTrash)
+            {
+                resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::darkgreen);
+                resultErrorLabel.setText(juce::String("Received result ") + juce::String(std::to_string(resEmo)), juce::dontSendNotification);
+                returnedEmotion.set(resEmo);
+
+                aggrTog.setToggleState(returnedEmotion.getAggressive(), juce::dontSendNotification);
+                relTog.setToggleState(returnedEmotion.getRelaxed(), juce::dontSendNotification);
+                hapTog.setToggleState(returnedEmotion.getHappy(), juce::dontSendNotification);
+                sadTog.setToggleState(returnedEmotion.getSad(), juce::dontSendNotification);
+            }
+            else
+            {
+                dontShowResultsBecauseTrash = false;
+            }
+            }
     } else if (message.getAddressPattern() == juce::OSCAddressPattern("/renamed")) {
         if (message.size() == 1 && message[0].isString()) {
             auto arg = message[0].getString();
@@ -605,13 +611,14 @@ void MainComponent::resized() {
     connectBtn.setBounds(connectInputStrip);
 
     auto exparea = termArea.removeFromBottom(30);
-    termArea.removeFromTop(5);
+    termArea.removeFromTop(10);
     termArea.removeFromBottom(5);
     termText.setBounds(termArea.removeFromLeft(horBlock * 2 + hSeparator));
     termArea.removeFromLeft(hSeparator);
 
     termBtn.setBounds(termArea);
 
+    exparea.removeFromBottom(5);
     exparea.removeFromLeft(horBlock + hSeparator);
     panicBtn.setBounds(exparea.removeFromLeft(horBlock));
     exparea.removeFromLeft(hSeparator);
@@ -759,6 +766,11 @@ void MainComponent::buttonClicked(juce::Button *button) {
         oscSender3_toSushi.send("/parameter/emotionclassifier/recstate", (float)1.0f);
         returnedEmotion.set(0);
         resultErrorLabel.setText("", juce::dontSendNotification);
+
+        aggrTog.setToggleState(false, juce::dontSendNotification);
+        relTog.setToggleState(false, juce::dontSendNotification);
+        hapTog.setToggleState(false, juce::dontSendNotification);
+        sadTog.setToggleState(false, juce::dontSendNotification);
         // resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::red);
     } else if (button == &stopBtn) {
         std::cout << "stop\n";
@@ -1026,10 +1038,7 @@ void MainComponent::clearDisplays() {
     emoSadLed.reset();
 
     // Clear all text
-    recNameLabel.setText("", juce::dontSendNotification);
-    statusLabel.setText("", juce::dontSendNotification);
     resultErrorLabel.setText("", juce::dontSendNotification);
-
 }
 
 void MainComponent::setWorkingCommandsEnabled(bool doEnable) {

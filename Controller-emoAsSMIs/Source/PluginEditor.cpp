@@ -13,8 +13,7 @@
 PEditor::PEditor (EProcessor& p)
     : AudioProcessorEditor (&p), 
       audioProcessor (p),
-      initialComponent([&](juce::String a, juce::String b) {this->confirmSessionInfo(a,b);}, [&](bool a) {this->skipDBwindow(a);}),
-      dbComponent([&](std::map<int, std::vector<std::string>> a) {this->confirmDatabase(a);},loadDefaultDb)
+      initialComponent([&](juce::String a, juce::String b) {this->confirmSessionInfo(a,b);}, [&](bool a) {this->skipDBwindow(a);})
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -64,7 +63,7 @@ void PEditor::resized()
     //         mainComponentPtr->setBounds(area);
     //         break;
     //     case VisibleComponent::dbc:
-    //         dbComponent.setBounds(area);
+    //         dbComponentPtr->setBounds(area);
     //         break;
     //     default:
     //         std::cout << "ERROR: unknown visibleComponent" << std::endl;
@@ -77,7 +76,8 @@ void PEditor::resized()
         mainComponentPtr->setBounds(area);
     } else if (visibleComponent == VisibleComponent::dbc) {
         std::cout << "Setting bounds for dbComponent" << std::endl;
-        dbComponent.setBounds(area);
+        if (dbComponentPtr)
+            dbComponentPtr->setBounds(area);
     } else {
         std::cout << "ERROR: unknown visibleComponent" << std::endl;
         exit(1);
@@ -118,7 +118,11 @@ void PEditor::confirmSessionInfo(juce::String playerId, juce::String dateStr) {
     // }
 
     std::cout << "Instantiating DBComponent" << std::endl << std::flush;
-    addAndMakeVisible(dbComponent);
+    std::cout << "loadDefaultDb: " << loadDefaultDb << std::endl << std::flush;
+    dbComponentPtr = std::make_unique<DBComponent>([&](std::map<int, std::vector<std::string>> a) {this->confirmDatabase(a);},loadDefaultDb);
+
+    // dbComponent([&](std::map<int, std::vector<std::string>> a) {this->confirmDatabase(a);},loadDefaultDb)
+    addAndMakeVisible(*dbComponentPtr);
     initialComponent.setVisible(false);
     this->visibleComponent = VisibleComponent::dbc;
     this->repaint();
@@ -126,7 +130,7 @@ void PEditor::confirmSessionInfo(juce::String playerId, juce::String dateStr) {
 }
 
 void PEditor::skipDBwindow(bool doskip) {
-    this->loadDefaultDb = true;
+    this->loadDefaultDb = doskip;
 }
 
 
@@ -137,7 +141,7 @@ void PEditor::confirmDatabase(std::map<int, std::vector<std::string>> dbmap) {
     auto emoDBptr = std::make_unique<EmoDB>(dbmap);
     mainComponentPtr = std::make_unique<MainComponent>(audioProcessor, recording_filenames, emoDBptr);
     addAndMakeVisible(*mainComponentPtr);
-    dbComponent.setVisible(false);
+    dbComponentPtr->setVisible(false);
     this->visibleComponent = VisibleComponent::mainc;
     this->repaint();
     this->resized();

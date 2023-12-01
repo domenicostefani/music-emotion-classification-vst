@@ -134,8 +134,9 @@ void InitialComponent::confirmAll() {
         "Yes",
         "Cancel");
     if (result == 1) {
-        confirmDataFunction(playerId, year + month + day);
+        std::cout << "Skip next window: " << skipNextWindowBtn.getToggleState() << std::endl;
         skipDbSetupFunction(skipNextWindowBtn.getToggleState());
+        confirmDataFunction(playerId, year + month + day);
         return;
     }
 }

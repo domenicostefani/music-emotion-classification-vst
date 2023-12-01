@@ -86,6 +86,7 @@ public:
     void setRecCommandsEnabled(bool enable);
     void setEnableExcerptButtons(bool doEnable);
     bool waitForHandshakeWithServer = false, waitForHandshakeWithPlugin = false;
+    bool dontShowResultsBecauseTrash = false;
 
     juce::Slider gainSlider, silenceSlider;
     juce::Label gainLabel, silenceLabel, silenceThresholdLabel;

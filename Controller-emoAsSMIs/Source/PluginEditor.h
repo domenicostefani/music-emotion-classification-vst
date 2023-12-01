@@ -40,7 +40,8 @@ private:
     EProcessor& audioProcessor;
     std::unique_ptr<MainComponent> mainComponentPtr;
     InitialComponent initialComponent;
-    DBComponent dbComponent;
+    // DBComponent dbComponent;
+    std::unique_ptr<DBComponent> dbComponentPtr;
 
     std::vector<std::string> recording_filenames;
 
