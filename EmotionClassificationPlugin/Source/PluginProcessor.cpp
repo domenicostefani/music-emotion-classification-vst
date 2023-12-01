@@ -12,6 +12,11 @@
 
 // #define VERBOSE_PRINT
 
+inline void DBGLOG(std::string s) {
+    // juce::Logger::writeToLog("Debug: "+juce::String(s));
+    DBG(juce::String(s));
+}
+
 #define VERBOSE_EXTRACT_CLASSIFY true
 
 // Load the model and init the interpreter
@@ -513,7 +518,7 @@ inline std::string ECProcessor::getStrEmotion(const std::vector<bool> &predicted
     if (intemo.size() > 0)
         intemo.pop_back();
     this->appendToGUIstate(intemo);
-    std::cout << "Appending \"" << intemo << "\" to GUI state" << std::endl;
+    DBGLOG("Appending \"" + intemo + "\" to GUI state");
     chunkEmotions.pop_back();
     return chunkEmotions;
 }
@@ -586,6 +591,7 @@ size_t ambivalentSoftVoting(const std::vector<std::vector<float>> &input, const 
 }
 
 void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
+    DBGLOG("\n\n\n\n\n\n\n\n\n\n\n\n");
     this->oscSender.sendMessage("/state", (int)STATE_CLASSIFYING);
 #ifdef VERBOSE_PRINT
     std::cout << "Extracting and classifying " << audioFilePath << std::endl;
@@ -620,11 +626,12 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
 
     extractionPipeline.extractFromFile(audioFilePath, featvec);
 #ifdef VERBOSE_PRINT
-    DBG("Extracted features:\n");
+    DBGLOG("Extracted features:\n");
 #endif
 
     appendToGUIstate("\nExtracted " + std::to_string(featvec[0].size()) + " features from " + std::to_string(featvec.size()) + " frames");
-
+    DBGLOG("Extracted " + std::to_string(featvec[0].size()) + " features from " + std::to_string(featvec.size()) + " frames");
+    DBGLOG("Last index is " + std::to_string(featvec.size() - 1));
 #ifdef VERBOSE_PRINT
     print2DVectorHead(featvec);
 #endif
@@ -632,13 +639,41 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
     std::pair<size_t, size_t> startstop = performanceStartStop.computeFromFile(audioFilePath, silenceThreshold);
     size_t startIdx = startstop.first;
     size_t stopIdx = startstop.second;
+    DBGLOG("Featvec indexes: [0,"+std::to_string(featvec.size())+"]");
+    DBGLOG("Start: " + std::to_string(startIdx) + ", Stop: " + std::to_string(stopIdx));
+
+    if (startIdx > stopIdx) {
+        throw std::runtime_error("Error: startIdx > stopIdx! (startIdx: " + std::to_string(startIdx) + ", stopIdx: " + std::to_string(stopIdx) + ", featvec.size()" + std::to_string(featvec.size()) + ")");
+    }
 
     // Now we split the feature matrix in 3 second chunks (187 frames), call the classifier and then call voting subroutine
     size_t numFrames = stopIdx - startIdx;
 #ifdef STARTSTOP_KEEP_LAST_CHUNK
+    // Here we instruct the program to keep the last chunk of audio even if it's partly silent, meaning that
+    // stopIdx falls into the silent section of the recording
+    // As a rule, we keep the last chunk if it's at least 50% non-silent (math rounding)
+    // We make sure to do so only if the actual last index of the last chunk is < featvec.size()
     size_t numChunks = roundf((float)numFrames / FRAMES_IN_3_SECONDS);      // Take ceiling to include the last chunk even if it's 50% silent (math round)
-    numChunks = std::min(numChunks, featvec.size() / FRAMES_IN_3_SECONDS);  // If the last chunk is too small, then don't include it
-    //
+    // ERROR: BUg in next (commented) line of code!!!
+    // Basically, I was taking the minimum between the ceiling of the previous division and the length of the whole featvec chopped into 3 second chunks
+    // This is wrong because, instead of the while featvec, I should have used the featvec from startIdx to the very last index
+    // The error materializes when the last chunk arrives to the end of featvec, but is less than 3 seconds long, AND startIdx is > 0
+    // In this case, the last chunk was included, ending up in a non-existent index (because featvec had more silent space, but only at beginning), and the program crashed
+    // numChunks = std::min(numChunks, featvec.size() / FRAMES_IN_3_SECONDS);  // If the last chunk is too small, then don't include it
+    // fix:
+    size_t sizeFromStartToVeryLastIndex = featvec.size() - startIdx;
+    numChunks = std::min(numChunks, sizeFromStartToVeryLastIndex / FRAMES_IN_3_SECONDS); // If the last chunk is too small, then don't include it
+
+    size_t tmpwrong = roundf((float)numFrames / FRAMES_IN_3_SECONDS);      // Take ceiling to include the last chunk even if it's 50% silent (math round)
+    tmpwrong = std::min(tmpwrong, featvec.size() / FRAMES_IN_3_SECONDS);
+
+    if (numChunks != tmpwrong)
+        DBGLOG("Here the new fix took action");
+    // Just in case, we check that the last index of the last chunk is < featvec.size(), This should not be needed now:
+    while (numChunks * FRAMES_IN_3_SECONDS + startIdx > featvec.size()){
+        DBGLOG("Warning, safety kicking in on audio chunking, check the code because it should not happen");
+        numChunks--;
+    }    
 #else
     size_t numChunks = numFrames / FRAMES_IN_3_SECONDS;
 #endif
@@ -653,6 +688,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
     appendToGUIstate("\nSplitting into " + std::to_string(numChunks) + " chunks of 3 seconds each");
 
     std::vector<std::vector<float>> res;
+    DBGLOG("Resizing res to " + std::to_string(numChunks) + " chunks");
     res.resize(numChunks);
     appendToGUIstate("\nPer Chunk winners: [ ");
 
@@ -663,9 +699,24 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
     outputLabels.clear();
     outputLabelsInt.clear();
 
+    std::cout << "Classifying..." << std::endl;
     for (size_t i = 0; i < numChunks; ++i) {
+        
+        std::cout << "Chunk ["+std::to_string(i+1)+"/"+std::to_string(numChunks)+"]" << std::endl;
         res.at(i).resize(NUM_EMOTIONS);
-        if (_verbose) std::cout << "Classifying chunk " << i << " which goes from " << (i)*FRAMES_IN_3_SECONDS + startIdx << " to " << (i + 1) * FRAMES_IN_3_SECONDS + startIdx << std::endl;
+        // if (_verbose) std::cout << "Classifying chunk " << i << " which goes from " << (i)*FRAMES_IN_3_SECONDS + startIdx << " to " << (i + 1) * FRAMES_IN_3_SECONDS + startIdx << std::endl;
+        if (_verbose) DBGLOG("Classifying chunk " + std::to_string(i) + " which goes from " + std::to_string((i)*FRAMES_IN_3_SECONDS + startIdx) + " to " + std::to_string((i + 1) * FRAMES_IN_3_SECONDS + startIdx));
+        if ((i + 1) * FRAMES_IN_3_SECONDS + startIdx > featvec.size())
+        {
+            std::cout << "Warning, safety kicking in on audio chunking, check the code because it should not happen" << std::endl;
+            try {
+                res.resize(i);
+            } catch (std::exception &e) {
+                std::cout << "Error: could not resize res: '" << e.what() << "'" << std::endl;
+                return;
+            }
+            break;
+        }
         classifyChunk(std::vector<std::vector<float>>(featvec.begin() + (i)*FRAMES_IN_3_SECONDS + startIdx, featvec.begin() + (i + 1) * FRAMES_IN_3_SECONDS + startIdx), res.at(i));
         // Check if the result is ambivalent or only one class prevails (if the result is ambivalent, the resultBest vector will contain true values corresponding the emotions that fall into the thresholdDistance distance)
         ambivalentRes(res.at(i), this->topPredictedEmotions);
@@ -702,6 +753,8 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
     }
     appendToGUIstate("]");
 
+    std::cout << "Done." << std::endl;
+
     // Now we call the voting subroutine, which will return either a single int >= 0 or -1 if ambivalent (in this case, the resultBest vector will contain true values corresponding the emotions that fall into the thresholdDistance distance)
     int result = ambivalentSoftVoting(res, this->NUM_EMOTIONS, this->topPredictedEmotions);
 
@@ -737,7 +790,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
         lastEndTime = endTime;
         // float startTime = (startIdx * SD_HOP_SIZE / (float)SD_SAMPLERATE) + (i * 3.0f);
         // float endTime = startTime + 3.0f;
-        if (_verbose) std::cout << "Labeling chunk " << i << " which goes from " << startTime << " to " << endTime << std::endl;
+        if (_verbose) DBGLOG("Labeling chunk " + std::to_string(i) + " which goes from " + std::to_string(startTime) + " to " + std::to_string(endTime));
         emotionLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + allPerChunkEmotions[i] + "\n";
         softmaxLabels += std::to_string(startTime) + "\t" + std::to_string(endTime) + "\t" + softmaxOutsPrintable[i] + "\n";
     }
@@ -748,7 +801,7 @@ void ECProcessor::extractAndClassify(std::string audioFilePath, bool _verbose) {
     // std::cout << softmaxLabels << std::endl;
 
     std::replace( topemo.begin(), topemo.end(), '/', '+'); 
-    std::cout << "\"" << topemo << "\"" << std::endl;
+    // std::cout << "Result: \"" << topemo << "\"" << std::endl;
 
     // remove extension from audioFilePath, append -audacity-emotion-labels.txt and write emotionLabels
     std::string audacityEmotionLabelsFilePath = audioFilePath.substr(0, audioFilePath.find_last_of(".")) + "-res"+topemo+"-audacity-emotion-labels.txt";
@@ -833,19 +886,19 @@ void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
     if (tree.isValid() == false)
         return;
 
-    // DBG("Reading XML:");
-    // DBG(tree.toXmlString());
+    // DBGLOG("Reading XML:");
+    // DBGLOG(tree.toXmlString());
 
     valueTreeState.replaceState(tree);
 
     Value saveFolderPath = valueTreeState.state.getPropertyAsValue("REC_SAVEPATH", nullptr, true);
     // saveFolderPath.setValue(saveFolder.getFullPathName()); // Writing the XML after this should show the "foobar.midi"
-    // DBG("Save folder path: " + saveFolderPath.getValue().toString());
+    // DBGLOG("Save folder path: " + saveFolderPath.getValue().toString());
     juce::File tmpSaveFolder(saveFolderPath.getValue().toString());
     if (tmpSaveFolder.exists() && tmpSaveFolder.isDirectory()) {
         this->setSaveFolder(File(saveFolderPath.getValue().toString()));
     } else {
-        DBG("Save folder path does not exist");
+        DBGLOG("Save folder path does not exist");
     }
 
     // Same for Model path "SV_MODEL_PATH"
@@ -854,7 +907,7 @@ void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
 
     // if restoredModelPath is empty do nothing
     if (restoredModelPath.empty()) {
-        DBG("Model path is empty");
+        DBGLOG("Model path is empty");
     } else {
         if (restoredModelPath == "BINARY_" + this->ELECTRIC_GUITAR_MODELNAME) {
             this->loadModelFromBinaryData(this->ELECTRIC_GUITAR_MODELNAME);
@@ -863,9 +916,9 @@ void ECProcessor::setStateInformation(const void *data, int sizeInBytes) {
         } else if (restoredModelPath == "BINARY_" + this->PIANO_MODELNAME) {
             this->loadModelFromBinaryData(this->PIANO_MODELNAME);
         } else if (this->loadModel(restoredModelPath)) {
-            DBG("Model loaded successfully");
+            DBGLOG("Model loaded successfully");
         } else {
-            DBG("Model loading failed");
+            DBGLOG("Model loading failed");
         }
     }
 }

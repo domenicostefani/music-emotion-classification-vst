@@ -56,17 +56,21 @@ def reply_handshake(addr, *args):
         MY_IP = args[0]
         CONTROLLER_IP = args[1]
         # print("Received pyshake from {}, telling me that my IP is {}".format(CONTROLLER_IP, MY_IP))
-        if CLIENT== None:
-            # print("Since it's the first time, I'll send a pyshake back to the controller (\"{}\") on port {}".format(CONTROLLER_IP,TX_PORT))
-            CLIENT= SimpleUDPClient(CONTROLLER_IP, TX_PORT)
-            print("Sending pyshake back to the controller (\"{}\") on port {}".format(CONTROLLER_IP,TX_PORT))
-            CLIENT.send_message("/pyshake", "hello")
-            assert CLIENT!= None
-        else:
-            print(
-                "I already know my IP, so I won't send a pyshake back to the controller"
-            )
-            print(str(CLIENT))
+        # if CLIENT== None:
+        #     # print("Since it's the first time, I'll send a pyshake back to the controller (\"{}\") on port {}".format(CONTROLLER_IP,TX_PORT))
+        #     CLIENT= SimpleUDPClient(CONTROLLER_IP, TX_PORT)
+        #     print("Sending pyshake back to the controller (\"{}\") on port {}".format(CONTROLLER_IP,TX_PORT))
+        #     CLIENT.send_message("/pyshake", "hello")
+        #     assert CLIENT!= None
+        # else:
+        #     print(
+        #         "I already know my IP, so I won't send a pyshake back to the controller"
+        #     )
+        #     print(str(CLIENT))
+        CLIENT= SimpleUDPClient(CONTROLLER_IP, TX_PORT)
+        print("Sending pyshake back to the controller (\"{}\") on port {}".format(CONTROLLER_IP,TX_PORT))
+        CLIENT.send_message("/pyshake", "hello")
+        assert CLIENT!= None
 
 
 def start_plugin(addr, *args):
@@ -91,7 +95,8 @@ def stop_plugin(addr, *args):
     if len(args) == 0 and CLIENT!= None:
         os.system(BASH_STOP)
         ALREADY_RUNNING = False
-        CLIENT.send_message("/stopped","1")
+        if not CLIENT == None:
+            CLIENT.send_message("/stopped","1")
 
 
 def disconnect(addr, *args):
@@ -193,6 +198,8 @@ def setDate(addr, *args):
     
     if len(args) == 6 and CLIENT!= None:
         command = 'sudo date -s "'+str(args[2])+ ' ' + month_num2str[args[1]].upper()+' '+str(args[0])+' '+str(args[3])+':'+str(args[4])+':'+str(args[5])+'"'
+
+        command = 'ssh -t root@localhost \''+command+'\''
         print("command:",command)
         os.system(command)
 
@@ -204,10 +211,10 @@ def setCopyDetails(addr, *args):
         print("received " + addr + " " + " ".join([str(x) for x in args]))
         COPY_DETAILS = args[0]
 
-        testfilename = "./you_are_connected_at_time_"+time.strftime("%Y%m%d-%H%M%S")+".txt"
-        os.system("echo hurray > "+testfilename)
-        os.system("scp "+testfilename+" "+COPY_DETAILS)
-        os.system("rm "+testfilename)
+        # testfilename = "./you_are_connected_at_time_"+time.strftime("%Y%m%d-%H%M%S")+".txt"
+        # os.system("echo hurray > "+testfilename)
+        # os.system("scp "+testfilename+" "+COPY_DETAILS)
+        # os.system("rm "+testfilename)
 
 def setCopyRenamed(addr, *args):
     global CLIENT
