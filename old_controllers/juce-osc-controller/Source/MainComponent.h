@@ -13,8 +13,9 @@
 #include "OSCreceiver.h"
 #include "led.h"
 #include "levelMeter.h"
+#include "emotional_db.h"
 
-class MainComponent : public Component, public Button::Listener {
+class MainComponent : public Component, public juce::Button::Listener, public juce::Slider::Listener {
 public:
     //==============================================================================
     MainComponent();
@@ -24,17 +25,17 @@ public:
     void paint(Graphics &) override;
     void resized() override;
 
-    TextButton connectBtn;
-    // TextEditor oscIp, oscPort1, oscPort2, filename;
+    juce::TextButton connectBtn, termBtn;
+    juce::TextEditor termText;
 
     const int OSC_SEND_PORT_1_TOSERVER = 6042,
               OSC_SEND_PORT_2_TOPLUGIN = 8042,
               OSC_SEND_PORT_3_TOSUSHI = 24024;
 
-    Label instrumentLabel;
+    juce::Label instrumentLabel;
 
-    TextEditor boardIpText, controllerIpText;
-    Label boardIpLabel, controllerIpLabel;
+    juce::TextEditor boardIpText, controllerIpText;
+    juce::Label boardIpLabel, controllerIpLabel;
 
     const int RX_PORT_SERVER = 7042,
               RX_PORT_PLUGIN = 9042;
@@ -43,17 +44,18 @@ public:
     void oscMessageReceived(const juce::OSCMessage &message);
     void setButtonsEnabled(bool enable);
     void setIPFieldsEnabled(bool enable);
+    void setRecCommandsEnabled(bool enable);
     bool waitForHandshakeWithServer = false, waitForHandshakeWithPlugin = false;
 
-    Slider gainSlider, silenceSlider;
-    Label gainLabel, silenceLabel, silenceThresholdLabel;
+    juce::Slider gainSlider, silenceSlider;
+    juce::Label gainLabel, silenceLabel, silenceThresholdLabel;
     Gui::LevelMeter meter;
     float getOscInLevel() const;
     Gui::Led silenceLed;
     bool getOscIsSilent() const;
 
-    TextButton startBtn, stopBtn;
-    Label statusLabel;
+    juce::TextButton startBtn, stopBtn;
+    juce::Label statusLabel;
     void showStatus(int status);  // 0 = disconnected, 1 = idle, 2 = recording, 3 = classifying
 
     class ReturnedEmotion {
@@ -80,10 +82,18 @@ public:
             // 0010 = happy
             // 0001 = sad
             // Combinations allowed
+            resetAll();
             if (oneHotCode & 0b1000) aggressive = true;
             if (oneHotCode & 0b0100) relaxed = true;
             if (oneHotCode & 0b0010) happy = true;
             if (oneHotCode & 0b0001) sad = true;
+        }
+
+        void resetAll() {
+            aggressive = false;
+            relaxed = false;
+            happy = false;
+            sad = false;
         }
 
         ReturnedEmotion(bool aggressive = false,
@@ -109,20 +119,24 @@ public:
         bool getSad() const { return sad; }
     } returnedEmotion;
     Gui::Led emoAggressiveLed, emoRelaxedLed, emoHappyLed, emoSadLed;
-    Label emoAggressiveLabel, emoRelaxedLabel, emoHappyLabel, emoSadLabel;
+    juce::Label emoAggressiveLabel, emoRelaxedLabel, emoHappyLabel, emoSadLabel;
     void getOscEmotion(bool &agg, bool &rel, bool &hap, bool &sad);
-    Label resultErrorLabel;
+    juce::Label resultErrorLabel;
 
-    TextButton playExcerptBtn;
+    juce::TextButton playExcerptBtn;
 
-    Rectangle<int> origEmoArea, resultStatusArea, wholearea, basearea;
+    juce::Rectangle<int> origEmoArea, resultStatusArea, wholearea, basearea,originalDatabaseArea;
 
-    TextButton renameBtn, nextFilenameBtn, prevFilenameBtn;
-    TextEditor filename;
+    juce::TextButton renameBtn, nextFilenameBtn, prevFilenameBtn;
+    Gui::SimpleLed renamerLed;
+    juce::Label renamerStatus;
+    juce::TextButton openExplorer; // sftp://mind@10.42.0.47/udata
+    juce::TextEditor filename;
 
-    Label fileCounterLabel;
+    juce::Label fileCounterLabel;
 
-    void buttonClicked(Button *button);
+    void buttonClicked(juce::Button *button);
+    void sliderValueChanged(juce::Slider *slider);
 
     void showConnectionErrorMessage(const juce::String &messageText) {
         juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon,
@@ -149,9 +163,14 @@ public:
 
     PollingTimer pluginHandshakePoller{[this] { sendPluginHandshakePollingRoutine(); }};
 
+    bool oscSaysSilent = true;
+    float oscSaysMeter = -80.0f;
+
+
+
 private:
     //==============================================================================
-    juce::OSCSender recstateSender, renamingSender, oscSender1_toserver, oscSender2_toPlugin;
+    juce::OSCSender oscSender1_toserver, oscSender2_toPlugin, oscSender3_toSushi;
     bool isConnectionMade = false;
     std::vector<std::string> read_names_csv(std::string filename);
 
@@ -159,6 +178,10 @@ private:
     void switchToPrevFilename();
     int filenameCounter = -1;
     std::vector<std::string> readnames;
+
+    void setBoardDateTime();
+    bool dateSetOnce = false;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

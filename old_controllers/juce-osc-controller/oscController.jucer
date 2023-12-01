@@ -4,6 +4,9 @@
               displaySplashScreen="1" jucerFormatVersion="1" postExportShellCommandPosix="echo &quot;make CONFIG=&quot;ReleaseElectric&quot;\nmv build/Controller-EmotionAwareSMIs build/electricGuitar-controller\nmake CONFIG=&quot;ReleasePiano&quot;\nmv build/Controller-EmotionAwareSMIs build/piano-controller&quot;&gt;%%1%%/Builds/LinuxMakefile/compile.sh  &amp;&amp; chmod +x %%1%%/Builds/LinuxMakefile/compile.sh">
   <MAINGROUP id="ZnJKpZ" name="Controller-EmotionAwareSMIs">
     <GROUP id="{C52B6BC7-4CD7-6EB0-BEB9-921967A1BF11}" name="Source">
+      <FILE id="cQnWUe" name="led.h" compile="0" resource="0" file="Source/led.h"/>
+      <FILE id="Hnu3Nq" name="levelMeter.h" compile="0" resource="0" file="Source/levelMeter.h"/>
+      <FILE id="t8Nr2w" name="OSCreceiver.h" compile="0" resource="0" file="Source/OSCreceiver.h"/>
       <FILE id="IeFWXK" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="KdQ7Ai" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
