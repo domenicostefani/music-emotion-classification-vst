@@ -51,8 +51,9 @@ InitialComponent::InitialComponent(std::function<void(juce::String, juce::String
     auto now = juce::Time::getCurrentTime();
 
     defdayText = juce::String(now.getDayOfMonth());
-    defmonthText = juce::String(now.getMonth());
+    defmonthText = juce::String(now.getMonth()+1);
     defyearText = juce::String(now.getYear());
+
     dayText.setTextToShowWhenEmpty(defdayText, juce::Colours::lightgreen);
     monthText.setTextToShowWhenEmpty(defmonthText, juce::Colours::lightgreen);
     yearText.setTextToShowWhenEmpty(defyearText, juce::Colours::lightgreen);
