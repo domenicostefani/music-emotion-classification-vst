@@ -215,18 +215,22 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
             message[1].isInt32() &&
             message[2].isInt32() &&
             message[3].isInt32()) {
-            int resEmo = message[0].getInt32() * 1000 + message[1].getInt32() * 100 + message[2].getInt32() * 10 + message[3].getInt32();
-            std::cout << "-> emotion: " << resEmo << std::endl;
-            // if (resEmo == -1) {
-            //     resultErrorLabel.setText("Error: recording too int or silent", juce::dontSendNotification);
-            //     resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::red);
-            // } else {
+                
+            int resEmo = message[0].getInt32() * 0b1000 + 
+                         message[1].getInt32() * 0b100 + 
+                         message[2].getInt32() * 0b10 + 
+                         message[3].getInt32();
+
+            std::bitset<4> binemo(resEmo);
+            std::string toprintemo = binemo.to_string();
+            std::cout << "-> emotion: " << toprintemo << std::endl;
+
             openSaveWindow();
 
             if (!dontShowResultsBecauseTrash)
             {
                 resultErrorLabel.setColour(juce::Label::textColourId, juce::Colours::darkgreen);
-                resultErrorLabel.setText(juce::String("Received result ") + juce::String(std::to_string(resEmo)), juce::dontSendNotification);
+                resultErrorLabel.setText(juce::String("Received result ") + juce::String(toprintemo), juce::dontSendNotification);
                 returnedEmotion.set(resEmo);
 
                 aggrTog.setToggleState(returnedEmotion.getAggressive(), juce::dontSendNotification);
@@ -238,7 +242,7 @@ void MainComponent::oscMessageReceived(const juce::OSCMessage &message) {
             {
                 dontShowResultsBecauseTrash = false;
             }
-            }
+        }
     } else if (message.getAddressPattern() == juce::OSCAddressPattern("/renamed")) {
         if (message.size() == 1 && message[0].isString()) {
             auto arg = message[0].getString();

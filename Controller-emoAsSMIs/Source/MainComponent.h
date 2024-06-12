@@ -17,6 +17,7 @@
 #include "levelMeter.h"
 #include "saveComponent.h"
 #include "wavPlayer.h"
+#include <bitset>
 
 typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
@@ -120,6 +121,7 @@ public:
         }
 
         ReturnedEmotion(int oneHotCode) {
+            if (oneHotCode > 0b1111) throw std::runtime_error("Invalid one-hot code");
             set(oneHotCode);
         }
 
@@ -129,6 +131,8 @@ public:
             // 0010 = happy
             // 0001 = sad
             // Combinations allowed
+            if (oneHotCode > 0b1111) throw std::runtime_error("Invalid one-hot code");
+
             resetAll();
             if (oneHotCode & 0b1000) aggressive = true;
             if (oneHotCode & 0b0100) relaxed = true;
